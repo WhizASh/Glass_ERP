@@ -51,7 +51,7 @@ async function verifyDbConnection() {
     await Promise.race([
       prismaInstance.$connect(),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Database connection timeout after 2000ms")), 2000)
+        setTimeout(() => reject(new Error("Database connection timeout after 10000ms")), 10000)
       )
     ]);
     console.log("✅ Successfully connected to PostgreSQL via Prisma!");

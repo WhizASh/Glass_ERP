@@ -149,12 +149,12 @@ export default function AddEditItemModal({
 
         {/* Glass Specs (if applicable) */}
         {isGlass && (
-          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-cyan-400">Glass Dimensions & Specs</span>
+              <span className="text-xs font-semibold text-sky-700">Glass Dimensions & Specs</span>
               <select
                 onChange={handleStandardSizeSelect}
-                className="text-[11px] bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-300"
+                className="text-[11px] bg-white border border-slate-300 rounded px-2 py-1 text-slate-700"
               >
                 <option value="">Standard Sheet Preset...</option>
                 {STANDARD_SHEET_SIZES.map((s, idx) => (
@@ -245,7 +245,7 @@ export default function AddEditItemModal({
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+        <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
           <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

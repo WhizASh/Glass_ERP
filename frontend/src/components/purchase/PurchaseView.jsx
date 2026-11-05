@@ -57,10 +57,10 @@ export default function PurchaseView({ isNewModalOpen, setIsNewModalOpen }) {
       {/* Top Header & Metrics Banner */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-100 tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Raw Material Procurement & PO Receipts
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Log float glass packs, PVB interlayer rolls, sealants, and track supplier invoices
           </p>
         </div>
@@ -82,17 +82,17 @@ export default function PurchaseView({ isNewModalOpen, setIsNewModalOpen }) {
 
       {/* Summary Chips */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass-card p-4 border border-slate-800 bg-slate-900/60">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Purchases Logged</span>
-          <div className="text-xl font-bold text-white mt-1">{purchases.length} Orders</div>
+        <div className="glass-card p-4 border border-slate-200/90 bg-white shadow-xs">
+          <span className="text-xs text-slate-500 uppercase font-semibold">Total Purchases Logged</span>
+          <div className="text-xl font-bold text-slate-900 mt-1">{purchases.length} Orders</div>
         </div>
-        <div className="glass-card p-4 border border-slate-800 bg-slate-900/60">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Procurement Spend</span>
-          <div className="text-xl font-bold text-emerald-400 mt-1">{formatCurrency(totalSpent)}</div>
+        <div className="glass-card p-4 border border-slate-200/90 bg-white shadow-xs">
+          <span className="text-xs text-slate-500 uppercase font-semibold">Total Procurement Spend</span>
+          <div className="text-xl font-bold text-emerald-600 mt-1">{formatCurrency(totalSpent)}</div>
         </div>
-        <div className="glass-card p-4 border border-slate-800 bg-slate-900/60">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Active Glass Suppliers</span>
-          <div className="text-xl font-bold text-cyan-400 mt-1">{suppliers.length} Vendors</div>
+        <div className="glass-card p-4 border border-slate-200/90 bg-white shadow-xs">
+          <span className="text-xs text-slate-500 uppercase font-semibold">Active Glass Suppliers</span>
+          <div className="text-xl font-bold text-sky-600 mt-1">{suppliers.length} Vendors</div>
         </div>
       </div>
 

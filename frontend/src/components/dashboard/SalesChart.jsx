@@ -15,13 +15,13 @@ import { formatCurrency } from '../../utils/formatters';
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl text-xs">
-        <p className="font-semibold text-slate-200 mb-1">{label}</p>
-        <p className="text-cyan-400 font-medium">
+      <div className="bg-white border border-slate-200 p-3 rounded-lg shadow-lg text-xs">
+        <p className="font-semibold text-slate-800 mb-1">{label}</p>
+        <p className="text-sky-600 font-medium">
           Revenue: {formatCurrency(payload[0].value)}
         </p>
         {payload[1] && (
-          <p className="text-emerald-400 font-medium">
+          <p className="text-emerald-600 font-medium">
             Volume: {payload[1].value} m²
           </p>
         )}
@@ -56,15 +56,15 @@ export default function SalesChart({ fetchSalesChart }) {
       subtitle="Total turnover and fabricated square meters output"
       icon={TrendingUp}
       action={
-        <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+        <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
           {['week', 'month', 'year'].map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-3 py-1 rounded-md capitalize font-medium transition-all ${
                 period === p
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-sky-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {p}
@@ -75,11 +75,11 @@ export default function SalesChart({ fetchSalesChart }) {
     >
       <div className="h-72 w-full pt-4">
         {isLoading ? (
-          <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+          <div className="h-full flex items-center justify-center text-slate-400 text-sm">
             Loading sales trends...
           </div>
         ) : chartData.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+          <div className="h-full flex items-center justify-center text-slate-400 text-sm">
             No chart data available for this timeframe
           </div>
         ) : (
@@ -87,15 +87,15 @@ export default function SalesChart({ fetchSalesChart }) {
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#0284c7" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#0284c7" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis dataKey="label" stroke="#64748b" fontSize={11} tickLine={false} />
               <YAxis
                 stroke="#64748b"
@@ -109,7 +109,7 @@ export default function SalesChart({ fetchSalesChart }) {
                 type="monotone"
                 dataKey="revenue"
                 name="Revenue"
-                stroke="#06b6d4"
+                stroke="#0284c7"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#colorRevenue)"

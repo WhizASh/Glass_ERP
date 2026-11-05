@@ -192,21 +192,21 @@ export default function PurchaseFormModal({
         </div>
 
         {/* Live Calculation Preview Banner */}
-        <div className="rounded-xl bg-slate-950 border border-slate-800 p-4 flex items-center justify-between">
+        <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400">Net Calculated Inward Value</span>
+            <span className="text-xs text-slate-600 font-medium">Net Calculated Inward Value</span>
             <div className="text-xs text-slate-500 mt-0.5">
               Subtotal: {formatCurrency(subtotal)} + Tax ({taxPercent}%): {formatCurrency(taxAmount)}
             </div>
           </div>
           <div className="text-right">
-            <span className="text-xl font-bold text-emerald-400">
+            <span className="text-xl font-bold text-emerald-600 font-mono">
               {formatCurrency(totalAmount)}
             </span>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+        <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
           <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

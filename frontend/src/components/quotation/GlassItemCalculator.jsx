@@ -66,12 +66,12 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
   return (
     <div className="space-y-4">
       {/* Precision Calculator Panel */}
-      <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-lg space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-          <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+          <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
             <Calculator className="w-4 h-4" /> Glass Spec Calculator & Pricing Engine
           </span>
-          <span className="text-[11px] text-slate-400">Dimensions in millimeters (mm)</span>
+          <span className="text-[11px] text-slate-500">Dimensions in millimeters (mm)</span>
         </div>
 
         {/* Glass Type & Thickness */}
@@ -141,24 +141,24 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
         </div>
 
         {/* Live Metrics & Cost Preview Ribbon */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-lg bg-white border border-slate-200 text-xs shadow-2xs">
           <div>
             <span className="text-slate-500 block">Unit Surface Area</span>
-            <span className="font-semibold text-slate-200">{formatArea(liveCalc.areaSqm)}</span>
+            <span className="font-semibold text-slate-800">{formatArea(liveCalc.areaSqm)}</span>
           </div>
           <div>
             <span className="text-slate-500 block">Edge Perimeter</span>
-            <span className="font-semibold text-slate-200">{liveCalc.perimeterM} linear m</span>
+            <span className="font-semibold text-slate-800">{liveCalc.perimeterM} linear m</span>
           </div>
           <div>
             <span className="text-slate-500 block">Total Est. Weight</span>
-            <span className="font-semibold text-slate-200">
+            <span className="font-semibold text-slate-800">
               {formatWeight(liveCalc.weightKg * (Number(quantity) || 1))}
             </span>
           </div>
           <div className="text-right">
             <span className="text-slate-500 block">Line Item Total</span>
-            <span className="text-base font-bold text-cyan-400">
+            <span className="text-base font-bold text-sky-700 font-mono">
               {formatCurrency(liveCalc.lineTotal)}
             </span>
           </div>
@@ -174,13 +174,13 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
 
       {/* Added Line Items Table */}
       {items.length > 0 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/60 overflow-hidden">
-          <div className="px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs font-semibold text-slate-300">
+        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
+          <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-700">
             Quotation Line Items ({items.length})
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
+              <thead className="bg-slate-50/70 text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="px-4 py-2 font-medium">Glass Specification</th>
                   <th className="px-4 py-2 font-medium">Dimensions</th>
@@ -192,41 +192,41 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
                   <th className="px-4 py-2 font-medium text-center">Remove</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {items.map((item, index) => (
-                  <tr key={item.id || index} className="hover:bg-slate-900/40">
-                    <td className="px-4 py-2.5 font-medium text-slate-200">
+                  <tr key={item.id || index} className="hover:bg-slate-50/80">
+                    <td className="px-4 py-2.5 font-medium text-slate-900">
                       {item.glassTypeName || item.glassType}
                       <span className="block text-[10px] text-slate-500">{item.thicknessMm}mm</span>
                     </td>
-                    <td className="px-4 py-2.5 text-slate-300">
+                    <td className="px-4 py-2.5 text-slate-700 font-mono">
                       {item.widthMm} × {item.heightMm} mm
                     </td>
-                    <td className="px-4 py-2.5 text-slate-400">
+                    <td className="px-4 py-2.5 text-slate-600">
                       {formatArea(item.areaSqM)}
                     </td>
-                    <td className="px-4 py-2.5 text-slate-400">
+                    <td className="px-4 py-2.5 text-slate-600">
                       <div>{item.edgeWorkName || item.edgeWork}</div>
                       {item.holesCount > 0 && (
-                        <span className="text-[10px] text-cyan-400">
+                        <span className="text-[10px] text-sky-700 font-semibold">
                           {item.holesCount} CNC hole(s)
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-center font-semibold text-slate-200">
+                    <td className="px-4 py-2.5 text-center font-semibold text-slate-900">
                       {item.quantity}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-slate-300 font-mono">
+                    <td className="px-4 py-2.5 text-right text-slate-700 font-mono">
                       {formatCurrency(item.unitPrice)}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-bold text-cyan-400 font-mono">
+                    <td className="px-4 py-2.5 text-right font-bold text-slate-900 font-mono">
                       {formatCurrency(item.lineTotal)}
                     </td>
                     <td className="px-4 py-2.5 text-center">
                       <button
                         type="button"
                         onClick={() => onRemoveItem(index)}
-                        className="text-rose-400 hover:text-rose-300 p-1 rounded hover:bg-slate-800"
+                        className="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

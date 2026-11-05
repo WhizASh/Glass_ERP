@@ -28,10 +28,10 @@ export default function InventoryTable({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 shadow-xl">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/80 uppercase text-slate-400 border-b border-slate-800">
+          <thead className="bg-slate-50 uppercase text-slate-500 border-b border-slate-200">
             <tr>
               <th className="px-5 py-3 font-semibold">SKU</th>
               <th className="px-5 py-3 font-semibold">Item & Dimensions</th>
@@ -43,16 +43,16 @@ export default function InventoryTable({
               <th className="px-5 py-3 font-semibold text-center">Manage</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {items.map((item) => (
-              <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="px-5 py-3.5 font-mono font-semibold text-cyan-400">
+              <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                <td className="px-5 py-3.5 font-mono font-semibold text-sky-600">
                   {item.sku}
                 </td>
                 <td className="px-5 py-3.5">
-                  <div className="font-semibold text-slate-200">{item.name}</div>
+                  <div className="font-semibold text-slate-900">{item.name}</div>
                   {item.widthMm && item.heightMm ? (
-                    <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                    <div className="text-[11px] text-slate-500 font-mono mt-0.5">
                       {formatDimensions(item.widthMm, item.heightMm, item.thicknessMm)}
                     </div>
                   ) : null}
@@ -65,10 +65,10 @@ export default function InventoryTable({
                     unit={item.unitOfMeasure}
                   />
                 </td>
-                <td className="px-5 py-3.5 text-right font-mono text-slate-300">
+                <td className="px-5 py-3.5 text-right font-mono text-slate-600">
                   {formatCurrency(item.unitCost)}
                 </td>
-                <td className="px-5 py-3.5 text-right font-mono font-semibold text-cyan-400">
+                <td className="px-5 py-3.5 text-right font-mono font-semibold text-slate-900">
                   {formatCurrency(item.unitPrice)}
                 </td>
                 <td className="px-5 py-3.5">
@@ -79,15 +79,15 @@ export default function InventoryTable({
                     <button
                       type="button"
                       onClick={() => onEditItem(item)}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors"
                       title="Edit Catalog Item"
                     >
-                      <Edit2 className="w-3.5 h-3.5 text-slate-300" />
+                      <Edit2 className="w-3.5 h-3.5 text-slate-600" />
                     </button>
                     <button
                       type="button"
                       onClick={() => onAdjustItem(item)}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-amber-950/80 text-amber-400 border border-slate-700 hover:border-amber-700/60 transition-colors"
+                      className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition-colors"
                       title="Stock Audit / Record Cullet Breakage"
                     >
                       <ShieldAlert className="w-3.5 h-3.5" />
@@ -99,7 +99,7 @@ export default function InventoryTable({
 
             {items.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-5 py-12 text-center text-slate-500 text-sm">
+                <td colSpan={8} className="px-5 py-12 text-center text-slate-400 text-sm">
                   No inventory items found matching current filters.
                 </td>
               </tr>

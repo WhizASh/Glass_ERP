@@ -23,9 +23,9 @@ export default function Select({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={selectId} className="block text-xs font-medium text-slate-300 mb-1">
+        <label htmlFor={selectId} className="block text-xs font-medium text-slate-700 mb-1">
           {label}
-          {required && <span className="text-rose-400 ml-1">*</span>}
+          {required && <span className="text-rose-500 ml-1">*</span>}
         </label>
       )}
       <div className="relative">
@@ -35,15 +35,15 @@ export default function Select({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className={`block w-full appearance-none rounded-lg text-sm bg-slate-900 border px-3 py-2 pr-8 text-slate-100 focus:outline-none focus:ring-2 transition-all ${
+          className={`block w-full appearance-none rounded-lg text-sm bg-white border px-3 py-2 pr-8 text-slate-900 focus:outline-none focus:ring-2 transition-all ${
             error
-              ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
-              : 'border-slate-700/80 focus:border-cyan-500 focus:ring-cyan-500/20'
-          } ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-800' : ''}`}
+              ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20'
+              : 'border-slate-300 focus:border-sky-500 focus:ring-sky-500/20'
+          } ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' : ''}`}
           {...props}
         >
           {placeholder && (
-            <option value="" disabled className="bg-slate-900 text-slate-500">
+            <option value="" disabled className="bg-white text-slate-400">
               {placeholder}
             </option>
           )}
@@ -52,7 +52,7 @@ export default function Select({
             const val = isObject ? opt.value ?? opt.id : opt;
             const text = isObject ? opt.label ?? opt.name : opt;
             return (
-              <option key={String(val)} value={val} className="bg-slate-900 text-slate-100 py-1">
+              <option key={String(val)} value={val} className="bg-white text-slate-900 py-1">
                 {text}
               </option>
             );
@@ -69,9 +69,9 @@ export default function Select({
         </div>
       </div>
       {error ? (
-        <p className="mt-1 text-xs text-rose-400">{error}</p>
+        <p className="mt-1 text-xs text-rose-500">{error}</p>
       ) : helperText ? (
-        <p className="mt-1 text-xs text-slate-400">{helperText}</p>
+        <p className="mt-1 text-xs text-slate-500">{helperText}</p>
       ) : null}
     </div>
   );

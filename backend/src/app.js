@@ -16,8 +16,31 @@ const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
+// Configurable CORS Configuration
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+  : ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173"];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests (mobile, server-to-server, curl) or if wildcard is configured
+    if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // Allow any localhost / 127.0.0.1 port in non-production environments
+    if (process.env.NODE_ENV !== "production" && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS policy blocked request from origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
 // Global Middlewares
-app.use(cors());
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

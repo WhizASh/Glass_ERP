@@ -15,8 +15,8 @@ export default function QuotationSummary({
   const grandTotal = Math.max(0, Number(subtotal) + taxAmount - Number(discount || 0));
 
   return (
-    <div className="rounded-xl bg-slate-900 border border-slate-800 p-4 space-y-4">
-      <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+    <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-4">
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
         Billing & Taxes Breakdown
       </h4>
 
@@ -41,7 +41,7 @@ export default function QuotationSummary({
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-slate-300 mb-1">
+        <label className="block text-xs font-medium text-slate-700 mb-1">
           Quotation Notes / Architectural Project Terms
         </label>
         <textarea
@@ -49,29 +49,29 @@ export default function QuotationSummary({
           value={notes}
           onChange={(e) => onChangeNotes(e.target.value)}
           placeholder="e.g. Delivery included to site crane. All tempered glass conforms to EN 12150 standard."
-          className="w-full text-xs rounded-lg bg-slate-950 border border-slate-700/80 p-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+          className="w-full text-xs rounded-lg bg-white border border-slate-300 p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
         />
       </div>
 
       {/* Financial Summary */}
-      <div className="border-t border-slate-800 pt-3 space-y-1.5 text-xs">
-        <div className="flex justify-between text-slate-400">
+      <div className="border-t border-slate-200 pt-3 space-y-1.5 text-xs">
+        <div className="flex justify-between text-slate-500">
           <span>Glass Fabrication Subtotal:</span>
-          <span className="font-mono text-slate-200">{formatCurrency(subtotal)}</span>
+          <span className="font-mono text-slate-800">{formatCurrency(subtotal)}</span>
         </div>
-        <div className="flex justify-between text-slate-400">
+        <div className="flex justify-between text-slate-500">
           <span>Taxes ({taxPercent}%):</span>
-          <span className="font-mono text-slate-200">{formatCurrency(taxAmount)}</span>
+          <span className="font-mono text-slate-800">{formatCurrency(taxAmount)}</span>
         </div>
         {Number(discount) > 0 && (
-          <div className="flex justify-between text-emerald-400">
+          <div className="flex justify-between text-emerald-600 font-medium">
             <span>Special Project Discount:</span>
             <span className="font-mono">-{formatCurrency(discount)}</span>
           </div>
         )}
-        <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-slate-800">
+        <div className="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-200">
           <span>Grand Total Payable:</span>
-          <span className="font-mono text-cyan-400 text-base">{formatCurrency(grandTotal)}</span>
+          <span className="font-mono text-sky-700 text-base">{formatCurrency(grandTotal)}</span>
         </div>
       </div>
     </div>

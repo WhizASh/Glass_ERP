@@ -114,10 +114,10 @@ export default function QuotationView({ isCreatingNew, setIsCreatingNew, selecte
       {/* Top Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-100 tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Precision Glass Estimations & Quotations
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Formulate custom glass quotes by $m^2$, thickness, edge grinding/polishing, and CNC operations
           </p>
         </div>
@@ -196,7 +196,7 @@ export default function QuotationView({ isCreatingNew, setIsCreatingNew, selecte
                 onChangeNotes={setNotes}
               />
 
-              <div className="pt-4 mt-4 border-t border-slate-800">
+              <div className="pt-4 mt-4 border-t border-slate-200">
                 <Button
                   variant="primary"
                   className="w-full"

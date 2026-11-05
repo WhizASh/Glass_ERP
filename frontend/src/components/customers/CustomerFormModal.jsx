@@ -67,14 +67,14 @@ export default function CustomerFormModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Type toggle */}
-        <div className="flex gap-2 p-1 rounded-lg bg-slate-950 border border-slate-800 w-fit">
+        <div className="flex gap-2 p-1 rounded-lg bg-slate-100 border border-slate-200 w-fit">
           <button
             type="button"
             onClick={() => setFormData({ ...formData, type: 'ORGANIZATION' })}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all ${
               formData.type === 'ORGANIZATION'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-sky-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Building className="w-3.5 h-3.5" /> Organization / Firm
@@ -84,8 +84,8 @@ export default function CustomerFormModal({
             onClick={() => setFormData({ ...formData, type: 'INDIVIDUAL' })}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all ${
               formData.type === 'INDIVIDUAL'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-sky-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <User className="w-3.5 h-3.5" /> Individual Client
@@ -151,7 +151,7 @@ export default function CustomerFormModal({
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+        <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
           <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

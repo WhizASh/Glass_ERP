@@ -28,10 +28,11 @@ export default function DashboardView({
         api.getTopProduce(),
         api.getRecentActivity(),
       ]);
-      setSummary(sum || {});
-      setTopProduce(top || []);
-      setRecentQuotes(act?.recentQuotations || []);
-      setRecentPurchases(act?.recentPurchases || []);
+      setSummary(sum?.data || sum || {});
+      setTopProduce(Array.isArray(top) ? top : top?.data || []);
+      const activityData = act?.data || act || {};
+      setRecentQuotes(activityData.recentSales || activityData.recentQuotations || []);
+      setRecentPurchases(activityData.recentPurchases || []);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {

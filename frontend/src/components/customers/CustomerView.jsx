@@ -39,10 +39,10 @@ export default function CustomerView({ isAddModalOpen, setIsAddModalOpen }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-100 tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Client & Glazing Contractor Directory
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Maintain accounts for architectural firms, facade builders, and individual clients
           </p>
         </div>
@@ -67,17 +67,17 @@ export default function CustomerView({ isAddModalOpen, setIsAddModalOpen }) {
 
       {/* Stats row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass-card p-4 border border-slate-800 bg-slate-900/60">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Active Accounts</span>
-          <div className="text-xl font-bold text-white mt-1">{customers.length} Accounts</div>
+        <div className="glass-card p-4 border border-slate-200/90 bg-white shadow-xs">
+          <span className="text-xs text-slate-500 uppercase font-semibold">Total Active Accounts</span>
+          <div className="text-xl font-bold text-slate-900 mt-1">{customers.length} Accounts</div>
         </div>
-        <div className="glass-card p-4 border border-slate-800 bg-slate-900/60">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Commercial Organizations</span>
-          <div className="text-xl font-bold text-cyan-400 mt-1">{orgCount} Firms</div>
+        <div className="glass-card p-4 border border-slate-200/90 bg-white shadow-xs">
+          <span className="text-xs text-slate-500 uppercase font-semibold">Commercial Organizations</span>
+          <div className="text-xl font-bold text-sky-600 mt-1">{orgCount} Firms</div>
         </div>
-        <div className="glass-card p-4 border border-slate-800 bg-slate-900/60">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Individual Clients</span>
-          <div className="text-xl font-bold text-emerald-400 mt-1">{indCount} Clients</div>
+        <div className="glass-card p-4 border border-slate-200/90 bg-white shadow-xs">
+          <span className="text-xs text-slate-500 uppercase font-semibold">Individual Clients</span>
+          <div className="text-xl font-bold text-emerald-600 mt-1">{indCount} Clients</div>
         </div>
       </div>
 

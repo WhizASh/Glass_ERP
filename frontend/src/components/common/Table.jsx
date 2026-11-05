@@ -13,10 +13,10 @@ export default function Table({
   className = '',
 }) {
   return (
-    <div className={`w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg ${className}`}>
+    <div className={`w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs ${className}`}>
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="bg-slate-950/70 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+        <table className="w-full text-left text-sm text-slate-700">
+          <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
             <tr>
               {columns.map((col, idx) => (
                 <th
@@ -28,13 +28,13 @@ export default function Table({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <tr>
                 <td colSpan={columns.length} className="px-6 py-12 text-center text-slate-400">
                   <div className="flex items-center justify-center gap-2">
                     <svg
-                      className="animate-spin h-5 w-5 text-cyan-500"
+                      className="animate-spin h-5 w-5 text-sky-600"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -74,7 +74,7 @@ export default function Table({
                 return (
                   <tr
                     key={key}
-                    className="hover:bg-slate-800/40 transition-colors odd:bg-transparent even:bg-slate-900/30"
+                    className="hover:bg-slate-50/80 transition-colors odd:bg-white even:bg-slate-50/30"
                   >
                     {columns.map((col, cIdx) => (
                       <td

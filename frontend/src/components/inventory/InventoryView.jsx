@@ -63,10 +63,10 @@ export default function InventoryView({ isAddModalOpen, setIsAddModalOpen }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-100 tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Warehouse Inventory & Raw Float Management
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Real-time stock ledger, A-frame / rack mapping, and cullet scrap tracking
           </p>
         </div>
@@ -91,16 +91,16 @@ export default function InventoryView({ isAddModalOpen, setIsAddModalOpen }) {
 
       {/* Low stock warning banner if any */}
       {lowStockCount > 0 && (
-        <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-800/40 flex items-center justify-between text-xs text-amber-300">
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs text-amber-800 shadow-xs">
           <div className="flex items-center gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
               <strong>{lowStockCount} inventory items</strong> have fallen below safety reorder levels.
             </span>
           </div>
           <button
             onClick={() => setSearchTerm('')}
-            className="text-[11px] font-semibold text-amber-400 underline hover:text-amber-200"
+            className="text-[11px] font-semibold text-amber-700 underline hover:text-amber-900"
           >
             Review Restocking Needs
           </button>

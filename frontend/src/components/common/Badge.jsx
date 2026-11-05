@@ -11,23 +11,23 @@ export default function Badge({
   className = '',
 }) {
   const variantClasses = {
-    default: 'bg-slate-800 text-slate-300 border-slate-700',
-    primary: 'bg-cyan-950/70 text-cyan-400 border-cyan-800/60',
-    success: 'bg-emerald-950/70 text-emerald-400 border-emerald-800/60',
-    warning: 'bg-amber-950/70 text-amber-400 border-amber-800/60',
-    danger: 'bg-rose-950/70 text-rose-400 border-rose-800/60',
-    info: 'bg-blue-950/70 text-blue-400 border-blue-800/60',
-    purple: 'bg-purple-950/70 text-purple-400 border-purple-800/60',
+    default: 'bg-slate-100 text-slate-700 border-slate-200',
+    primary: 'bg-sky-50 text-sky-700 border-sky-200',
+    success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    warning: 'bg-amber-50 text-amber-700 border-amber-200',
+    danger: 'bg-rose-50 text-rose-700 border-rose-200',
+    info: 'bg-blue-50 text-blue-700 border-blue-200',
+    purple: 'bg-purple-50 text-purple-700 border-purple-200',
   };
 
   const dotClasses = {
-    default: 'bg-slate-400',
-    primary: 'bg-cyan-400',
-    success: 'bg-emerald-400',
-    warning: 'bg-amber-400',
-    danger: 'bg-rose-400',
-    info: 'bg-blue-400',
-    purple: 'bg-purple-400',
+    default: 'bg-slate-500',
+    primary: 'bg-sky-500',
+    success: 'bg-emerald-500',
+    warning: 'bg-amber-500',
+    danger: 'bg-rose-500',
+    info: 'bg-blue-500',
+    purple: 'bg-purple-500',
   };
 
   const sizeClasses = {

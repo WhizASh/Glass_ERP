@@ -16,7 +16,7 @@ export default function Button({
   ...props
 }) {
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+    'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed select-none';
 
   const sizeClasses = {
     sm: 'text-xs px-2.5 py-1.5 gap-1.5',
@@ -26,15 +26,15 @@ export default function Button({
 
   const variantClasses = {
     primary:
-      'bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white shadow-lg shadow-cyan-900/30 focus:ring-cyan-500 border border-cyan-500/30',
+      'bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white shadow-xs focus:ring-sky-500 border border-sky-600',
     secondary:
-      'bg-slate-800 hover:bg-slate-700 active:bg-slate-750 text-slate-200 border border-slate-700 focus:ring-slate-500 shadow-sm',
+      'bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 border border-slate-300 focus:ring-slate-400 shadow-2xs',
     danger:
-      'bg-rose-600/90 hover:bg-rose-500 active:bg-rose-700 text-white shadow-lg shadow-rose-950/40 focus:ring-rose-500 border border-rose-500/30',
+      'bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white shadow-xs focus:ring-rose-500 border border-rose-600',
     outline:
-      'bg-transparent hover:bg-slate-800/80 active:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 focus:ring-slate-500',
+      'bg-transparent hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-300 focus:ring-slate-400',
     ghost:
-      'bg-transparent hover:bg-slate-800/60 active:bg-slate-800 text-slate-400 hover:text-slate-100 focus:ring-slate-500',
+      'bg-transparent hover:bg-slate-100 active:bg-slate-200 text-slate-600 hover:text-slate-900 focus:ring-slate-400',
   };
 
   return (

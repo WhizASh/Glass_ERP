@@ -10,9 +10,8 @@ export default function MetricCards({ summary = {}, onNavigate }) {
       value: formatCurrency(summary.totalRevenue || 0),
       subtitle: '+12.4% from last cycle',
       icon: DollarSign,
-      color: 'cyan',
-      glow: 'shadow-cyan-950/40 border-cyan-500/20',
-      iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+      glow: 'border-slate-200/90 hover:border-sky-300 hover:shadow-sky-100/50',
+      iconBg: 'bg-sky-50 text-sky-600 border-sky-100',
       action: () => onNavigate?.('quotations'),
     },
     {
@@ -21,9 +20,8 @@ export default function MetricCards({ summary = {}, onNavigate }) {
       value: summary.activeQuotesCount ?? 0,
       subtitle: 'Drafts & awaiting fabrication',
       icon: FileSpreadsheet,
-      color: 'blue',
-      glow: 'shadow-blue-950/40 border-blue-500/20',
-      iconBg: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+      glow: 'border-slate-200/90 hover:border-blue-300 hover:shadow-blue-100/50',
+      iconBg: 'bg-blue-50 text-blue-600 border-blue-100',
       action: () => onNavigate?.('quotations'),
     },
     {
@@ -32,9 +30,8 @@ export default function MetricCards({ summary = {}, onNavigate }) {
       value: formatCurrency(summary.monthlyPurchasesTotal || 0),
       subtitle: 'Raw float & PVB inventory receipts',
       icon: ShoppingBag,
-      color: 'emerald',
-      glow: 'shadow-emerald-950/40 border-emerald-500/20',
-      iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+      glow: 'border-slate-200/90 hover:border-emerald-300 hover:shadow-emerald-100/50',
+      iconBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
       action: () => onNavigate?.('purchases'),
     },
     {
@@ -43,9 +40,14 @@ export default function MetricCards({ summary = {}, onNavigate }) {
       value: summary.lowStockCount ?? 0,
       subtitle: summary.lowStockCount > 0 ? 'Requires sheet replenishment' : 'All racks optimal',
       icon: AlertTriangle,
-      color: 'amber',
-      glow: summary.lowStockCount > 0 ? 'shadow-amber-950/50 border-amber-500/30' : 'shadow-slate-900 border-slate-800',
-      iconBg: summary.lowStockCount > 0 ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-slate-800 text-slate-400 border-slate-700',
+      glow:
+        summary.lowStockCount > 0
+          ? 'border-amber-200 bg-amber-50/20 hover:border-amber-300 shadow-amber-50'
+          : 'border-slate-200/90 hover:border-slate-300',
+      iconBg:
+        summary.lowStockCount > 0
+          ? 'bg-amber-50 text-amber-600 border-amber-200'
+          : 'bg-slate-100 text-slate-500 border-slate-200',
       action: () => onNavigate?.('inventory'),
     },
   ];
@@ -58,10 +60,10 @@ export default function MetricCards({ summary = {}, onNavigate }) {
           <div
             key={card.id}
             onClick={card.action}
-            className={`glass-card p-5 cursor-pointer hover:-translate-y-1 transition-all duration-200 border ${card.glow}`}
+            className={`glass-card p-5 cursor-pointer hover:-translate-y-0.5 transition-all duration-200 border ${card.glow}`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 tracking-wide uppercase">
+              <span className="text-xs font-semibold text-slate-500 tracking-wide uppercase">
                 {card.title}
               </span>
               <div className={`p-2.5 rounded-xl border ${card.iconBg}`}>
@@ -69,9 +71,9 @@ export default function MetricCards({ summary = {}, onNavigate }) {
               </div>
             </div>
             <div className="mt-3">
-              <span className="text-2xl font-bold tracking-tight text-white">{card.value}</span>
+              <span className="text-2xl font-bold tracking-tight text-slate-900">{card.value}</span>
             </div>
-            <p className="mt-1 text-xs text-slate-400">{card.subtitle}</p>
+            <p className="mt-1 text-xs text-slate-500">{card.subtitle}</p>
           </div>
         );
       })}

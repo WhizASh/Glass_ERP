@@ -57,8 +57,8 @@ export default function StockAdjustmentModal({
       maxWidth="max-w-lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-800/40 flex items-start gap-2.5 text-xs text-amber-300">
-          <AlertOctagon className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+        <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-xs text-amber-800">
+          <AlertOctagon className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <p>
             Cullet breakage will be recorded into the facility ledger to track recycling cullet tonnage and maintain physical inventory parity.
           </p>
@@ -82,9 +82,9 @@ export default function StockAdjustmentModal({
             onChange={(e) => setAdjustmentQty(e.target.value)}
           />
 
-          <div className="rounded-lg bg-slate-950 border border-slate-800 p-2.5 text-xs flex flex-col justify-center">
+          <div className="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs flex flex-col justify-center">
             <span className="text-slate-500">Resulting Stock:</span>
-            <span className="text-sm font-bold text-slate-100">
+            <span className="text-sm font-bold text-slate-800">
               {resultingStock} {item.unitOfMeasure}
             </span>
           </div>
@@ -97,7 +97,7 @@ export default function StockAdjustmentModal({
           onChange={(e) => setNotes(e.target.value)}
         />
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+        <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
           <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>

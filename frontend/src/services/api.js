@@ -410,17 +410,34 @@ let inventory = loadState('inventory', INITIAL_INVENTORY);
 let purchases = loadState('purchases', INITIAL_PURCHASES);
 let quotations = loadState('quotations', INITIAL_QUOTATIONS);
 
+const RAW_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim();
+
+function getFullUrl(path) {
+  if (!RAW_BASE_URL) return path;
+  const base = RAW_BASE_URL.replace(/\/+$/, '');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  if (base.endsWith('/api') && cleanPath.startsWith('/api')) {
+    return `${base}${cleanPath.slice(4)}`;
+  }
+  return `${base}${cleanPath}`;
+}
+
 /**
  * Helper to make network requests with immediate fallback on failure
  */
-async function fetchWithFallback(url, options = {}, fallbackFn) {
+async function fetchWithFallback(path, options = {}, fallbackFn) {
   try {
-    const res = await fetch(url, {
+    const fullUrl = getFullUrl(path);
+    const res = await fetch(fullUrl, {
       headers: { 'Content-Type': 'application/json' },
       ...options,
     });
     if (res.ok) {
-      return await res.json();
+      const json = await res.json();
+      if (json && typeof json === 'object' && json.success === true && 'data' in json) {
+        return json.data;
+      }
+      return json;
     }
   } catch (err) {
     // Backend offline or unreachable - use fallbackFn seamlessly

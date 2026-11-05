@@ -9,9 +9,9 @@ export default function QuickLinks({
   onNewCustomer,
 }) {
   return (
-    <div className="glass-card p-4 border border-slate-800 bg-slate-900/60 flex flex-wrap items-center justify-between gap-3">
+    <div className="glass-card p-4 border border-slate-200/90 bg-white flex flex-wrap items-center justify-between gap-3 shadow-xs">
       <div className="flex items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
           Fast Dispatch:
         </span>
       </div>

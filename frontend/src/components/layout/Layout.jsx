@@ -4,7 +4,7 @@ import Header from './Header';
 
 export default function Layout({ activeTab, onSelectTab, children }) {
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
       <Sidebar activeTab={activeTab} onSelectTab={onSelectTab} />
       <div className="flex-1 flex flex-col min-w-0">
         <Header activeTab={activeTab} />

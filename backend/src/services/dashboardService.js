@@ -193,6 +193,7 @@ async function getRecentActivity(limit = 5) {
 
   return {
     recentSales,
+    recentQuotations: recentSales,
     recentPurchases
   };
 }

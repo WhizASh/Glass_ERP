@@ -20,7 +20,7 @@ export default function InventoryFilters({
   return (
     <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs w-full md:w-auto">
+      <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs w-full md:w-auto">
         {CATEGORY_TABS.map((tab) => {
           const isActive = activeCategory === tab.id;
           return (
@@ -29,8 +29,8 @@ export default function InventoryFilters({
               onClick={() => onSelectCategory(tab.id)}
               className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-sky-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               {tab.label}
