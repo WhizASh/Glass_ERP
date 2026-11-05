@@ -1,0 +1,151 @@
+import React, { useState } from 'react';
+import { Search, Eye } from 'lucide-react';
+import PurchaseStatusBadge from './PurchaseStatusBadge';
+import Input from '../common/Input';
+import Select from '../common/Select';
+import { formatCurrency, formatDate } from '../../utils/formatters';
+
+export default function PurchaseTable({ purchases = [], suppliers = [] }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
+
+  const filteredPurchases = purchases.filter((po) => {
+    const matchesSearch =
+      po.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      po.supplierName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (po.notes && po.notes.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesSupplier = !selectedSupplier || po.supplierId === selectedSupplier;
+
+    return matchesSearch && matchesSupplier;
+  });
+
+  const supplierFilterOptions = [
+    { value: '', label: 'All Suppliers' },
+    ...suppliers.map((s) => ({ value: s.id, label: s.name })),
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Filters bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="w-full sm:w-80">
+          <Input
+            icon={Search}
+            placeholder="Search PO#, supplier or remarks..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="w-full sm:w-64">
+          <Select
+            value={selectedSupplier}
+            onChange={(e) => setSelectedSupplier(e.target.value)}
+            options={supplierFilterOptions}
+          />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 shadow-xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-950/80 uppercase text-slate-400 border-b border-slate-800">
+              <tr>
+                <th className="px-5 py-3 font-semibold">PO Number</th>
+                <th className="px-5 py-3 font-semibold">Supplier / Source</th>
+                <th className="px-5 py-3 font-semibold">Receipt Date</th>
+                <th className="px-5 py-3 font-semibold">Status</th>
+                <th className="px-5 py-3 font-semibold text-right">Total Amount</th>
+                <th className="px-5 py-3 font-semibold text-center">Items</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60">
+              {filteredPurchases.map((po) => {
+                const isExpanded = expandedId === po.id;
+                return (
+                  <React.Fragment key={po.id}>
+                    <tr
+                      onClick={() => setExpandedId(isExpanded ? null : po.id)}
+                      className="hover:bg-slate-800/40 cursor-pointer transition-colors"
+                    >
+                      <td className="px-5 py-3.5 font-mono font-semibold text-cyan-400">
+                        {po.orderNumber}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="font-medium text-slate-200">{po.supplierName}</div>
+                        {po.notes && (
+                          <div className="text-[11px] text-slate-500 truncate max-w-xs">
+                            {po.notes}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5 text-slate-300">
+                        {formatDate(po.purchaseDate)}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <PurchaseStatusBadge status={po.status} />
+                      </td>
+                      <td className="px-5 py-3.5 text-right font-semibold text-emerald-400 text-sm">
+                        {formatCurrency(po.totalAmount)}
+                      </td>
+                      <td className="px-5 py-3.5 text-center">
+                        <button
+                          type="button"
+                          className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors inline-flex items-center gap-1"
+                        >
+                          <Eye className="w-3 h-3 text-cyan-400" />
+                          <span>{po.items?.length || 1} line(s)</span>
+                        </button>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="bg-slate-950/70 border-b border-slate-800">
+                        <td colSpan={6} className="px-6 py-4">
+                          <div className="rounded-lg bg-slate-900 border border-slate-800 p-4">
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                              Material Line Items Breakdown
+                            </h4>
+                            <div className="space-y-2">
+                              {po.items?.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center justify-between text-xs py-1.5 border-b border-slate-800/60 last:border-none"
+                                >
+                                  <div>
+                                    <span className="font-medium text-slate-200">
+                                      {item.itemName}
+                                    </span>
+                                    <span className="text-slate-500 ml-2">
+                                      ({item.quantity} {item.unitOfMeasure || 'units'} @ {formatCurrency(item.unitCost)}/unit)
+                                    </span>
+                                  </div>
+                                  <div className="font-mono font-semibold text-slate-200">
+                                    {formatCurrency(item.totalCost)}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+
+              {filteredPurchases.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500 text-sm">
+                    No purchase orders match your filter criteria.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

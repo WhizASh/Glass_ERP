@@ -1,0 +1,132 @@
+import React, { useState, useEffect } from 'react';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { TrendingUp } from 'lucide-react';
+import Card from '../common/Card';
+import { formatCurrency } from '../../utils/formatters';
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl text-xs">
+        <p className="font-semibold text-slate-200 mb-1">{label}</p>
+        <p className="text-cyan-400 font-medium">
+          Revenue: {formatCurrency(payload[0].value)}
+        </p>
+        {payload[1] && (
+          <p className="text-emerald-400 font-medium">
+            Volume: {payload[1].value} m²
+          </p>
+        )}
+      </div>
+    );
+  }
+  return null;
+};
+
+export default function SalesChart({ fetchSalesChart }) {
+  const [period, setPeriod] = useState('month');
+  const [chartData, setChartData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    setIsLoading(true);
+    fetchSalesChart(period).then((data) => {
+      if (mounted) {
+        setChartData(data || []);
+        setIsLoading(false);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [period, fetchSalesChart]);
+
+  return (
+    <Card
+      title="Sales & Processing Trend"
+      subtitle="Total turnover and fabricated square meters output"
+      icon={TrendingUp}
+      action={
+        <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+          {['week', 'month', 'year'].map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`px-3 py-1 rounded-md capitalize font-medium transition-all ${
+                period === p
+                  ? 'bg-cyan-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      }
+    >
+      <div className="h-72 w-full pt-4">
+        {isLoading ? (
+          <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+            Loading sales trends...
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+            No chart data available for this timeframe
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
+                </linearGradient>
+                <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis dataKey="label" stroke="#64748b" fontSize={11} tickLine={false} />
+              <YAxis
+                stroke="#64748b"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(val) => `$${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                name="Revenue"
+                stroke="#06b6d4"
+                strokeWidth={2.5}
+                fillOpacity={1}
+                fill="url(#colorRevenue)"
+              />
+              <Area
+                type="monotone"
+                dataKey="volumeM2"
+                name="Volume (m²)"
+                stroke="#10b981"
+                strokeWidth={1.5}
+                fillOpacity={1}
+                fill="url(#colorVolume)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </Card>
+  );
+}

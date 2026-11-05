@@ -1,0 +1,192 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  ORGANIZATION
+}
+
+enum GlassType {
+  ANNEALED_FLOAT
+  TOUGHENED_TEMPERED
+  LAMINATED
+  INSULATED_DOUBLE_GLAZED
+  FROSTED_ACID_ETCHED
+  TINTED
+  MIRROR
+  LOW_E
+}
+
+enum EdgeWorkType {
+  CLEAN_CUT
+  SEAMED_ARRIS
+  FLAT_POLISH
+  PENCIL_POLISH
+  BEVELED
+}
+
+enum ItemCategory {
+  RAW_MATERIAL
+  FLOAT_SHEET
+  FINISHED_GLASS
+  HARDWARE_FITTINGS
+  CONSUMABLE
+}
+
+enum OrderStatus {
+  DRAFT
+  ISSUED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum MovementReason {
+  PURCHASE_RECEIPT
+  QUOTATION_FULFILLMENT
+  MANUAL_ADJUSTMENT
+  SCRAP_BREAKAGE
+}
+
+model Customer {
+  id              String        @id @default(uuid())
+  type            CustomerType  @default(INDIVIDUAL)
+  name            String
+  companyName     String?
+  gstin           String?
+  email           String?
+  phone           String
+  billingAddress  String?
+  shippingAddress String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  quotations      Quotation[]
+
+  @@map("customers")
+}
+
+model Supplier {
+  id              String          @id @default(uuid())
+  name            String
+  contactPerson   String?
+  email           String?
+  phone           String
+  taxId           String?
+  address         String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  purchaseOrders  PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model InventoryItem {
+  id               String               @id @default(uuid())
+  sku              String               @unique
+  name             String
+  category         ItemCategory
+  glassType        GlassType?
+  thicknessMm      Float?
+  widthMm          Float?
+  heightMm         Float?
+  stockQuantity    Float
+  unitOfMeasure    String
+  reorderLevel     Float                @default(10)
+  unitCost         Float
+  unitPrice        Float
+  rackLocation     String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  purchaseItems    PurchaseOrderItem[]
+  quotationItems   QuotationItem[]
+  movements        StockMovement[]
+
+  @@map("inventory_items")
+}
+
+model PurchaseOrder {
+  id              String              @id @default(uuid())
+  orderNumber     String              @unique
+  supplierId      String
+  supplier        Supplier            @relation(fields: [supplierId], references: [id])
+  totalAmount     Float
+  status          OrderStatus         @default(COMPLETED)
+  notes           String?
+  purchaseDate    DateTime            @default(now())
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  items           PurchaseOrderItem[]
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  itemId          String
+  item            InventoryItem @relation(fields: [itemId], references: [id])
+  quantity        Float
+  unitCost        Float
+  totalCost       Float
+
+  @@map("purchase_order_items")
+}
+
+model Quotation {
+  id              String          @id @default(uuid())
+  quotationNumber String          @unique
+  customerId      String
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  subtotal        Float
+  taxAmount       Float           @default(0)
+  discountAmount  Float           @default(0)
+  totalAmount     Float
+  status          OrderStatus     @default(DRAFT)
+  validUntil      DateTime?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  items           QuotationItem[]
+
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id              String        @id @default(uuid())
+  quotationId     String
+  quotation       Quotation     @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  itemId          String?
+  item            InventoryItem? @relation(fields: [itemId], references: [id])
+  glassType       GlassType
+  thicknessMm     Float
+  widthMm         Float
+  heightMm        Float
+  areaSqM         Float
+  quantity        Int
+  edgeWork        EdgeWorkType  @default(CLEAN_CUT)
+  holesCount      Int           @default(0)
+  unitPrice       Float
+  lineTotal       Float
+
+  @@map("quotation_items")
+}
+
+model StockMovement {
+  id          String         @id @default(uuid())
+  itemId      String
+  item        InventoryItem  @relation(fields: [itemId], references: [id])
+  quantity    Float
+  reason      MovementReason
+  referenceId String?
+  notes       String?
+  createdAt   DateTime       @default(now())
+
+  @@map("stock_movements")
+}
