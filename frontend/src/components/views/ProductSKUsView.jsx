@@ -68,7 +68,7 @@ const ProductSKUsView = () => {
       });
       fetchProducts();
     } catch (err) {
-      alert(`Failed to save product SKU: ${err.message}`);
+      alert(`Failed to save SKU: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -79,7 +79,7 @@ const ProductSKUsView = () => {
       header: 'SKU Code',
       accessor: 'skuCode',
       render: (row) => (
-        <span className="font-mono text-xs font-semibold text-blue-700 bg-blue-50/80 px-2.5 py-1 rounded-md border border-blue-200/60">
+        <span className="font-mono text-xs font-bold text-edge-800 bg-edge-50 px-2 py-0.5 rounded border border-edge-200">
           {row.skuCode}
         </span>
       )
@@ -89,18 +89,18 @@ const ProductSKUsView = () => {
       accessor: 'name',
       render: (row) => (
         <div>
-          <span className="font-semibold text-slate-800">{row.name}</span>
+          <span className="font-semibold text-steel-900">{row.name}</span>
           {row.description && (
-            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{row.description}</p>
+            <span className="block text-[11px] text-steel-500 font-normal">{row.description}</span>
           )}
         </div>
       )
     },
     {
-      header: 'Glass Type',
+      header: 'Glass Category',
       accessor: 'glassType',
       render: (row) => (
-        <span className="text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+        <span className="inline-flex items-center text-[11px] font-medium text-steel-700 bg-steel-100 px-2 py-0.5 rounded border border-steel-200">
           {row.glassType}
         </span>
       )
@@ -108,57 +108,61 @@ const ProductSKUsView = () => {
     {
       header: 'Thickness',
       accessor: 'thicknessMm',
+      align: 'right',
       render: (row) => (
-        <span className="text-xs font-semibold text-slate-600">
-          {row.thicknessMm} mm
+        <span className="font-mono text-xs font-semibold text-steel-800">
+          {Number(row.thicknessMm)} mm
         </span>
       )
     },
     {
-      header: 'Unit',
+      header: 'Unit Basis',
       accessor: 'unitOfMeasure',
       render: (row) => {
         const match = UNITS_OF_MEASURE.find(u => u.value === row.unitOfMeasure);
-        return <span className="text-xs text-slate-500 font-medium">{match ? match.label : row.unitOfMeasure}</span>;
+        return <span className="text-xs text-steel-600 font-medium">{match ? match.label : row.unitOfMeasure}</span>;
       }
     },
     {
-      header: 'Unit Price',
+      header: 'Base Rate',
       accessor: 'unitPrice',
       align: 'right',
       render: (row) => (
-        <span className="text-sm font-bold text-slate-800">
-          ${Number(row.unitPrice).toFixed(2)}
+        <span className="font-mono text-xs font-bold text-steel-900">
+          ₹{Number(row.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
       )
     }
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Top Filter & Actions */}
-      <div className="glass-card rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          <Filter className="w-4 h-4 text-slate-400 shrink-0" />
-          <span className="text-xs font-semibold text-slate-500 uppercase mr-1 shrink-0">Glass Type:</span>
-          <select
-            value={selectedGlassType}
-            onChange={(e) => setSelectedGlassType(e.target.value)}
-            className="px-3 py-1.5 rounded-xl text-xs font-medium glass-input text-slate-700"
-          >
-            {GLASS_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t === 'ALL' ? 'All Glass Types' : t}
-              </option>
-            ))}
-          </select>
+      <div className="bg-white rounded-lg border border-steel-200 p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+          <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" />
+          <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider mr-1 shrink-0">Glass:</span>
+          {GLASS_TYPES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setSelectedGlassType(t)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+                selectedGlassType === t
+                  ? 'filter-pill-active bg-slate-900 text-white font-semibold shadow-xs'
+                  : 'filter-pill-inactive text-slate-600 bg-slate-100 hover:bg-slate-200'
+              }`}
+            >
+              {t === 'ALL' ? 'All Glass' : t}
+            </button>
+          ))}
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-500/25 transition-all self-start sm:self-auto"
+          className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
           <span>Add Product SKU</span>
         </button>
       </div>
@@ -173,7 +177,7 @@ const ProductSKUsView = () => {
         actionButton={
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700"
+            className="btn-primary inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add First Product SKU</span>
@@ -188,80 +192,77 @@ const ProductSKUsView = () => {
         title="Add Glass Product SKU"
         subtitle="Specify glass category, nominal thickness, unit of measure, and pricing"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">SKU Code *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">SKU Code *</label>
               <input
                 type="text"
                 required
                 value={formData.skuCode}
                 onChange={(e) => setFormData({ ...formData, skuCode: e.target.value.toUpperCase() })}
                 placeholder="e.g. GL-TOUGH-10MM"
-                className="w-full px-3 py-2 text-sm rounded-xl glass-input font-mono"
+                className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 font-mono text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Product Name *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">Product Name *</label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g. 10mm Clear Toughened Glass"
-                className="w-full px-3 py-2 text-sm rounded-xl glass-input"
+                className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Glass Type *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">Glass Type *</label>
               <select
+                required
                 value={formData.glassType}
                 onChange={(e) => setFormData({ ...formData, glassType: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-xl glass-input"
+                className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 text-steel-900 bg-white focus:outline-none focus:ring-1 focus:ring-edge-600"
               >
-                <option value="Float Glass">Float Glass</option>
-                <option value="Toughened Glass">Toughened Glass</option>
-                <option value="Laminated Glass">Laminated Glass</option>
-                <option value="DGU / Insulated">DGU / Insulated</option>
-                <option value="Tinted Glass">Tinted Glass</option>
-                <option value="Frosted / Patterned">Frosted / Patterned</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Thickness (mm) *</label>
-              <input
-                type="number"
-                step="0.5"
-                min="1"
-                required
-                value={formData.thicknessMm}
-                onChange={(e) => setFormData({ ...formData, thicknessMm: e.target.value })}
-                placeholder="e.g. 10"
-                className="w-full px-3 py-2 text-sm rounded-xl glass-input"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Unit of Measure *</label>
-              <select
-                value={formData.unitOfMeasure}
-                onChange={(e) => setFormData({ ...formData, unitOfMeasure: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-xl glass-input"
-              >
-                {UNITS_OF_MEASURE.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
+                {GLASS_TYPES.filter(t => t !== 'ALL').map((t) => (
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Base Unit Price ($) *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">Nominal Thickness (mm) *</label>
+              <input
+                type="number"
+                step="0.1"
+                min="1"
+                required
+                value={formData.thicknessMm}
+                onChange={(e) => setFormData({ ...formData, thicknessMm: e.target.value })}
+                placeholder="e.g. 10 or 12"
+                className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 font-mono text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">Unit of Measure *</label>
+              <select
+                required
+                value={formData.unitOfMeasure}
+                onChange={(e) => setFormData({ ...formData, unitOfMeasure: e.target.value })}
+                className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 text-steel-900 bg-white focus:outline-none focus:ring-1 focus:ring-edge-600"
+              >
+                {UNITS_OF_MEASURE.map((u) => (
+                  <option key={u.value} value={u.value}>{u.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">Unit Base Price (₹) *</label>
               <input
                 type="number"
                 step="0.01"
@@ -269,38 +270,37 @@ const ProductSKUsView = () => {
                 required
                 value={formData.unitPrice}
                 onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                placeholder="e.g. 45.00"
-                className="w-full px-3 py-2 text-sm rounded-xl glass-input font-medium"
+                placeholder="e.g. 1850.00"
+                className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 font-mono text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Description / Technical Notes</label>
+            <label className="block text-xs font-semibold text-steel-700 mb-1">Description / Technical Notes</label>
             <textarea
               rows={2}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Edge polishing, processing capabilities, application notes..."
-              className="w-full px-3 py-2 text-sm rounded-xl glass-input"
+              placeholder="Edge finishing requirements, acoustic rating, solar heat gain coefficient..."
+              className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600"
             />
           </div>
 
-          {/* Modal Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-steel-200">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+              className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-steel-700 bg-white border border-steel-300 hover:bg-steel-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-500/20 disabled:opacity-60"
+              className="btn-primary px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 transition-colors shadow-xs"
             >
-              {isSubmitting ? 'Saving...' : 'Save Product SKU'}
+              {isSubmitting ? 'Saving...' : 'Add SKU to Catalog'}
             </button>
           </div>
         </form>

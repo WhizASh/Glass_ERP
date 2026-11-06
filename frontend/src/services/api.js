@@ -46,7 +46,10 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return request(`/quotations${query ? `?${query}` : ''}`);
   },
+  getQuotationById: (id) => request(`/quotations/${id}`),
   createQuotation: (data) => request('/quotations', { method: 'POST', body: JSON.stringify(data) }),
+  updateQuotationStatus: (id, status) =>
+    request(`/quotations/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
 
   // Sales
   getSales: (params = {}) => {

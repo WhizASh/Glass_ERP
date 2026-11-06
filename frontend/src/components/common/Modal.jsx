@@ -19,37 +19,37 @@ const Modal = ({ isOpen, onClose, title, subtitle, children, maxWidth = 'max-w-2
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
     >
-      {/* Frosted Backdrop */}
+      {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-steel-950/50 backdrop-blur-xs transition-opacity"
       />
 
-      {/* Glass Modal Box */}
-      <div className={`relative w-full ${maxWidth} glass-card bg-white/95 rounded-2xl border border-white/80 shadow-2xl p-6 z-10 my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-200`}>
+      {/* Solid Architectural Modal Box */}
+      <div className={`relative w-full ${maxWidth} bg-white rounded-xl border border-steel-200 shadow-2xl z-10 my-6 overflow-hidden animate-in fade-in zoom-in-98 duration-150`}>
         {/* Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-slate-100">
+        <div className="flex items-start justify-between px-5 py-3.5 bg-[#0f172a] text-white border-b border-slate-800">
           <div>
-            <h2 id="modal-title" className="text-lg font-bold text-slate-800 tracking-tight">
+            <h2 id="modal-title" className="text-sm font-bold text-white tracking-tight">
               {title}
             </h2>
             {subtitle && (
-              <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>
+              <p className="text-[11px] text-steel-400 mt-0.5">{subtitle}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-            aria-label="Close modal"
+            className="p-1 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors"
+            aria-label="Close dialog"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="py-4 max-h-[75vh] overflow-y-auto">
+        <div className="p-5 max-h-[78vh] overflow-y-auto">
           {children}
         </div>
       </div>

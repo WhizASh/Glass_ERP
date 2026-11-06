@@ -64,16 +64,25 @@ const createQuotation = async (req, res) => {
       const items = (sec.items || []).map(item => {
         const qty = parseFloat(item.quantity) || 1;
         const price = parseFloat(item.unitPrice) || 0;
-        const total = qty * price;
+        const width = item.widthMm ? parseFloat(item.widthMm) : null;
+        const height = item.heightMm ? parseFloat(item.heightMm) : null;
+        let area = item.areaSqM ? parseFloat(item.areaSqM) : null;
+        if (!area && width && height) {
+          area = parseFloat(((width * height) / 1000000).toFixed(4));
+        }
+
+        const total = item.totalPrice !== undefined && item.totalPrice !== null
+          ? parseFloat(item.totalPrice)
+          : (area ? parseFloat((qty * area * price).toFixed(2)) : parseFloat((qty * price).toFixed(2)));
         subtotal += total;
 
         return {
           productSkuId: item.productSkuId,
           description: item.description || null,
-          widthMm: item.widthMm ? parseFloat(item.widthMm) : null,
-          heightMm: item.heightMm ? parseFloat(item.heightMm) : null,
+          widthMm: width,
+          heightMm: height,
           quantity: qty,
-          areaSqM: item.areaSqM ? parseFloat(item.areaSqM) : null,
+          areaSqM: area,
           unitPrice: price,
           totalPrice: total
         };
@@ -123,7 +132,74 @@ const createQuotation = async (req, res) => {
   }
 };
 
+const getQuotationById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const quotation = await prisma.quotation.findUnique({
+      where: { id },
+      include: {
+        customer: true,
+        sections: {
+          orderBy: { sortOrder: 'asc' },
+          include: {
+            items: {
+              include: {
+                productSku: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!quotation) {
+      return res.status(404).json({ error: 'Quotation not found' });
+    }
+
+    return res.json(quotation);
+  } catch (error) {
+    console.error('Error fetching quotation by ID:', error);
+    return res.status(500).json({ error: 'Failed to fetch quotation' });
+  }
+};
+
+const updateQuotationStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
+    const updated = await prisma.quotation.update({
+      where: { id },
+      data: { status: status.toUpperCase() },
+      include: {
+        customer: true,
+        sections: {
+          orderBy: { sortOrder: 'asc' },
+          include: {
+            items: {
+              include: {
+                productSku: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return res.json(updated);
+  } catch (error) {
+    console.error('Error updating quotation status:', error);
+    return res.status(500).json({ error: 'Failed to update quotation status' });
+  }
+};
+
 module.exports = {
   getQuotations,
-  createQuotation
+  getQuotationById,
+  createQuotation,
+  updateQuotationStatus
 };
