@@ -22,7 +22,7 @@ export default function QuotationSummary({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
-          label="Discount Allowance ($)"
+          label="Discount Allowance (₹)"
           type="number"
           min="0"
           step="0.01"
@@ -30,7 +30,7 @@ export default function QuotationSummary({
           onChange={(e) => onChangeDiscount(e.target.value)}
         />
         <Input
-          label="Standard Value Added Tax (VAT/GST)"
+          label="Goods & Services Tax (GST)"
           type="number"
           min="0"
           max="100"
@@ -48,7 +48,7 @@ export default function QuotationSummary({
           rows={2}
           value={notes}
           onChange={(e) => onChangeNotes(e.target.value)}
-          placeholder="e.g. Delivery included to site crane. All tempered glass conforms to EN 12150 standard."
+          placeholder="e.g. Delivery included to site crane. All toughened glass conforms to IS 2553 (Part 1) standard."
           className="w-full text-xs rounded-lg bg-white border border-slate-300 p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
         />
       </div>

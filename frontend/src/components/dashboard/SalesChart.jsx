@@ -41,7 +41,30 @@ export default function SalesChart({ fetchSalesChart }) {
     setIsLoading(true);
     fetchSalesChart(period).then((data) => {
       if (mounted) {
-        setChartData(data || []);
+        const normalized = (data || []).map((item) => {
+          let label = item.label;
+          if (!label && item.date) {
+            try {
+              const d = new Date(item.date);
+              label = !isNaN(d.getTime())
+                ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                : item.date;
+            } catch {
+              label = item.date;
+            }
+          }
+          const volumeM2 =
+            item.volumeM2 ??
+            item.totalAreaSqM ??
+            (item.revenue ? Math.round(Number(item.revenue) / 65) : 0);
+
+          return {
+            ...item,
+            label: label || item.date || '',
+            volumeM2: Number(volumeM2) || 0,
+          };
+        });
+        setChartData(normalized);
         setIsLoading(false);
       }
     });
@@ -102,7 +125,7 @@ export default function SalesChart({ fetchSalesChart }) {
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(val) => `$${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`}
+                tickFormatter={(val) => `₹${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`}
               />
               <Tooltip content={<CustomTooltip />} />
               <Area

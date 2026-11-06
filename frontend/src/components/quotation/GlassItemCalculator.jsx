@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Calculator } from 'lucide-react';
+import { Plus, Calculator, Pencil, Check } from 'lucide-react';
 import Input from '../common/Input';
 import Select from '../common/Select';
 import Button from '../common/Button';
+import GlassItemsTable from './GlassItemsTable';
 import {
   GLASS_TYPES,
   STANDARD_THICKNESSES,
@@ -11,31 +12,51 @@ import {
 } from '../../utils/glassMath';
 import { formatCurrency, formatArea, formatWeight } from '../../utils/formatters';
 
-export default function GlassItemCalculator({ items = [], onAddItem, onRemoveItem }) {
-  const [glassType, setGlassType] = useState('TOUGHENED_TEMPERED');
-  const [thicknessMm, setThicknessMm] = useState(10);
-  const [widthMm, setWidthMm] = useState(1500);
-  const [heightMm, setHeightMm] = useState(900);
+export default function GlassItemCalculator({ items = [], onAddItem, onRemoveItem, onUpdateItem }) {
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [glassType, setGlassType] = useState('ANNEALED_FLOAT');
+  const [thicknessMm, setThicknessMm] = useState(6);
+  const [widthMm, setWidthMm] = useState('');
+  const [heightMm, setHeightMm] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [edgeWork, setEdgeWork] = useState('FLAT_POLISH');
-  const [holesCount, setHolesCount] = useState(2);
+  const [edgeWork, setEdgeWork] = useState('CLEAN_CUT');
+  const [holesCount, setHolesCount] = useState(0);
 
   // Live calculation of current inputs
   const liveCalc = useMemo(() => {
+    const w = Number(widthMm);
+    const h = Number(heightMm);
+    if (!w || !h || w <= 0 || h <= 0) {
+      return { areaSqm: 0, perimeterM: 0, weightKg: 0, unitPrice: 0, lineTotal: 0 };
+    }
     return calculateLineItemPrice({
-      widthMm: Number(widthMm),
-      heightMm: Number(heightMm),
+      widthMm: w,
+      heightMm: h,
       thicknessMm: Number(thicknessMm),
       glassType,
       edgeWork,
-      holesCount: Number(holesCount),
-      quantity: Number(quantity),
+      holesCount: Number(holesCount || 0),
+      quantity: Number(quantity || 1),
     });
   }, [widthMm, heightMm, thicknessMm, glassType, edgeWork, holesCount, quantity]);
 
+  const handleEditItem = (index) => {
+    const item = items[index];
+    setGlassType(item.glassType || 'ANNEALED_FLOAT');
+    setThicknessMm(Number(item.thicknessMm) || 6);
+    setWidthMm(item.widthMm || '');
+    setHeightMm(item.heightMm || '');
+    setQuantity(item.quantity || 1);
+    setEdgeWork(item.edgeWork || 'CLEAN_CUT');
+    setHolesCount(item.holesCount || 0);
+    setEditingIndex(index);
+  };
+
   const handleAdd = () => {
-    if (!widthMm || !heightMm || widthMm <= 0 || heightMm <= 0) {
-      alert('Please enter valid width and height dimensions in mm');
+    const w = Number(widthMm);
+    const h = Number(heightMm);
+    if (!w || !h || w <= 0 || h <= 0) {
+      alert('Please enter valid width and height dimensions in mm (e.g. 1500 x 900)');
       return;
     }
 
@@ -43,24 +64,35 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
     const edgeObj = EDGE_WORK_TYPES.find((e) => e.id === edgeWork);
 
     const newItem = {
-      id: `item-${Date.now()}`,
+      id: editingIndex !== null ? (items[editingIndex]?.id || `item-${Date.now()}`) : `item-${Date.now()}`,
       glassType,
       glassTypeName: glassTypeObj?.label || glassType,
       thicknessMm: Number(thicknessMm),
-      widthMm: Number(widthMm),
-      heightMm: Number(heightMm),
+      widthMm: w,
+      heightMm: h,
       areaSqM: liveCalc.areaSqm,
       perimeterM: liveCalc.perimeterM,
       weightKg: liveCalc.weightKg,
-      quantity: Number(quantity),
+      quantity: Number(quantity) || 1,
       edgeWork,
       edgeWorkName: edgeObj?.label || edgeWork,
-      holesCount: Number(holesCount),
+      holesCount: Number(holesCount) || 0,
       unitPrice: liveCalc.unitPrice,
       lineTotal: liveCalc.lineTotal,
     };
 
-    onAddItem(newItem);
+    if (editingIndex !== null && onUpdateItem) {
+      onUpdateItem(editingIndex, newItem);
+      setEditingIndex(null);
+    } else {
+      onAddItem(newItem);
+    }
+
+    setWidthMm('');
+    setHeightMm('');
+    setHolesCount(0);
+    setQuantity(1);
+    setEdgeWork('CLEAN_CUT');
   };
 
   return (
@@ -98,6 +130,7 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
             min="50"
             max="6000"
             suffix="mm"
+            placeholder="e.g. 1500"
             value={widthMm}
             onChange={(e) => setWidthMm(e.target.value)}
           />
@@ -107,6 +140,7 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
             min="50"
             max="3500"
             suffix="mm"
+            placeholder="e.g. 900"
             value={heightMm}
             onChange={(e) => setHeightMm(e.target.value)}
           />
@@ -114,6 +148,7 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
             label="Quantity"
             type="number"
             min="1"
+            placeholder="1"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
           />
@@ -127,7 +162,7 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
             onChange={(e) => setEdgeWork(e.target.value)}
             options={EDGE_WORK_TYPES.map((e) => ({
               value: e.id,
-              label: `${e.label} (+$${e.ratePerMeter}/m)`,
+              label: e.ratePerMeter > 0 ? `${e.label} (+₹${e.ratePerMeter}/m)` : e.label,
             }))}
           />
           <Input
@@ -135,6 +170,7 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
             type="number"
             min="0"
             suffix="holes"
+            placeholder="0"
             value={holesCount}
             onChange={(e) => setHolesCount(e.target.value)}
           />
@@ -144,16 +180,20 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-lg bg-white border border-slate-200 text-xs shadow-2xs">
           <div>
             <span className="text-slate-500 block">Unit Surface Area</span>
-            <span className="font-semibold text-slate-800">{formatArea(liveCalc.areaSqm)}</span>
+            <span className="font-semibold text-slate-800">
+              {liveCalc.areaSqm > 0 ? formatArea(liveCalc.areaSqm) : '—'}
+            </span>
           </div>
           <div>
             <span className="text-slate-500 block">Edge Perimeter</span>
-            <span className="font-semibold text-slate-800">{liveCalc.perimeterM} linear m</span>
+            <span className="font-semibold text-slate-800">
+              {liveCalc.perimeterM > 0 ? `${liveCalc.perimeterM} linear m` : '—'}
+            </span>
           </div>
           <div>
             <span className="text-slate-500 block">Total Est. Weight</span>
             <span className="font-semibold text-slate-800">
-              {formatWeight(liveCalc.weightKg * (Number(quantity) || 1))}
+              {liveCalc.weightKg > 0 ? formatWeight(liveCalc.weightKg * (Number(quantity) || 1)) : '—'}
             </span>
           </div>
           <div className="text-right">
@@ -164,80 +204,37 @@ export default function GlassItemCalculator({ items = [], onAddItem, onRemoveIte
           </div>
         </div>
 
-        {/* Add Button */}
-        <div className="flex justify-end pt-1">
-          <Button variant="primary" size="sm" icon={Plus} onClick={handleAdd}>
-            Add Line Item to Quotation
+        {/* Add / Update Button */}
+        <div className="flex justify-end items-center gap-2 pt-1">
+          {editingIndex !== null && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setEditingIndex(null);
+                setWidthMm('');
+                setHeightMm('');
+                setHolesCount(0);
+                setQuantity(1);
+                setEdgeWork('CLEAN_CUT');
+              }}
+            >
+              Cancel
+            </Button>
+          )}
+          <Button variant="primary" size="sm" icon={editingIndex !== null ? Check : Plus} onClick={handleAdd}>
+            {editingIndex !== null ? 'Update Glass Pane' : 'Add Line Item to Quotation'}
           </Button>
         </div>
       </div>
 
-      {/* Added Line Items Table */}
-      {items.length > 0 && (
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
-          <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-700">
-            Quotation Line Items ({items.length})
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/70 text-slate-500 border-b border-slate-200">
-                <tr>
-                  <th className="px-4 py-2 font-medium">Glass Specification</th>
-                  <th className="px-4 py-2 font-medium">Dimensions</th>
-                  <th className="px-4 py-2 font-medium">Area</th>
-                  <th className="px-4 py-2 font-medium">Fabrication</th>
-                  <th className="px-4 py-2 font-medium text-center">Qty</th>
-                  <th className="px-4 py-2 font-medium text-right">Unit Price</th>
-                  <th className="px-4 py-2 font-medium text-right">Total</th>
-                  <th className="px-4 py-2 font-medium text-center">Remove</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {items.map((item, index) => (
-                  <tr key={item.id || index} className="hover:bg-slate-50/80">
-                    <td className="px-4 py-2.5 font-medium text-slate-900">
-                      {item.glassTypeName || item.glassType}
-                      <span className="block text-[10px] text-slate-500">{item.thicknessMm}mm</span>
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-700 font-mono">
-                      {item.widthMm} × {item.heightMm} mm
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-600">
-                      {formatArea(item.areaSqM)}
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-600">
-                      <div>{item.edgeWorkName || item.edgeWork}</div>
-                      {item.holesCount > 0 && (
-                        <span className="text-[10px] text-sky-700 font-semibold">
-                          {item.holesCount} CNC hole(s)
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2.5 text-center font-semibold text-slate-900">
-                      {item.quantity}
-                    </td>
-                    <td className="px-4 py-2.5 text-right text-slate-700 font-mono">
-                      {formatCurrency(item.unitPrice)}
-                    </td>
-                    <td className="px-4 py-2.5 text-right font-bold text-slate-900 font-mono">
-                      {formatCurrency(item.lineTotal)}
-                    </td>
-                    <td className="px-4 py-2.5 text-center">
-                      <button
-                        type="button"
-                        onClick={() => onRemoveItem(index)}
-                        className="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* Added Line Items Table Subcomponent */}
+      <GlassItemsTable
+        items={items}
+        editingIndex={editingIndex}
+        onEditItem={handleEditItem}
+        onRemoveItem={onRemoveItem}
+      />
     </div>
   );
 }

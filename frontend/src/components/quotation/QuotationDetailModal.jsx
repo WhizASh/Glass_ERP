@@ -1,5 +1,5 @@
 import React from 'react';
-import { Printer, CheckCircle, CheckCheck, Layers } from 'lucide-react';
+import { Printer, CheckCircle, CheckCheck, Layers, Pencil, Trash2, Send } from 'lucide-react';
 import Modal from '../common/Modal';
 import Badge from '../common/Badge';
 import Button from '../common/Button';
@@ -10,6 +10,8 @@ export default function QuotationDetailModal({
   onClose,
   quotation,
   onUpdateStatus,
+  onEditQuote,
+  onDeleteQuote,
 }) {
   if (!quotation) return null;
 
@@ -23,8 +25,12 @@ export default function QuotationDetailModal({
         return <Badge variant="success" dot size="sm">Completed Order</Badge>;
       case 'CONFIRMED':
         return <Badge variant="primary" dot size="sm">Confirmed / In Production</Badge>;
+      case 'ISSUED':
+        return <Badge variant="info" dot size="sm">Issued to Client</Badge>;
       case 'DRAFT':
         return <Badge variant="warning" dot size="sm">Draft Estimate</Badge>;
+      case 'CANCELLED':
+        return <Badge variant="danger" size="sm">Cancelled</Badge>;
       default:
         return <Badge variant="default" size="sm">{status}</Badge>;
     }
@@ -51,7 +57,7 @@ export default function QuotationDetailModal({
             <p className="text-xs text-slate-500 mt-1">
               Industrial Plant #4, Architectural Processing Div.
             </p>
-            <p className="text-xs text-slate-500">Chicago, IL • support@vitroglass.mock</p>
+            <p className="text-xs text-slate-500">Mumbai, Maharashtra • support@vitroglass.in</p>
           </div>
 
           <div className="text-left sm:text-right space-y-1">
@@ -71,8 +77,12 @@ export default function QuotationDetailModal({
             <span className="text-slate-500 font-medium uppercase block text-[10px] tracking-wider mb-1">
               Billed To
             </span>
-            <div className="font-bold text-slate-900 text-sm">{quotation.customerName}</div>
-            <div className="text-slate-500">{quotation.customerType} Client</div>
+            <div className="font-bold text-slate-900 text-sm">
+              {quotation.customerName || quotation.customer?.companyName || quotation.customer?.name || 'Direct Client'}
+            </div>
+            <div className="text-slate-500">
+              {quotation.customerType || quotation.customer?.type || 'INDIVIDUAL'} Client
+            </div>
             {quotation.customer?.gstin && (
               <div className="text-slate-600 mt-1 font-mono">
                 Tax ID / GSTIN: {quotation.customer.gstin}
@@ -168,24 +178,29 @@ export default function QuotationDetailModal({
         <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500">Change Status:</span>
+            {(quotation.status === 'DRAFT' || quotation.status === 'ISSUED') && onEditQuote && (
+              <Button size="sm" variant="outline" icon={Pencil} onClick={() => { onClose(); onEditQuote(quotation); }}>
+                Edit Specifications
+              </Button>
+            )}
             {quotation.status === 'DRAFT' && (
-              <Button
-                size="sm"
-                variant="primary"
-                icon={CheckCircle}
-                onClick={() => onUpdateStatus(quotation.id, 'CONFIRMED')}
-              >
+              <Button size="sm" variant="primary" icon={Send} onClick={() => onUpdateStatus(quotation.id, 'ISSUED')}>
+                Issue to Client
+              </Button>
+            )}
+            {quotation.status === 'ISSUED' && (
+              <Button size="sm" variant="primary" icon={CheckCircle} onClick={() => onUpdateStatus(quotation.id, 'CONFIRMED')}>
                 Confirm Order
               </Button>
             )}
             {quotation.status === 'CONFIRMED' && (
-              <Button
-                size="sm"
-                variant="primary"
-                icon={CheckCheck}
-                onClick={() => onUpdateStatus(quotation.id, 'COMPLETED')}
-              >
+              <Button size="sm" variant="primary" icon={CheckCheck} onClick={() => onUpdateStatus(quotation.id, 'COMPLETED')}>
                 Mark Fabrication Completed
+              </Button>
+            )}
+            {onDeleteQuote && (quotation.status === 'DRAFT' || quotation.status === 'ISSUED' || quotation.status === 'CANCELLED') && (
+              <Button size="sm" variant="danger" icon={Trash2} onClick={() => { onClose(); onDeleteQuote(quotation.id); }}>
+                Delete Quote
               </Button>
             )}
           </div>

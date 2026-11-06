@@ -50,9 +50,12 @@ export default function InventoryView({ isAddModalOpen, setIsAddModalOpen }) {
   // Filter items by search
   const filteredItems = inventory.filter((item) => {
     const term = searchTerm.toLowerCase();
-    const matchesSku = item.sku.toLowerCase().includes(term);
-    const matchesName = item.name.toLowerCase().includes(term);
-    const matchesRack = item.rackLocation && item.rackLocation.toLowerCase().includes(term);
+    const skuStr = item.sku || '';
+    const nameStr = item.name || '';
+    const rackStr = item.rackLocation || '';
+    const matchesSku = skuStr.toLowerCase().includes(term);
+    const matchesName = nameStr.toLowerCase().includes(term);
+    const matchesRack = rackStr.toLowerCase().includes(term);
     return matchesSku || matchesName || matchesRack;
   });
 

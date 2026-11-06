@@ -37,10 +37,16 @@ async function getQuotations(req, res, next) {
       }
     });
 
+    const formatted = quotations.map((q) => ({
+      ...q,
+      customerName: q.customer?.name || q.customer?.companyName || "Direct Client",
+      customerType: q.customer?.type || "INDIVIDUAL"
+    }));
+
     res.json({
       success: true,
-      count: quotations.length,
-      data: quotations
+      count: formatted.length,
+      data: formatted
     });
   } catch (error) {
     next(error);
@@ -67,9 +73,15 @@ async function getQuotationById(req, res, next) {
       });
     }
 
+    const formatted = {
+      ...quotation,
+      customerName: quotation.customer?.name || quotation.customer?.companyName || "Direct Client",
+      customerType: quotation.customer?.type || "INDIVIDUAL"
+    };
+
     res.json({
       success: true,
-      data: quotation
+      data: formatted
     });
   } catch (error) {
     next(error);
@@ -185,10 +197,135 @@ async function createQuotation(req, res, next) {
       await fulfillQuotationStock(quotation, parsedItems);
     }
 
+    const formatted = {
+      ...quotation,
+      customerName: quotation.customer?.name || quotation.customer?.companyName || "Direct Client",
+      customerType: quotation.customer?.type || "INDIVIDUAL"
+    };
+
     res.status(201).json({
       success: true,
       message: "Quotation generated successfully",
-      data: quotation
+      data: formatted
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function updateQuotation(req, res, next) {
+  try {
+    const { id } = req.params;
+    const {
+      customerId,
+      items,
+      taxPercent = 18.0,
+      discountAmount = 0,
+      notes,
+      validUntil
+    } = req.body;
+
+    const existingQuote = await db.quotation.findUnique({
+      where: { id },
+      include: { items: true, customer: true }
+    });
+
+    if (!existingQuote) {
+      return res.status(404).json({
+        success: false,
+        message: "Quotation not found"
+      });
+    }
+
+    if (existingQuote.status !== "DRAFT" && existingQuote.status !== "ISSUED") {
+      return res.status(409).json({
+        success: false,
+        message: `Only DRAFT or ISSUED quotations can be edited (current status: ${existingQuote.status}). Confirmed or completed orders cannot be modified.`
+      });
+    }
+
+    if (items && items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one glass item is required for the quotation."
+      });
+    }
+
+    const itemsToProcess = items && items.length > 0 ? items : existingQuote.items;
+    const parsedItems = itemsToProcess.map((item) => {
+      const pricing = calculateItemPricing({
+        widthMm: item.widthMm,
+        heightMm: item.heightMm,
+        thicknessMm: item.thicknessMm,
+        glassType: item.glassType,
+        edgeWork: item.edgeWork,
+        holesCount: item.holesCount,
+        quantity: item.quantity,
+        customUnitPrice: item.unitPrice
+      });
+
+      return {
+        itemId: item.itemId || null,
+        glassType: item.glassType || "ANNEALED_FLOAT",
+        thicknessMm: Number(item.thicknessMm) || 6,
+        widthMm: Number(item.widthMm) || 1000,
+        heightMm: Number(item.heightMm) || 1000,
+        areaSqM: pricing.areaSqM,
+        quantity: pricing.quantity,
+        edgeWork: item.edgeWork || "CLEAN_CUT",
+        holesCount: parseInt(item.holesCount, 10) || 0,
+        unitPrice: pricing.unitPrice,
+        lineTotal: pricing.lineTotal
+      };
+    });
+
+    const finalDiscount = discountAmount !== undefined ? Number(discountAmount) : existingQuote.discountAmount;
+    const totals = calculateQuotationTotals(parsedItems, finalDiscount, Number(taxPercent));
+
+    const updated = await db.$transaction(async (tx) => {
+      await tx.quotationItem.deleteMany({
+        where: { quotationId: id }
+      });
+
+      for (const item of parsedItems) {
+        await tx.quotationItem.create({
+          data: {
+            ...item,
+            quotationId: id
+          }
+        });
+      }
+
+      return await tx.quotation.update({
+        where: { id },
+        data: {
+          customerId: customerId || existingQuote.customerId,
+          subtotal: totals.subtotal,
+          taxAmount: totals.taxAmount,
+          discountAmount: totals.discountAmount,
+          totalAmount: totals.totalAmount,
+          notes: notes !== undefined ? notes : existingQuote.notes,
+          validUntil: validUntil ? new Date(validUntil) : existingQuote.validUntil
+        },
+        include: {
+          customer: true,
+          items: {
+            include: { item: true }
+          }
+        }
+      });
+    });
+
+    const formatted = {
+      ...updated,
+      customerName: updated.customer?.name || updated.customer?.companyName || "Direct Client",
+      customerType: updated.customer?.type || "INDIVIDUAL"
+    };
+
+    res.json({
+      success: true,
+      message: "Quotation updated successfully",
+      data: formatted
     });
   } catch (error) {
     next(error);
@@ -235,10 +372,16 @@ async function updateQuotationStatus(req, res, next) {
       await fulfillQuotationStock(updated, currentQuote.items);
     }
 
+    const formatted = {
+      ...updated,
+      customerName: updated.customer?.name || updated.customer?.companyName || "Direct Client",
+      customerType: updated.customer?.type || "INDIVIDUAL"
+    };
+
     res.json({
       success: true,
       message: `Quotation status updated to ${status}`,
-      data: updated
+      data: formatted
     });
   } catch (error) {
     next(error);
@@ -281,7 +424,26 @@ async function previewCalculation(req, res, next) {
 async function deleteQuotation(req, res, next) {
   try {
     const { id } = req.params;
-    await db.quotation.delete({ where: { id } });
+    const existing = await db.quotation.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: "Quotation not found"
+      });
+    }
+
+    if (existing.status === "COMPLETED") {
+      return res.status(409).json({
+        success: false,
+        message: "Cannot delete a COMPLETED quotation because glass has already been dispatched and stock fulfilled."
+      });
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.quotationItem.deleteMany({ where: { quotationId: id } });
+      await tx.quotation.delete({ where: { id } });
+    });
+
     res.json({
       success: true,
       message: "Quotation deleted successfully"
@@ -295,6 +457,7 @@ module.exports = {
   getQuotations,
   getQuotationById,
   createQuotation,
+  updateQuotation,
   updateQuotationStatus,
   previewCalculation,
   deleteQuotation

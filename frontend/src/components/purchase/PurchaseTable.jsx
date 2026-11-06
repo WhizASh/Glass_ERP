@@ -11,10 +11,15 @@ export default function PurchaseTable({ purchases = [], suppliers = [] }) {
   const [expandedId, setExpandedId] = useState(null);
 
   const filteredPurchases = purchases.filter((po) => {
+    const sName = po.supplierName || po.supplier?.name || po.supplier?.contactPerson || '';
+    const orderNo = po.orderNumber || '';
+    const notesText = po.notes || '';
+    const term = searchTerm.toLowerCase();
+
     const matchesSearch =
-      po.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      po.supplierName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (po.notes && po.notes.toLowerCase().includes(searchTerm.toLowerCase()));
+      orderNo.toLowerCase().includes(term) ||
+      sName.toLowerCase().includes(term) ||
+      notesText.toLowerCase().includes(term);
 
     const matchesSupplier = !selectedSupplier || po.supplierId === selectedSupplier;
 
@@ -74,7 +79,9 @@ export default function PurchaseTable({ purchases = [], suppliers = [] }) {
                         {po.orderNumber}
                       </td>
                       <td className="px-5 py-3.5">
-                        <div className="font-semibold text-slate-900">{po.supplierName}</div>
+                        <div className="font-semibold text-slate-900">
+                          {po.supplierName || po.supplier?.name || po.supplier?.contactPerson || 'General Supplier'}
+                        </div>
                         {po.notes && (
                           <div className="text-[11px] text-slate-500 truncate max-w-xs">
                             {po.notes}
@@ -115,10 +122,10 @@ export default function PurchaseTable({ purchases = [], suppliers = [] }) {
                                 >
                                   <div>
                                     <span className="font-medium text-slate-800">
-                                      {item.itemName}
+                                      {item.itemName || item.item?.name || 'Material Item'}
                                     </span>
                                     <span className="text-slate-500 ml-2">
-                                      ({item.quantity} {item.unitOfMeasure || 'units'} @ {formatCurrency(item.unitCost)}/unit)
+                                      ({item.quantity} {item.unitOfMeasure || item.item?.unitOfMeasure || 'units'} @ {formatCurrency(item.unitCost)}/unit)
                                     </span>
                                   </div>
                                   <div className="font-mono font-semibold text-slate-900">

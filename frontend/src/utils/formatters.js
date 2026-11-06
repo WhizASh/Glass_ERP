@@ -2,9 +2,9 @@
  * Formatting utilities for VitroGlass ERP.
  */
 
-export function formatCurrency(amount, currency = 'USD') {
+export function formatCurrency(amount, currency = 'INR') {
   const val = Number(amount) || 0;
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 2,
@@ -14,7 +14,7 @@ export function formatCurrency(amount, currency = 'USD') {
 
 export function formatNumber(val, decimals = 2) {
   const num = Number(val) || 0;
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(num);

@@ -95,7 +95,7 @@ export default function CustomerFormModal({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label={formData.type === 'ORGANIZATION' ? 'Contact Representative' : 'Full Name'}
-            placeholder="e.g. Marcus Wright"
+            placeholder="e.g. Vikram Sharma"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -104,7 +104,7 @@ export default function CustomerFormModal({
           {formData.type === 'ORGANIZATION' && (
             <Input
               label="Company / Firm Name"
-              placeholder="e.g. Skyline Facades LLC"
+              placeholder="e.g. Apex Glass & Façades Pvt Ltd"
               required
               value={formData.companyName || ''}
               onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
@@ -114,7 +114,7 @@ export default function CustomerFormModal({
           {formData.type === 'ORGANIZATION' && (
             <Input
               label="Tax ID / GSTIN"
-              placeholder="e.g. GST-US-8849201"
+              placeholder="e.g. 27AABCA1234F1Z9"
               value={formData.gstin || ''}
               onChange={(e) => setFormData({ ...formData, gstin: e.target.value })}
             />
@@ -122,7 +122,7 @@ export default function CustomerFormModal({
 
           <Input
             label="Phone Number"
-            placeholder="+1 (555) 000-0000"
+            placeholder="+91 98765 43210"
             required
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -130,7 +130,7 @@ export default function CustomerFormModal({
 
           <Input
             label="Email Address"
-            placeholder="client@example.com"
+            placeholder="client@example.in"
             value={formData.email || ''}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
@@ -139,13 +139,13 @@ export default function CustomerFormModal({
         <div className="space-y-3">
           <Input
             label="Billing Address"
-            placeholder="Commercial Suite, City, State"
+            placeholder="e.g. 401 Skylark Tower, Senapati Bapat Marg, Lower Parel, Mumbai 400013"
             value={formData.billingAddress || ''}
             onChange={(e) => setFormData({ ...formData, billingAddress: e.target.value })}
           />
           <Input
             label="Delivery / Job Site Address"
-            placeholder="Job site address or leave blank if same as billing"
+            placeholder="e.g. Site 4B, Mindspace Business Park, Airoli, Navi Mumbai 400708 (or leave blank if same as billing)"
             value={formData.shippingAddress || ''}
             onChange={(e) => setFormData({ ...formData, shippingAddress: e.target.value })}
           />

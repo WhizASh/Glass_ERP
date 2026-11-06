@@ -2,6 +2,22 @@
 const { db } = require("../config/db");
 const { recordPurchaseReceipt } = require("../services/inventoryService");
 
+// Formats purchase order with top-level supplierName and items with itemName
+function formatPurchaseOrder(po) {
+  if (!po) return po;
+  return {
+    ...po,
+    supplierName: po.supplierName || po.supplier?.name || po.supplier?.contactPerson || "General Supplier",
+    items: Array.isArray(po.items)
+      ? po.items.map((it) => ({
+          ...it,
+          itemName: it.itemName || it.item?.name || "Inventory Material",
+          unitOfMeasure: it.unitOfMeasure || it.item?.unitOfMeasure || "units"
+        }))
+      : []
+  };
+}
+
 async function getPurchases(req, res, next) {
   try {
     const { supplierId, status, from, to } = req.query;
@@ -32,10 +48,12 @@ async function getPurchases(req, res, next) {
       }
     });
 
+    const formatted = purchases.map(formatPurchaseOrder);
+
     res.json({
       success: true,
-      count: purchases.length,
-      data: purchases
+      count: formatted.length,
+      data: formatted
     });
   } catch (error) {
     next(error);
@@ -64,7 +82,7 @@ async function getPurchaseById(req, res, next) {
 
     res.json({
       success: true,
-      data: purchase
+      data: formatPurchaseOrder(purchase)
     });
   } catch (error) {
     next(error);
@@ -166,7 +184,7 @@ async function createPurchase(req, res, next) {
     res.status(201).json({
       success: true,
       message: "Purchase order created and stock recorded successfully",
-      data: purchaseOrder
+      data: formatPurchaseOrder(purchaseOrder)
     });
   } catch (error) {
     next(error);
@@ -216,7 +234,7 @@ async function updatePurchaseStatus(req, res, next) {
     res.json({
       success: true,
       message: `Purchase order status updated to ${status}`,
-      data: updated
+      data: formatPurchaseOrder(updated)
     });
   } catch (error) {
     next(error);

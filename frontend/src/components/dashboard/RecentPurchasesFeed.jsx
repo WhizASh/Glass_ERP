@@ -24,7 +24,7 @@ export default function RecentPurchasesFeed({ purchases = [], onViewAll }) {
     >
       <div className="space-y-3 pt-1">
         {purchaseList.map((po) => {
-          const supplierName = po.supplierName || po.supplier?.name || 'Vendor';
+          const supplierName = po.supplierName || po.supplier?.name || po.supplier?.contactPerson || 'General Supplier';
           const purchaseDate = po.purchaseDate || po.createdAt;
 
           return (

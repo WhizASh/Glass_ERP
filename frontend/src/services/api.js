@@ -9,39 +9,39 @@
 const INITIAL_SUPPLIERS = [
   {
     id: 'sup-1',
-    name: 'Saint-Gobain Glass Corp',
-    contactPerson: 'Marcus Vance',
-    email: 'm.vance@saint-gobain.mock',
-    phone: '+1 (555) 234-5678',
-    taxId: 'US-SG-994821',
-    address: '100 Industrial Blvd, Valley Forge, PA',
+    name: 'Saint-Gobain India Glass Ltd',
+    contactPerson: 'Arun Krishnan',
+    email: 'orders.india@saint-gobain.com',
+    phone: '+91 98201 11220',
+    taxId: '33AAACS1234E1ZP',
+    address: 'Plot No. A-1, SIPCOT Industrial Park, Sriperumbudur, Tamil Nadu 602105',
   },
   {
     id: 'sup-2',
-    name: 'AGC Flat Glass International',
-    contactPerson: 'Elena Rostova',
-    email: 'e.rostova@agc-glass.mock',
-    phone: '+1 (555) 876-5432',
-    taxId: 'US-AGC-332901',
-    address: '45 Float Way, Kingsport, TN',
+    name: 'Asahi India Glass (AIS)',
+    contactPerson: 'Manish Verma',
+    email: 'commercial@aisglass.com',
+    phone: '+91 98124 55667',
+    taxId: '06AAACA5555L1Z1',
+    address: 'Unit 203, Global Business Park, MG Road, Gurgaon, Haryana 122002',
   },
   {
     id: 'sup-3',
-    name: 'Saflex Interlayer Materials (Eastman)',
-    contactPerson: 'David Chen',
-    email: 'dchen@eastman-saflex.mock',
-    phone: '+1 (555) 432-1098',
-    taxId: 'US-SFX-771239',
-    address: '200 Chemical Park, Springfield, MA',
+    name: 'Kuraray India Pvt Ltd',
+    contactPerson: 'Deepak Mehta',
+    email: 'sales.in@kuraray.com',
+    phone: '+91 98226 78890',
+    taxId: '27AAACK3333R1ZX',
+    address: 'B-Wing, 502, Dynasty Business Park, Andheri-Kurla Road, Mumbai 400059',
   },
   {
     id: 'sup-4',
-    name: 'Dow Performance Silicones',
-    contactPerson: 'Sarah Jenkins',
-    email: 's.jenkins@dow-silicones.mock',
-    phone: '+1 (555) 654-3210',
-    taxId: 'US-DOW-119842',
-    address: '2211 Dow Center, Midland, MI',
+    name: 'Dow Chemical International Pvt Ltd',
+    contactPerson: 'Ananya Sen',
+    email: 'construction.in@dow.com',
+    phone: '+91 98226 15070',
+    taxId: '27AAACD9999M1ZT',
+    address: 'First Sub-surface Floor, Godrej One, Pirojshanagar, Vikhroli East, Mumbai 400079',
   },
 ];
 
@@ -49,46 +49,46 @@ const INITIAL_CUSTOMERS = [
   {
     id: 'cust-1',
     type: 'ORGANIZATION',
-    name: 'Skyline Architectural Facades',
-    companyName: 'Skyline Architectural Facades Inc.',
-    gstin: 'GST-US-8849201',
-    email: 'procurement@skylinefacades.mock',
-    phone: '+1 (555) 301-4499',
-    billingAddress: '400 Commercial Ave, Suite 1200, Chicago, IL',
-    shippingAddress: 'Tower Site B, 55 Michigan Ave, Chicago, IL',
+    name: 'Apex Glass & Façades Ltd',
+    companyName: 'Apex Glass & Façades Ltd',
+    gstin: '27AABCA1234F1Z9',
+    email: 'procurement@apexglass.com',
+    phone: '+91 98201 11223',
+    billingAddress: '401 Skylark Tower, Senapati Bapat Marg, Lower Parel, Mumbai 400013',
+    shippingAddress: 'Site 4B, Mindspace Business Park, Airoli, Navi Mumbai 400708',
   },
   {
     id: 'cust-2',
     type: 'ORGANIZATION',
-    name: 'Apex Balustrades & Railings',
-    companyName: 'Apex Structural Glass LLC',
-    gstin: 'GST-US-4491028',
-    email: 'orders@apexbalustrades.mock',
-    phone: '+1 (555) 412-8822',
-    billingAddress: '780 Fabricator Rd, Detroit, MI',
-    shippingAddress: '780 Fabricator Rd, Detroit, MI',
+    name: 'Rajesh Architectural Systems',
+    companyName: 'Rajesh Architectural Systems Pvt Ltd',
+    gstin: '29AAACR5678M1Z2',
+    email: 'info@rajesharc.in',
+    phone: '+91 98450 33445',
+    billingAddress: '88 Industrial Suburb, Peenya 2nd Stage, Bangalore 560058',
+    shippingAddress: 'Prestige Tech Park Glazing Site, Marathahalli, Bangalore 560103',
   },
   {
     id: 'cust-3',
     type: 'INDIVIDUAL',
-    name: 'Robert Henderson',
+    name: 'Vikram Sharma',
     companyName: null,
     gstin: null,
-    email: 'robert.henderson@email.mock',
-    phone: '+1 (555) 902-1144',
-    billingAddress: '142 Maplewood Drive, Naperville, IL',
-    shippingAddress: '142 Maplewood Drive, Naperville, IL',
+    email: 'vikram.sharma99@gmail.com',
+    phone: '+91 98110 55667',
+    billingAddress: 'Villa 14, Palm Avenue, Bandra West, Mumbai 400050',
+    shippingAddress: 'Villa 14, Palm Avenue, Bandra West, Mumbai 400050',
   },
   {
     id: 'cust-4',
     type: 'ORGANIZATION',
-    name: 'Zenith Shower Doors & Partitions',
-    companyName: 'Zenith Interiors Ltd',
-    gstin: 'GST-US-5519823',
-    email: 'info@zenithinteriors.mock',
-    phone: '+1 (555) 789-2231',
-    billingAddress: '12 Glassworks Way, Milwaukee, WI',
-    shippingAddress: '12 Glassworks Way, Milwaukee, WI',
+    name: 'Moderne Interiors LLP',
+    companyName: 'Moderne Interiors LLP',
+    gstin: '07AABCM9876P1ZV',
+    email: 'design@moderneinteriors.com',
+    phone: '+91 98100 88990',
+    billingAddress: 'Sector 18, Udyog Vihar, Gurgaon 122015',
+    shippingAddress: 'DLF Cybercity Phase 3, Gurgaon 122002',
   },
 ];
 
@@ -228,11 +228,11 @@ const INITIAL_PURCHASES = [
     id: 'po-101',
     orderNumber: 'PO-2026-089',
     supplierId: 'sup-1',
-    supplierName: 'Saint-Gobain Glass Corp',
+    supplierName: 'Saint-Gobain India Glass Ltd',
     totalAmount: 14500.0,
     status: 'COMPLETED',
     purchaseDate: '2026-11-01T10:15:00Z',
-    notes: 'Bulk autumn delivery of 6mm and 10mm clear float packs.',
+    notes: 'Bulk delivery of 6mm and 10mm clear float packs.',
     items: [
       { id: 'poi-1', itemId: 'inv-1', itemName: 'Clear Float Glass Sheet 6mm', quantity: 50, unitCost: 145.0, totalCost: 7250.0 },
       { id: 'poi-2', itemId: 'inv-2', itemName: 'Clear Float Glass Sheet 10mm', quantity: 25, unitCost: 290.0, totalCost: 7250.0 },
@@ -242,11 +242,11 @@ const INITIAL_PURCHASES = [
     id: 'po-102',
     orderNumber: 'PO-2026-090',
     supplierId: 'sup-3',
-    supplierName: 'Saflex Interlayer Materials (Eastman)',
+    supplierName: 'Kuraray India Pvt Ltd',
     totalAmount: 5340.0,
     status: 'COMPLETED',
     purchaseDate: '2026-11-03T14:30:00Z',
-    notes: 'Saflex Clear & Acoustic PVB rolls for laminated architectural run.',
+    notes: 'Acoustic PVB rolls for laminated architectural run.',
     items: [
       { id: 'poi-3', itemId: 'inv-5', itemName: 'PVB Interlayer Film Roll 0.76mm', quantity: 6, unitCost: 890.0, totalCost: 5340.0 },
     ],
@@ -255,7 +255,7 @@ const INITIAL_PURCHASES = [
     id: 'po-103',
     orderNumber: 'PO-2026-091',
     supplierId: 'sup-4',
-    supplierName: 'Dow Performance Silicones',
+    supplierName: 'Dow Chemical International Pvt Ltd',
     totalAmount: 2220.0,
     status: 'COMPLETED',
     purchaseDate: '2026-11-04T09:00:00Z',
@@ -271,7 +271,7 @@ const INITIAL_QUOTATIONS = [
     id: 'qt-201',
     quotationNumber: 'QT-2026-048',
     customerId: 'cust-1',
-    customerName: 'Skyline Architectural Facades',
+    customerName: 'Apex Glass & Façades Ltd',
     customerType: 'ORGANIZATION',
     subtotal: 18450.0,
     taxAmount: 1845.0,
@@ -279,7 +279,7 @@ const INITIAL_QUOTATIONS = [
     totalAmount: 19795.0,
     status: 'CONFIRMED',
     validUntil: '2026-12-01T23:59:59Z',
-    notes: 'Facade panels for Michigan Ave atrium renovation. Ground and polished edges with 4 CNC mounting holes per pane.',
+    notes: 'Facade panels for commercial atrium renovation. Ground and polished edges with 4 CNC mounting holes per pane.',
     createdAt: '2026-11-02T11:20:00Z',
     items: [
       {
@@ -314,7 +314,7 @@ const INITIAL_QUOTATIONS = [
     id: 'qt-202',
     quotationNumber: 'QT-2026-049',
     customerId: 'cust-2',
-    customerName: 'Apex Balustrades & Railings',
+    customerName: 'Rajesh Architectural Systems',
     customerType: 'ORGANIZATION',
     subtotal: 7280.0,
     taxAmount: 728.0,
@@ -344,7 +344,7 @@ const INITIAL_QUOTATIONS = [
     id: 'qt-203',
     quotationNumber: 'QT-2026-050',
     customerId: 'cust-3',
-    customerName: 'Robert Henderson',
+    customerName: 'Vikram Sharma',
     customerType: 'INDIVIDUAL',
     subtotal: 1240.0,
     taxAmount: 124.0,
@@ -389,7 +389,16 @@ const INITIAL_QUOTATIONS = [
 function loadState(key, fallback) {
   try {
     const saved = localStorage.getItem(`vitro_${key}`);
-    return saved ? JSON.parse(saved) : fallback;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const str = JSON.stringify(parsed);
+      if (str.includes('GST-US') || str.includes('+1 (555)') || str.includes('Skyline Architectural')) {
+        localStorage.setItem(`vitro_${key}`, JSON.stringify(fallback));
+        return fallback;
+      }
+      return parsed;
+    }
+    return fallback;
   } catch {
     return fallback;
   }
@@ -519,12 +528,34 @@ export const api = {
   },
 
   async getRecentActivity() {
-    return fetchWithFallback('/api/dashboard/recent-activity', { method: 'GET' }, () => {
+    const data = await fetchWithFallback('/api/dashboard/recent-activity', { method: 'GET' }, () => {
       return {
         recentQuotations: quotations.slice(0, 5),
         recentPurchases: purchases.slice(0, 5),
       };
     });
+    if (!data) return { recentQuotations: [], recentPurchases: [], recentSales: [] };
+    const recentQuotes = (data.recentSales || data.recentQuotations || []).map((q) => ({
+      ...q,
+      customerName: q.customerName || q.customer?.name || q.customer?.companyName || 'Direct Client',
+      customerType: q.customerType || q.customer?.type || 'INDIVIDUAL',
+    }));
+    const recentPos = (data.recentPurchases || []).map((po) => ({
+      ...po,
+      supplierName: po.supplierName || po.supplier?.name || po.supplier?.contactPerson || 'General Supplier',
+      items: Array.isArray(po.items)
+        ? po.items.map((it) => ({
+            ...it,
+            itemName: it.itemName || it.item?.name || 'Material Item',
+            unitOfMeasure: it.unitOfMeasure || it.item?.unitOfMeasure || 'units',
+          }))
+        : [],
+    }));
+    return {
+      recentSales: recentQuotes,
+      recentQuotations: recentQuotes,
+      recentPurchases: recentPos,
+    };
   },
 
   // ================= INVENTORY =================
@@ -591,13 +622,26 @@ export const api = {
 
   // ================= PURCHASES =================
   async getPurchases() {
-    return fetchWithFallback('/api/purchases', { method: 'GET' }, () => {
+    const data = await fetchWithFallback('/api/purchases', { method: 'GET' }, () => {
       return [...purchases];
     });
+    return Array.isArray(data)
+      ? data.map((po) => ({
+          ...po,
+          supplierName: po.supplierName || po.supplier?.name || po.supplier?.contactPerson || 'General Supplier',
+          items: Array.isArray(po.items)
+            ? po.items.map((it) => ({
+                ...it,
+                itemName: it.itemName || it.item?.name || 'Material Item',
+                unitOfMeasure: it.unitOfMeasure || it.item?.unitOfMeasure || 'units',
+              }))
+            : [],
+        }))
+      : [];
   },
 
   async createPurchase(purchaseData) {
-    return fetchWithFallback(
+    const data = await fetchWithFallback(
       '/api/purchases',
       { method: 'POST', body: JSON.stringify(purchaseData) },
       () => {
@@ -612,7 +656,14 @@ export const api = {
           status: 'COMPLETED',
           purchaseDate: new Date().toISOString(),
           notes: purchaseData.notes || '',
-          items: purchaseData.items || [],
+          items: (purchaseData.items || []).map((it) => {
+            const inv = inventory.find((invItem) => invItem.id === it.itemId);
+            return {
+              ...it,
+              itemName: it.itemName || inv?.name || 'Material Item',
+              unitOfMeasure: it.unitOfMeasure || inv?.unitOfMeasure || 'units',
+            };
+          }),
         };
         purchases = [newPurchase, ...purchases];
         saveState('purchases', purchases);
@@ -633,6 +684,18 @@ export const api = {
         return newPurchase;
       }
     );
+    if (!data) return data;
+    return {
+      ...data,
+      supplierName: data.supplierName || data.supplier?.name || data.supplier?.contactPerson || 'General Supplier',
+      items: Array.isArray(data.items)
+        ? data.items.map((it) => ({
+            ...it,
+            itemName: it.itemName || it.item?.name || 'Material Item',
+            unitOfMeasure: it.unitOfMeasure || it.item?.unitOfMeasure || 'units',
+          }))
+        : [],
+    };
   },
 
   // ================= SUPPLIERS =================
@@ -660,13 +723,20 @@ export const api = {
 
   // ================= QUOTATIONS =================
   async getQuotations() {
-    return fetchWithFallback('/api/quotations', { method: 'GET' }, () => {
+    const data = await fetchWithFallback('/api/quotations', { method: 'GET' }, () => {
       return [...quotations];
     });
+    return Array.isArray(data)
+      ? data.map((q) => ({
+          ...q,
+          customerName: q.customerName || q.customer?.name || q.customer?.companyName || 'Direct Client',
+          customerType: q.customerType || q.customer?.type || 'INDIVIDUAL',
+        }))
+      : [];
   },
 
   async createQuotation(quoteData) {
-    return fetchWithFallback(
+    const data = await fetchWithFallback(
       '/api/quotations',
       { method: 'POST', body: JSON.stringify(quoteData) },
       () => {
@@ -676,8 +746,9 @@ export const api = {
           id: `qt-${Date.now()}`,
           quotationNumber,
           customerId: quoteData.customerId,
-          customerName: customer ? customer.name : quoteData.customerName || 'Direct Client',
-          customerType: customer ? customer.type : quoteData.customerType || 'INDIVIDUAL',
+          customerName: customer ? (customer.companyName || customer.name) : (quoteData.customerName || 'Direct Client'),
+          customerType: customer ? customer.type : (quoteData.customerType || 'INDIVIDUAL'),
+          customer: customer || null,
           subtotal: Number(quoteData.subtotal) || 0,
           taxAmount: Number(quoteData.taxAmount) || 0,
           discountAmount: Number(quoteData.discountAmount) || 0,
@@ -691,6 +762,73 @@ export const api = {
         quotations = [newQuote, ...quotations];
         saveState('quotations', quotations);
         return newQuote;
+      }
+    );
+    if (!data) return data;
+    return {
+      ...data,
+      customerName: data.customerName || data.customer?.name || data.customer?.companyName || 'Direct Client',
+      customerType: data.customerType || data.customer?.type || 'INDIVIDUAL',
+    };
+  },
+
+  async updateQuotation(id, quoteData) {
+    const data = await fetchWithFallback(
+      `/api/quotations/${id}`,
+      { method: 'PUT', body: JSON.stringify(quoteData) },
+      () => {
+        let quoteIdx = quotations.findIndex((q) => String(q.id) === String(id));
+        const customer = quoteData.customerId
+          ? customers.find((c) => c.id === quoteData.customerId)
+          : (quoteIdx !== -1 ? customers.find((c) => c.id === quotations[quoteIdx].customerId) : null);
+
+        const existing = quoteIdx !== -1 ? quotations[quoteIdx] : {};
+        const updated = {
+          ...existing,
+          id: id || existing.id || `qt-${Date.now()}`,
+          quotationNumber: existing.quotationNumber || `QT-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
+          customerId: quoteData.customerId || existing.customerId,
+          customerName: customer ? (customer.companyName || customer.name) : (quoteData.customerName || existing.customerName || 'Direct Client'),
+          customerType: customer ? customer.type : (quoteData.customerType || existing.customerType || 'INDIVIDUAL'),
+          customer: customer || existing.customer || null,
+          subtotal: Number(quoteData.subtotal) || existing.subtotal || 0,
+          taxAmount: Number(quoteData.taxAmount) || existing.taxAmount || 0,
+          discountAmount:
+            quoteData.discountAmount !== undefined
+              ? Number(quoteData.discountAmount)
+              : (existing.discountAmount || 0),
+          totalAmount: Number(quoteData.totalAmount) || existing.totalAmount || 0,
+          notes: quoteData.notes !== undefined ? quoteData.notes : (existing.notes || ''),
+          items: quoteData.items || existing.items || [],
+          status: existing.status || 'DRAFT',
+          updatedAt: new Date().toISOString(),
+        };
+
+        if (quoteIdx !== -1) {
+          quotations = quotations.map((q) => (String(q.id) === String(id) ? updated : q));
+        } else {
+          quotations = [updated, ...quotations];
+        }
+        saveState('quotations', quotations);
+        return updated;
+      }
+    );
+    if (!data) return data;
+    return {
+      ...data,
+      customerName: data.customerName || data.customer?.name || data.customer?.companyName || 'Direct Client',
+      customerType: data.customerType || data.customer?.type || 'INDIVIDUAL',
+    };
+  },
+
+  async deleteQuotation(id) {
+    return fetchWithFallback(
+      `/api/quotations/${id}`,
+      { method: 'DELETE' },
+      () => {
+        quotations = quotations.filter((q) => String(q.id) !== String(id));
+        saveState('quotations', quotations);
+        return { success: true };
       }
     );
   },
@@ -733,6 +871,18 @@ export const api = {
         customers = [...customers, newCustomer];
         saveState('customers', customers);
         return newCustomer;
+      }
+    );
+  },
+
+  async updateCustomer(id, customerData) {
+    return fetchWithFallback(
+      `/api/customers/${id}`,
+      { method: 'PUT', body: JSON.stringify(customerData) },
+      () => {
+        customers = customers.map((c) => (c.id === id ? { ...c, ...customerData } : c));
+        saveState('customers', customers);
+        return customers.find((c) => c.id === id);
       }
     );
   },

@@ -10,12 +10,18 @@ export default function CustomerList({ customers = [], onSelectCustomer }) {
 
   const filteredCustomers = customers.filter((c) => {
     const term = searchTerm.toLowerCase();
+    const nameStr = c.name || '';
+    const compStr = c.companyName || '';
+    const phoneStr = c.phone || '';
+    const emailStr = c.email || '';
+    const gstinStr = c.gstin || '';
+
     const matchesSearch =
-      c.name.toLowerCase().includes(term) ||
-      (c.companyName && c.companyName.toLowerCase().includes(term)) ||
-      c.phone.toLowerCase().includes(term) ||
-      (c.email && c.email.toLowerCase().includes(term)) ||
-      (c.gstin && c.gstin.toLowerCase().includes(term));
+      nameStr.toLowerCase().includes(term) ||
+      compStr.toLowerCase().includes(term) ||
+      phoneStr.toLowerCase().includes(term) ||
+      emailStr.toLowerCase().includes(term) ||
+      gstinStr.toLowerCase().includes(term);
 
     const matchesType = !typeFilter || c.type === typeFilter;
 

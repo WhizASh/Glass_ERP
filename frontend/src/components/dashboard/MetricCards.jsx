@@ -17,7 +17,7 @@ export default function MetricCards({ summary = {}, onNavigate }) {
     {
       id: 'quotes',
       title: 'Active Quotations',
-      value: summary.activeQuotesCount ?? 0,
+      value: summary.activeQuotesCount ?? summary.activeQuotationsCount ?? 0,
       subtitle: 'Drafts & awaiting fabrication',
       icon: FileSpreadsheet,
       glow: 'border-slate-200/90 hover:border-blue-300 hover:shadow-blue-100/50',
@@ -27,7 +27,7 @@ export default function MetricCards({ summary = {}, onNavigate }) {
     {
       id: 'purchases',
       title: 'Monthly Procurement',
-      value: formatCurrency(summary.monthlyPurchasesTotal || 0),
+      value: formatCurrency(summary.monthlyPurchasesTotal ?? summary.totalPurchasesSpend ?? 0),
       subtitle: 'Raw float & PVB inventory receipts',
       icon: ShoppingBag,
       glow: 'border-slate-200/90 hover:border-emerald-300 hover:shadow-emerald-100/50',

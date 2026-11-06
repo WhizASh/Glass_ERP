@@ -226,7 +226,7 @@ export default function AddEditItemModal({
         {/* Pricing */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Unit Procurement Cost ($)"
+            label="Unit Procurement Cost (₹)"
             type="number"
             min="0"
             step="0.01"
@@ -235,7 +235,7 @@ export default function AddEditItemModal({
             onChange={(e) => setFormData({ ...formData, unitCost: Number(e.target.value) })}
           />
           <Input
-            label="Base Selling Price ($)"
+            label="Base Selling Price (₹)"
             type="number"
             min="0"
             step="0.01"

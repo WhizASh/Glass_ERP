@@ -186,15 +186,35 @@ async function getRecentActivity(limit = 5) {
       orderBy: { createdAt: "desc" },
       include: {
         supplier: true,
-        items: true
+        items: {
+          include: { item: true }
+        }
       }
     })
   ]);
 
+  const formattedSales = recentSales.map((q) => ({
+    ...q,
+    customerName: q.customerName || q.customer?.name || q.customer?.companyName || "Direct Client",
+    customerType: q.customerType || q.customer?.type || "INDIVIDUAL"
+  }));
+
+  const formattedPurchases = recentPurchases.map((po) => ({
+    ...po,
+    supplierName: po.supplierName || po.supplier?.name || po.supplier?.contactPerson || "General Supplier",
+    items: Array.isArray(po.items)
+      ? po.items.map((it) => ({
+          ...it,
+          itemName: it.itemName || it.item?.name || "Inventory Material",
+          unitOfMeasure: it.unitOfMeasure || it.item?.unitOfMeasure || "units"
+        }))
+      : []
+  }));
+
   return {
-    recentSales,
-    recentQuotations: recentSales,
-    recentPurchases
+    recentSales: formattedSales,
+    recentQuotations: formattedSales,
+    recentPurchases: formattedPurchases
   };
 }
 

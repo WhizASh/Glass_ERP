@@ -48,34 +48,34 @@ export default function SupplierSelect({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Supplier Company Name"
-            placeholder="e.g. Saint-Gobain Glass"
+            placeholder="e.g. Saint-Gobain India Glass Ltd"
             required
             value={newSupplier.name}
             onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
           />
           <Input
             label="Contact Person"
-            placeholder="e.g. Marcus Vance"
+            placeholder="e.g. Arun Krishnan"
             value={newSupplier.contactPerson}
             onChange={(e) => setNewSupplier({ ...newSupplier, contactPerson: e.target.value })}
           />
           <Input
             label="Phone Number"
-            placeholder="+1 (555) 000-0000"
+            placeholder="+91 98765 43210"
             required
             value={newSupplier.phone}
             onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })}
           />
           <Input
             label="Email"
-            placeholder="orders@supplier.com"
+            placeholder="orders.india@saint-gobain.com"
             value={newSupplier.email}
             onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
           />
           <div className="sm:col-span-2">
             <Input
               label="Tax ID / GSTIN"
-              placeholder="e.g. US-SG-994821"
+              placeholder="e.g. 33AAACS1234E1ZP"
               value={newSupplier.taxId}
               onChange={(e) => setNewSupplier({ ...newSupplier, taxId: e.target.value })}
             />

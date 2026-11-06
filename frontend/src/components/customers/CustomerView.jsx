@@ -27,7 +27,12 @@ export default function CustomerView({ isAddModalOpen, setIsAddModalOpen }) {
   }, []);
 
   const handleSaveCustomer = async (custData) => {
-    await api.createCustomer(custData);
+    if (editingCustomer && editingCustomer.id) {
+      await api.updateCustomer(editingCustomer.id, custData);
+    } else {
+      await api.createCustomer(custData);
+    }
+    setEditingCustomer(null);
     loadData();
   };
 

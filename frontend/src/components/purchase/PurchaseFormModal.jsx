@@ -166,7 +166,7 @@ export default function PurchaseFormModal({
             min="0"
             step="0.01"
             required
-            suffix="$"
+            suffix="₹"
             value={unitCost}
             onChange={(e) => setUnitCost(e.target.value)}
           />
@@ -185,7 +185,7 @@ export default function PurchaseFormModal({
           />
           <Input
             label="Supplier Invoice / Delivery Note #"
-            placeholder="e.g. INV-90421"
+            placeholder="e.g. INV/2026-27/0842"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />

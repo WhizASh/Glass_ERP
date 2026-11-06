@@ -87,7 +87,7 @@ export default function CustomerSelector({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label={customerType === 'ORGANIZATION' ? 'Contact Representative Name' : 'Full Name'}
-            placeholder="e.g. John Doe"
+            placeholder="e.g. Vikram Sharma"
             required
             value={newCust.name}
             onChange={(e) => setNewCust({ ...newCust, name: e.target.value })}
@@ -96,7 +96,7 @@ export default function CustomerSelector({
           {customerType === 'ORGANIZATION' && (
             <Input
               label="Company / Firm Name"
-              placeholder="e.g. Skyline Architectural Facades"
+              placeholder="e.g. Apex Glass & Façades Pvt Ltd"
               required
               value={newCust.companyName}
               onChange={(e) => setNewCust({ ...newCust, companyName: e.target.value })}
@@ -106,7 +106,7 @@ export default function CustomerSelector({
           {customerType === 'ORGANIZATION' && (
             <Input
               label="Tax ID / GSTIN"
-              placeholder="e.g. GST-US-8849201"
+              placeholder="e.g. 27AABCA1234F1Z9"
               value={newCust.gstin}
               onChange={(e) => setNewCust({ ...newCust, gstin: e.target.value })}
             />
@@ -114,7 +114,7 @@ export default function CustomerSelector({
 
           <Input
             label="Phone Number"
-            placeholder="+1 (555) 000-0000"
+            placeholder="+91 98765 43210"
             required
             value={newCust.phone}
             onChange={(e) => setNewCust({ ...newCust, phone: e.target.value })}
@@ -122,14 +122,14 @@ export default function CustomerSelector({
 
           <Input
             label="Email Address"
-            placeholder="client@example.com"
+            placeholder="client@example.in"
             value={newCust.email}
             onChange={(e) => setNewCust({ ...newCust, email: e.target.value })}
           />
 
           <Input
             label="Site / Billing Address"
-            placeholder="123 Glazing St, Chicago, IL"
+            placeholder="e.g. 401 Skylark Tower, Senapati Bapat Marg, Lower Parel, Mumbai 400013"
             value={newCust.billingAddress}
             onChange={(e) => setNewCust({ ...newCust, billingAddress: e.target.value })}
           />

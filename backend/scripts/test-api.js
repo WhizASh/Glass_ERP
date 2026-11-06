@@ -72,7 +72,7 @@ async function runApiTests() {
     console.log("   ✅ Dashboard summary returned KPIs successfully!");
 
     // 3. Customers
-    console.log("3. GET /api/customers & POST /api/customers");
+    console.log("3. GET /api/customers & POST /api/customers & PUT /api/customers/:id");
     const customers = await request(server, "/api/customers");
     if (customers.status !== 200 || !customers.data.success) {
       throw new Error(`Customers get failed: ${JSON.stringify(customers)}`);
@@ -91,7 +91,16 @@ async function runApiTests() {
     if (newCust.status !== 201 || !newCust.data.success) {
       throw new Error(`Customer create failed: ${JSON.stringify(newCust)}`);
     }
-    console.log("   ✅ Customer endpoints OK!");
+
+    const createdId = newCust.data.data.id;
+    const updateCust = await request(server, `/api/customers/${createdId}`, "PUT", {
+      name: "Apex Facades & Glazing Ltd",
+      phone: "+91-9876543200"
+    });
+    if (updateCust.status !== 200 || !updateCust.data.success || updateCust.data.data.name !== "Apex Facades & Glazing Ltd") {
+      throw new Error(`Customer update failed: ${JSON.stringify(updateCust)}`);
+    }
+    console.log("   ✅ Customer endpoints (GET, POST, PUT) OK!");
 
     // 4. Inventory
     console.log("4. GET /api/inventory & POST /api/inventory/:id/adjust");
@@ -152,13 +161,84 @@ async function runApiTests() {
     if (createQuote.status !== 201 || !createQuote.data.success) {
       throw new Error(`Quotation create failed: ${JSON.stringify(createQuote)}`);
     }
-    console.log("   ✅ Quotation calculation and creation endpoints OK!");
+    const createdQuoteId = createQuote.data.data.id;
+
+    // Test PUT /api/quotations/:id (edit draft quotation)
+    const updateQuote = await request(server, `/api/quotations/${createdQuoteId}`, "PUT", {
+      customerId: newCust.data.data.id,
+      items: [
+        {
+          glassType: "TOUGHENED_TEMPERED",
+          thicknessMm: 12,
+          widthMm: 2200,
+          heightMm: 1100,
+          quantity: 3,
+          edgeWork: "FLAT_POLISH",
+          holesCount: 2
+        }
+      ],
+      taxPercent: 18,
+      discountAmount: 100,
+      notes: "Updated client specs with +200mm width"
+    });
+    if (updateQuote.status !== 200 || !updateQuote.data.success) {
+      throw new Error(`Quotation update failed: ${JSON.stringify(updateQuote)}`);
+    }
+    if (updateQuote.data.data.items[0].widthMm !== 2200) {
+      throw new Error(`Quotation update did not apply item dimension change`);
+    }
+
+    // Test transition to ISSUED and verify ISSUED quotes can be edited before confirmation
+    const issueTransition = await request(server, `/api/quotations/${createdQuoteId}/status`, "PATCH", { status: "ISSUED" });
+    if (issueTransition.status !== 200 || issueTransition.data.data.status !== "ISSUED") {
+      throw new Error(`Quotation transition to ISSUED failed: ${JSON.stringify(issueTransition)}`);
+    }
+
+    const editIssuedQuote = await request(server, `/api/quotations/${createdQuoteId}`, "PUT", {
+      notes: "Updated client specs after review"
+    });
+    if (editIssuedQuote.status !== 200 || !editIssuedQuote.data.success) {
+      throw new Error(`Failed to update ISSUED quote: ${JSON.stringify(editIssuedQuote)}`);
+    }
+
+    // Verify non-DRAFT/ISSUED edit rejection guardrail after order confirmation
+    await request(server, `/api/quotations/${createdQuoteId}/status`, "PATCH", { status: "COMPLETED" });
+    const invalidEdit = await request(server, `/api/quotations/${createdQuoteId}`, "PUT", {
+      items: [{ glassType: "ANNEALED_FLOAT", thicknessMm: 6, widthMm: 1000, heightMm: 1000, quantity: 1 }]
+    });
+    if (invalidEdit.status !== 409) {
+      throw new Error(`Expected 409 Conflict editing COMPLETED quote, got ${invalidEdit.status}`);
+    }
+
+    // Verify deletion of draft quote & completed quote deletion guardrail
+    const invalidDelete = await request(server, `/api/quotations/${createdQuoteId}`, "DELETE");
+    if (invalidDelete.status !== 409) {
+      throw new Error(`Expected 409 Conflict deleting COMPLETED quote, got ${invalidDelete.status}`);
+    }
+
+    // Create a draft quote to delete
+    const draftToDelete = await request(server, "/api/quotations", "POST", {
+      customerId: newCust.data.data.id,
+      items: [{ glassType: "ANNEALED_FLOAT", thicknessMm: 6, widthMm: 1000, heightMm: 1000, quantity: 1 }],
+      status: "DRAFT"
+    });
+    const delRes = await request(server, `/api/quotations/${draftToDelete.data.data.id}`, "DELETE");
+    if (delRes.status !== 200 || !delRes.data.success) {
+      throw new Error(`Failed to delete DRAFT quote: ${JSON.stringify(delRes)}`);
+    }
+
+    console.log("   ✅ Quotation calculation, creation, editing (PUT), deletion (DELETE), and status guardrails OK!");
 
     // 6. Purchases
     console.log("6. GET /api/purchases & POST /api/purchases");
     const purchases = await request(server, "/api/purchases");
     if (purchases.status !== 200 || !purchases.data.success) {
       throw new Error(`Purchases get failed: ${JSON.stringify(purchases)}`);
+    }
+    if (purchases.data.data.length > 0) {
+      if (!purchases.data.data[0].supplierName) {
+        throw new Error("Purchase order must include top-level supplierName");
+      }
     }
 
     const suppliers = await request(server, "/api/suppliers");
@@ -178,7 +258,10 @@ async function runApiTests() {
     if (createPO.status !== 201 || !createPO.data.success) {
       throw new Error(`Purchase order create failed: ${JSON.stringify(createPO)}`);
     }
-    console.log("   ✅ Purchases endpoints OK!");
+    if (!createPO.data.data.supplierName) {
+      throw new Error("Created purchase order must include supplierName");
+    }
+    console.log("   ✅ Purchases endpoints (including supplierName mapping) OK!");
 
     console.log("\n✨ ALL REST API ENDPOINTS VERIFIED AND RESPONDING FLAWLESSLY! ✨\n");
   } finally {

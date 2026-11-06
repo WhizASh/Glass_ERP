@@ -13,6 +13,16 @@ function errorHandler(err, req, res, next) {
     });
   }
 
+  // Prisma foreign key constraint violation (e.g. deleting customer with existing quotations)
+  if (err.code === "P2003") {
+    const field = err.meta && err.meta.field_name ? ` on field '${err.meta.field_name}'` : "";
+    return res.status(409).json({
+      success: false,
+      message: `Cannot delete or update record because it is referenced by existing orders or quotations${field}.`,
+      error: err.message
+    });
+  }
+
   // Prisma record not found
   if (err.code === "P2025") {
     return res.status(404).json({

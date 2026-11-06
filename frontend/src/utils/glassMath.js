@@ -24,7 +24,7 @@ export const EDGE_WORK_TYPES = [
   { id: 'BEVELED', label: 'Beveled Edge (1-inch)', ratePerMeter: 15.0 },
 ];
 
-export const HOLE_DRILL_RATE = 5.0; // $ per CNC drilled hole
+export const HOLE_DRILL_RATE = 5.0; // ₹ per CNC drilled hole
 
 /**
  * Calculates surface area in square meters (m²) given dimensions in millimeters (mm).

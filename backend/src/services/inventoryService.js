@@ -6,74 +6,82 @@ const { db } = require("../config/db");
  * Records physical stock addition when a Purchase Order is received
  */
 async function recordPurchaseReceipt(purchaseOrder, items = []) {
-  const movements = [];
+  if (!items || items.length === 0) return [];
 
-  for (const item of items) {
-    if (!item.itemId) continue;
+  return await db.$transaction(async (tx) => {
+    const movements = [];
 
-    const qty = Number(item.quantity) || 0;
-    if (qty <= 0) continue;
+    for (const item of items) {
+      if (!item.itemId) continue;
 
-    // Update stock quantity in InventoryItem
-    await db.inventoryItem.update({
-      where: { id: item.itemId },
-      data: {
-        stockQuantity: { increment: qty }
-      }
-    });
+      const qty = Number(item.quantity) || 0;
+      if (qty <= 0) continue;
 
-    // Create StockMovement record
-    const movement = await db.stockMovement.create({
-      data: {
-        itemId: item.itemId,
-        quantity: qty,
-        reason: "PURCHASE_RECEIPT",
-        referenceId: purchaseOrder.id,
-        notes: `Received via PO #${purchaseOrder.orderNumber}`
-      }
-    });
+      // Update stock quantity in InventoryItem
+      await tx.inventoryItem.update({
+        where: { id: item.itemId },
+        data: {
+          stockQuantity: { increment: qty }
+        }
+      });
 
-    movements.push(movement);
-  }
+      // Create StockMovement record
+      const movement = await tx.stockMovement.create({
+        data: {
+          itemId: item.itemId,
+          quantity: qty,
+          reason: "PURCHASE_RECEIPT",
+          referenceId: purchaseOrder.id,
+          notes: `Received via PO #${purchaseOrder.orderNumber}`
+        }
+      });
 
-  return movements;
+      movements.push(movement);
+    }
+
+    return movements;
+  });
 }
 
 /**
  * Fulfills stock deduction when a Quotation reaches COMPLETED status
  */
 async function fulfillQuotationStock(quotation, items = []) {
-  const movements = [];
+  if (!items || items.length === 0) return [];
 
-  for (const item of items) {
-    if (!item.itemId) continue;
+  return await db.$transaction(async (tx) => {
+    const movements = [];
 
-    const qty = Number(item.quantity) || 0;
-    if (qty <= 0) continue;
+    for (const item of items) {
+      if (!item.itemId) continue;
 
-    // Deduct stock quantity in InventoryItem
-    await db.inventoryItem.update({
-      where: { id: item.itemId },
-      data: {
-        stockQuantity: { decrement: qty }
-      }
-    });
+      const qty = Number(item.quantity) || 0;
+      if (qty <= 0) continue;
 
-    // Create negative StockMovement record
-    const movement = await db.stockMovement.create({
-      data: {
-        itemId: item.itemId,
-        quantity: -qty,
-        reason: "QUOTATION_FULFILLMENT",
-        referenceId: quotation.id,
-        notes: `Fulfilled for Quotation #${quotation.quotationNumber}`
-      }
-    });
+      // Deduct stock quantity in InventoryItem
+      await tx.inventoryItem.update({
+        where: { id: item.itemId },
+        data: {
+          stockQuantity: { decrement: qty }
+        }
+      });
 
-    movements.push(movement);
-  }
+      // Create negative StockMovement record
+      const movement = await tx.stockMovement.create({
+        data: {
+          itemId: item.itemId,
+          quantity: -qty,
+          reason: "QUOTATION_FULFILLMENT",
+          referenceId: quotation.id,
+          notes: `Fulfilled for Quotation #${quotation.quotationNumber}`
+        }
+      });
 
-  return movements;
+      movements.push(movement);
+    }
+
+    return movements;
+  });
 }
 
 /**
@@ -93,28 +101,30 @@ async function adjustStock(itemId, quantityDelta, reason = "MANUAL_ADJUSTMENT", 
     throw new Error("Quantity delta must be a non-zero number");
   }
 
-  // Update item stock
-  const updatedItem = await db.inventoryItem.update({
-    where: { id: itemId },
-    data: {
-      stockQuantity: { increment: delta }
-    }
-  });
+  return await db.$transaction(async (tx) => {
+    // Update item stock
+    const updatedItem = await tx.inventoryItem.update({
+      where: { id: itemId },
+      data: {
+        stockQuantity: { increment: delta }
+      }
+    });
 
-  // Record movement
-  const movement = await db.stockMovement.create({
-    data: {
-      itemId,
-      quantity: delta,
-      reason,
-      notes: notes || `Stock adjustment: ${delta > 0 ? "+" : ""}${delta} units`
-    }
-  });
+    // Record movement
+    const movement = await tx.stockMovement.create({
+      data: {
+        itemId,
+        quantity: delta,
+        reason,
+        notes: notes || `Stock adjustment: ${delta > 0 ? "+" : ""}${delta} units`
+      }
+    });
 
-  return {
-    item: updatedItem,
-    movement
-  };
+    return {
+      item: updatedItem,
+      movement
+    };
+  });
 }
 
 /**

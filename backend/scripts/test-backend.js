@@ -79,7 +79,7 @@ async function runTests() {
   assert.ok(summary, "Summary should exist");
   assert.ok(typeof summary.totalRevenue === "number", "Total revenue should be numeric");
   assert.ok(typeof summary.activeQuotationsCount === "number", "Active quotations should be numeric");
-  console.log(`   ✅ dashboardService summary: Revenue=$${summary.totalRevenue}, Active Quotes=${summary.activeQuotationsCount}`);
+  console.log(`   ✅ dashboardService summary: Revenue=₹${summary.totalRevenue}, Active Quotes=${summary.activeQuotationsCount}`);
 
   const topProduce = await dashboardService.getTopProducedMaterials();
   assert.ok(Array.isArray(topProduce), "Top produced should be an array");
@@ -89,11 +89,78 @@ async function runTests() {
   assert.ok(Array.isArray(salesChart), "Sales chart should be an array");
   console.log(`   ✅ Sales chart data points: ${salesChart.length}`);
 
+  const recentActivity = await dashboardService.getRecentActivity();
+  assert.ok(recentActivity, "Recent activity should exist");
+  assert.ok(Array.isArray(recentActivity.recentPurchases), "Recent purchases should be an array");
+  assert.ok(Array.isArray(recentActivity.recentSales), "Recent sales should be an array");
+  if (recentActivity.recentPurchases.length > 0) {
+    assert.ok(recentActivity.recentPurchases[0].supplierName, "Recent purchase order should have supplierName");
+  }
+  if (recentActivity.recentSales.length > 0) {
+    assert.ok(recentActivity.recentSales[0].customerName, "Recent quotation should have customerName");
+  }
+  console.log("   ✅ Recent activity contains formatted supplierName and customerName!");
+
   // 4. Test Express App Initialization
   console.log("4. Testing Express App & Route endpoints...");
   const app = require("../src/app");
   assert.ok(typeof app === "function", "App should be an Express application");
   console.log("   ✅ Express App initialized successfully!");
+
+  // 5. Test Transactional Inventory Stock Operations
+  console.log("5. Testing transactional inventoryService operations...");
+  const inventoryService = require("../src/services/inventoryService");
+  const testItem = inventory[0];
+  const originalStock = testItem.stockQuantity;
+
+  // Test purchase receipt in transaction
+  const receiptMovements = await inventoryService.recordPurchaseReceipt(
+    { id: "test-po-1", orderNumber: "PO-TEST-001" },
+    [{ itemId: testItem.id, quantity: 5 }]
+  );
+  assert.strictEqual(receiptMovements.length, 1, "Should create 1 stock movement");
+  assert.strictEqual(receiptMovements[0].quantity, 5, "Quantity should be 5");
+
+  // Verify stock increased
+  const itemAfterReceipt = await db.inventoryItem.findUnique({ where: { id: testItem.id } });
+  assert.strictEqual(itemAfterReceipt.stockQuantity, originalStock + 5, "Stock should increment by 5");
+
+  // Test quotation fulfillment in transaction
+  const fulfillMovements = await inventoryService.fulfillQuotationStock(
+    { id: "test-qt-1", quotationNumber: "QT-TEST-001" },
+    [{ itemId: testItem.id, quantity: 3 }]
+  );
+  assert.strictEqual(fulfillMovements.length, 1, "Should create 1 fulfillment movement");
+  assert.strictEqual(fulfillMovements[0].quantity, -3, "Fulfillment quantity should be -3");
+
+  const itemAfterFulfill = await db.inventoryItem.findUnique({ where: { id: testItem.id } });
+  assert.strictEqual(itemAfterFulfill.stockQuantity, originalStock + 2, "Stock should be original + 2");
+  console.log("   ✅ db.$transaction inventory updates verified successfully!");
+
+  // 6. Test Error Handler for P2003 Foreign Key Conflict
+  console.log("6. Testing errorHandler for P2003 Foreign Key handling...");
+  const errorHandler = require("../src/middlewares/errorHandler");
+  let capturedStatus = null;
+  let capturedBody = null;
+  const mockRes = {
+    status(code) {
+      capturedStatus = code;
+      return this;
+    },
+    json(body) {
+      capturedBody = body;
+      return this;
+    }
+  };
+  const mockP2003Error = new Error("Foreign key constraint failed");
+  mockP2003Error.code = "P2003";
+  mockP2003Error.meta = { field_name: "customerId" };
+
+  errorHandler(mockP2003Error, {}, mockRes, () => {});
+  assert.strictEqual(capturedStatus, 409, "P2003 must return 409 Conflict");
+  assert.strictEqual(capturedBody.success, false);
+  assert.ok(capturedBody.message.includes("Cannot delete or update record"), "Message must explain conflict");
+  console.log("   ✅ errorHandler P2003 returns 409 Conflict with clear message!");
 
   console.log("\n🎉 ALL BACKEND CHECKS AND UNIT TESTS PASSED SUCCESSFULLY!\n");
 }

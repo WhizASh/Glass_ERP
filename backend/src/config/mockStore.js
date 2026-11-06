@@ -191,6 +191,21 @@ class MockCollection {
     return clone(removed);
   }
 
+  async deleteMany(args = {}) {
+    const beforeCount = this.records.length;
+    this.records = this.records.filter((r) => !this.matchesWhere(r, args.where));
+    return { count: beforeCount - this.records.length };
+  }
+
+  async createMany(args = {}) {
+    const items = Array.isArray(args.data) ? args.data : [args.data];
+    const created = [];
+    for (const item of items) {
+      created.push(await this.create({ data: item }));
+    }
+    return { count: created.length };
+  }
+
   async count(args = {}) {
     const matched = this.records.filter((r) => this.matchesWhere(r, args.where));
     return matched.length;

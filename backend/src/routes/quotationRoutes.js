@@ -7,6 +7,7 @@ router.get("/", quotationController.getQuotations);
 router.post("/", quotationController.createQuotation);
 router.post("/calculate", quotationController.previewCalculation);
 router.get("/:id", quotationController.getQuotationById);
+router.put("/:id", quotationController.updateQuotation);
 router.patch("/:id/status", quotationController.updateQuotationStatus);
 router.delete("/:id", quotationController.deleteQuotation);
 
