@@ -1,0 +1,14 @@
+{
+  "name": "glass_erp",
+  "version": "1.0.0",
+  "description": "Glass Manufacturing & Distribution ERP",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:frontend": "npm --prefix frontend run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

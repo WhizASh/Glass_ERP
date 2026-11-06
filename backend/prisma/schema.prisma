@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  ORGANIZATION
+}
+
+model Customer {
+  id           String       @id @default(uuid())
+  customerType CustomerType @default(ORGANIZATION)
+  name         String
+  companyName  String?
+  taxId        String?
+  email        String?      @unique
+  phone        String?
+  address      String?
+  city         String?
+  notes        String?
+  quotations   Quotation[]
+  saleOrders   SaleOrder[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("customers")
+}
+
+model ProductSku {
+  id            String          @id @default(uuid())
+  skuCode       String          @unique
+  name          String
+  glassType     String
+  thicknessMm   Decimal
+  unitOfMeasure String          @default("SQ_METER")
+  unitPrice     Decimal
+  description   String?
+  quoteItems    QuotationItem[]
+  saleItems     SaleOrderItem[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("product_skus")
+}
+
+model Quotation {
+  id          String             @id @default(uuid())
+  quoteNumber String             @unique
+  customerId  String
+  customer    Customer           @relation(fields: [customerId], references: [id])
+  status      String             @default("DRAFT")
+  issueDate   DateTime           @default(now())
+  validUntil  DateTime?
+  subtotal    Decimal            @default(0)
+  taxRate     Decimal            @default(0)
+  taxAmount   Decimal            @default(0)
+  totalAmount Decimal            @default(0)
+  notes       String?
+  sections    QuotationSection[]
+  saleOrders  SaleOrder[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@map("quotations")
+}
+
+model QuotationSection {
+  id          String          @id @default(uuid())
+  quotationId String
+  quotation   Quotation       @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  sectionName String
+  sortOrder   Int             @default(0)
+  items       QuotationItem[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("quotation_sections")
+}
+
+model QuotationItem {
+  id           String           @id @default(uuid())
+  sectionId    String
+  section      QuotationSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  productSkuId String
+  productSku   ProductSku       @relation(fields: [productSkuId], references: [id])
+  description  String?
+  widthMm      Decimal?
+  heightMm     Decimal?
+  quantity     Decimal          @default(1)
+  areaSqM      Decimal?
+  unitPrice    Decimal
+  totalPrice   Decimal
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@map("quotation_items")
+}
+
+model SaleOrder {
+  id              String          @id @default(uuid())
+  orderNumber     String          @unique
+  customerId      String
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  quotationId     String?
+  quotation       Quotation?      @relation(fields: [quotationId], references: [id])
+  status          String          @default("PENDING")
+  paymentStatus   String          @default("UNPAID")
+  orderDate       DateTime        @default(now())
+  deliveryAddress String?
+  totalAmount     Decimal         @default(0)
+  items           SaleOrderItem[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("sale_orders")
+}
+
+model SaleOrderItem {
+  id           String     @id @default(uuid())
+  saleOrderId  String
+  saleOrder    SaleOrder  @relation(fields: [saleOrderId], references: [id], onDelete: Cascade)
+  sectionName  String?
+  productSkuId String
+  productSku   ProductSku @relation(fields: [productSkuId], references: [id])
+  description  String?
+  widthMm      Decimal?
+  heightMm     Decimal?
+  quantity     Decimal    @default(1)
+  unitPrice    Decimal
+  totalPrice   Decimal
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("sale_order_items")
+}
