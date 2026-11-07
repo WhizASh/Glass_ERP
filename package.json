@@ -6,7 +6,8 @@
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "build:frontend": "npm --prefix frontend run build"
+    "build:frontend": "npm --prefix frontend run build",
+    "db:reset": "npm --prefix backend run db:reset"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

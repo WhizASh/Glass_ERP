@@ -122,3 +122,92 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #0d9488;
 }
+
+/* ==========================================================================
+   Print Stylesheet for Quotations & Glazing Schedules
+   Matches the commercial spreadsheet reference on A4 portrait
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide app navigation, main root container, background drawers, and buttons */
+  #root,
+  .no-print,
+  [role="dialog"]:not(.print-dialog) {
+    display: none !important;
+  }
+
+  /* Reset portal modal wrappers so the print sheet sits in normal document flow */
+  .print-modal-overlay {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+    height: auto !important;
+    inset: auto !important;
+    z-index: auto !important;
+    backdrop-filter: none !important;
+  }
+
+  .print-preview-container {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  /* Display only the dedicated printable sheet */
+  #quotation-print-sheet {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-page-break {
+    page-break-before: always !important;
+  }
+
+  /* Crisp borders for commercial quotation grid */
+  .print-border {
+    border-color: #000000 !important;
+  }
+}
+

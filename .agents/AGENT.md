@@ -18,7 +18,7 @@ this is a monorepo with both backend and frontend , keep it seperate
 ## Database Changes
 
 - Every change to the database schema needs its own **new migration file**.
-- Put migration files in `migrations/`.
+- Put migration files in `backend/migrations/` (and `backend/prisma/migrations/` for Prisma).
 - Never edit an existing migration. Add a new one instead.
 
 ## Components and Reusability

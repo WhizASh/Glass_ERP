@@ -1,11 +1,14 @@
 import React from 'react';
-import { Eye, Inbox, FileText } from 'lucide-react';
+import { Eye, Inbox, FileText, Printer, Edit3 } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
+import { formatCurrency, formatSqft, getItemDisplayMetrics } from '../../lib/glassCalculations';
 
 const QuotationTable = ({
   quotations = [],
   loading = false,
   onSelectQuotation,
+  onPrintQuotation,
+  onEditQuotation,
   selectedQuotationId,
   onOpenCreateModal
 }) => {
@@ -57,25 +60,25 @@ const QuotationTable = ({
             <tr className="bg-steel-50 border-b border-steel-200 text-[11px] font-semibold text-steel-600 uppercase tracking-wider">
               <th className="py-2.5 px-3.5">Quote #</th>
               <th className="py-2.5 px-3.5">Customer / Company</th>
-              <th className="py-2.5 px-3.5">Issue Date</th>
+              <th className="py-2.5 px-3.5">Date</th>
               <th className="py-2.5 px-3.5">Sections / Floors</th>
-              <th className="py-2.5 px-3.5 text-right">Glass Area</th>
+              <th className="py-2.5 px-3.5 text-right">Glazing Area</th>
               <th className="py-2.5 px-3.5 text-right">Total Amount</th>
               <th className="py-2.5 px-3.5 text-center">Status</th>
-              <th className="py-2.5 px-3.5 text-right w-16">Action</th>
+              <th className="py-2.5 px-3.5 text-right w-20">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-steel-100 text-xs">
             {quotations.map((quote) => {
               const isSelected = selectedQuotationId === quote.id;
-              
-              // Compute total area in m²
-              let quoteArea = 0;
+
+              // Compute total area in sqft using universal display metrics
+              let quoteSqft = 0;
               (quote.sections || []).forEach((sec) => {
-                (sec.items || []).forEach((item) => {
-                  const area = Number(item.areaSqM) || 0;
-                  const qty = Number(item.quantity) || 1;
-                  quoteArea += area * qty;
+                const items = Array.isArray(sec.items) ? sec.items : (sec.items?.create || []);
+                items.forEach((item) => {
+                  const metrics = getItemDisplayMetrics(item);
+                  quoteSqft += metrics.totalSqft;
                 });
               });
 
@@ -110,14 +113,16 @@ const QuotationTable = ({
                     </div>
                     {quote.customer?.companyName && quote.customer?.name && (
                       <div className="text-[11px] text-steel-500 font-normal">
-                        Attn: {quote.customer.name}
+                        Attn: {quote.customer.name} {quote.customer?.city ? `· ${quote.customer.city}` : ''}
                       </div>
                     )}
                   </td>
 
-                  {/* Issue Date */}
+                  {/* Date */}
                   <td className="py-3 px-3.5 whitespace-nowrap font-mono text-steel-600">
-                    {quote.issueDate ? new Date(quote.issueDate).toLocaleDateString() : '—'}
+                    {quote.issueDate || quote.createdAt
+                      ? new Date(quote.issueDate || quote.createdAt).toLocaleDateString('en-IN')
+                      : '—'}
                   </td>
 
                   {/* Sections */}
@@ -129,12 +134,12 @@ const QuotationTable = ({
 
                   {/* Total Area */}
                   <td className="py-3 px-3.5 whitespace-nowrap text-right font-mono font-medium text-steel-700">
-                    {quoteArea > 0 ? `${quoteArea.toFixed(2)} m²` : '—'}
+                    {quoteSqft > 0 ? `${formatSqft(quoteSqft)} sqft` : '—'}
                   </td>
 
                   {/* Total Amount */}
                   <td className="py-3 px-3.5 whitespace-nowrap text-right font-mono font-bold text-steel-900">
-                    ₹{Number(quote.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatCurrency(quote.totalAmount)}
                   </td>
 
                   {/* Status */}
@@ -142,20 +147,50 @@ const QuotationTable = ({
                     <StatusBadge status={quote.status} />
                   </td>
 
-                  {/* Action */}
+                  {/* Actions */}
                   <td className="py-3 px-3.5 whitespace-nowrap text-right">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectQuotation(quote);
-                      }}
-                      className="p-1 rounded text-steel-500 hover:text-edge-700 hover:bg-steel-100 transition-colors"
-                      title="Inspect Quotation"
-                      aria-label={`Inspect quotation ${quote.quoteNumber}`}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
+                    <div className="inline-flex items-center gap-1">
+                      {(quote.status === 'DRAFT' || quote.status === 'SENT') && onEditQuotation && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditQuotation(quote);
+                          }}
+                          className="p-1 rounded text-steel-500 hover:text-edge-700 hover:bg-steel-100 transition-colors"
+                          title="Edit Quotation"
+                          aria-label={`Edit quotation ${quote.quoteNumber}`}
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                      )}
+                      {onPrintQuotation && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onPrintQuotation(quote);
+                          }}
+                          className="p-1 rounded text-steel-500 hover:text-teal-700 hover:bg-teal-50 transition-colors"
+                          title="Print Quotation / PDF"
+                          aria-label={`Print quotation ${quote.quoteNumber}`}
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectQuotation(quote);
+                        }}
+                        className="p-1 rounded text-steel-500 hover:text-edge-700 hover:bg-steel-100 transition-colors"
+                        title="Inspect Quotation"
+                        aria-label={`Inspect quotation ${quote.quoteNumber}`}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

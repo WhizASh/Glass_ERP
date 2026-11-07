@@ -195,29 +195,29 @@ const CustomersView = () => {
             <label className="block text-xs font-semibold text-steel-700 mb-1.5">
               Customer Classification
             </label>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-200/90 rounded-lg border border-slate-300 shadow-inner">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, customerType: 'ORGANIZATION' })}
-                className={`flex items-center justify-center gap-2 p-2.5 rounded-md border text-xs font-semibold transition-colors ${
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-bold transition-all ${
                   formData.customerType === 'ORGANIZATION'
-                    ? 'border-edge-600 bg-edge-50 text-edge-900 ring-1 ring-edge-600'
-                    : 'border-steel-300 bg-white text-steel-600 hover:bg-steel-50'
+                    ? 'bg-teal-700 text-white shadow-sm ring-1 ring-teal-800'
+                    : 'bg-transparent text-slate-700 hover:text-slate-900 hover:bg-slate-300/60 font-semibold'
                 }`}
               >
-                <Building2 className="w-4 h-4 text-edge-700" />
+                <Building2 className={`w-4 h-4 ${formData.customerType === 'ORGANIZATION' ? 'text-white' : 'text-slate-500'}`} />
                 <span>Organization / Commercial Firm</span>
               </button>
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, customerType: 'INDIVIDUAL' })}
-                className={`flex items-center justify-center gap-2 p-2.5 rounded-md border text-xs font-semibold transition-colors ${
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-bold transition-all ${
                   formData.customerType === 'INDIVIDUAL'
-                    ? 'border-edge-600 bg-edge-50 text-edge-900 ring-1 ring-edge-600'
-                    : 'border-steel-300 bg-white text-steel-600 hover:bg-steel-50'
+                    ? 'bg-teal-700 text-white shadow-sm ring-1 ring-teal-800'
+                    : 'bg-transparent text-slate-700 hover:text-slate-900 hover:bg-slate-300/60 font-semibold'
                 }`}
               >
-                <User className="w-4 h-4 text-edge-700" />
+                <User className={`w-4 h-4 ${formData.customerType === 'INDIVIDUAL' ? 'text-white' : 'text-slate-500'}`} />
                 <span>Individual Contractor</span>
               </button>
             </div>

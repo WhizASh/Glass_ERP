@@ -2,23 +2,36 @@ import React, { useState, useEffect } from 'react';
 import QuotationFilterBar from '../quotations/QuotationFilterBar';
 import QuotationTable from '../quotations/QuotationTable';
 import QuotationDrawer from '../quotations/QuotationDrawer';
+import QuotationPrintView from '../quotations/QuotationPrintView';
 import QuotationBuilderModal from '../quotations/builder/QuotationBuilderModal';
 import { api } from '../../services/api';
+import { calculateLineItemMetrics } from '../../lib/glassCalculations';
 
-const initialFormState = {
+const getTodayDateString = () => new Date().toISOString().split('T')[0];
+
+const createInitialFormState = () => ({
   customerId: '',
-  validUntil: '',
+  validUntil: getTodayDateString(),
   taxRate: 18,
+  discountType: 'PERCENTAGE',
+  discountValue: '',
   notes: '',
   sections: [
     {
-      sectionName: 'Ground Floor Facade',
+      sectionName: 'Ground Floor Elevation',
       items: [
-        { productSkuId: '', description: '', widthMm: '', heightMm: '', quantity: 1, unitPrice: 0 }
+        {
+          productSkuId: '',
+          description: '',
+          widthInches: '',
+          heightInches: '',
+          quantity: 1,
+          unitPrice: 0
+        }
       ]
     }
   ]
-};
+});
 
 const QuotationsView = () => {
   const [quotations, setQuotations] = useState([]);
@@ -28,8 +41,10 @@ const QuotationsView = () => {
   const [selectedStatus, setSelectedStatus] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const [printQuotation, setPrintQuotation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState(initialFormState);
+  const [editingQuotation, setEditingQuotation] = useState(null);
+  const [formData, setFormData] = useState(createInitialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchQuotations = () => {
@@ -66,6 +81,53 @@ const QuotationsView = () => {
     { ALL: quotations.length }
   );
 
+  const handleOpenCreateModal = () => {
+    setEditingQuotation(null);
+    setFormData(createInitialFormState());
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (quote) => {
+    if (!quote) return;
+    if (quote.status !== 'DRAFT' && quote.status !== 'SENT') {
+      alert(`Quotation ${quote.quoteNumber} is in ${quote.status} status and cannot be edited. Only DRAFT and SENT quotes can be modified.`);
+      return;
+    }
+
+    const rawSections = quote.sections || [];
+    const mappedSections = rawSections.length > 0
+      ? rawSections.map((sec, sIdx) => {
+          const rawItems = Array.isArray(sec.items) ? sec.items : (sec.items?.create || []);
+          return {
+            id: sec.id,
+            sectionName: sec.sectionName || `Section ${sIdx + 1}`,
+            items: rawItems.map((item) => ({
+              id: item.id,
+              productSkuId: item.productSkuId || '',
+              description: item.description || '',
+              widthInches: item.widthInches !== null && item.widthInches !== undefined ? String(item.widthInches) : '',
+              heightInches: item.heightInches !== null && item.heightInches !== undefined ? String(item.heightInches) : '',
+              quantity: item.quantity !== undefined ? item.quantity : 1,
+              unitPrice: item.unitPrice !== undefined ? Number(item.unitPrice) : 0
+            }))
+          };
+        })
+      : createInitialFormState().sections;
+
+    setFormData({
+      customerId: quote.customerId || quote.customer?.id || '',
+      validUntil: quote.validUntil ? quote.validUntil.split('T')[0] : getTodayDateString(),
+      taxRate: quote.taxRate !== undefined ? Number(quote.taxRate) : 18,
+      discountType: quote.discountType || 'PERCENTAGE',
+      discountValue: quote.discountValue !== undefined ? Number(quote.discountValue) : '',
+      notes: quote.notes || '',
+      sections: mappedSections
+    });
+
+    setEditingQuotation(quote);
+    setIsModalOpen(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.customerId) {
@@ -73,35 +135,111 @@ const QuotationsView = () => {
       return;
     }
 
-    // Format line items with area calculation
+    if (!formData.sections || formData.sections.length === 0) {
+      alert('Please add at least one floor or elevation section.');
+      return;
+    }
+
+    for (let s = 0; s < formData.sections.length; s++) {
+      const sec = formData.sections[s];
+      if (!sec.items || sec.items.length === 0) {
+        alert(`Section "${sec.sectionName || s + 1}" must have at least one glass specification.`);
+        return;
+      }
+      for (let i = 0; i < sec.items.length; i++) {
+        const item = sec.items[i];
+        if (!item.productSkuId) {
+          alert(`Please select a glass specification SKU for Section "${sec.sectionName || s + 1}", item #${i + 1}.`);
+          return;
+        }
+        const w = parseFloat(item.widthInches);
+        const h = parseFloat(item.heightInches);
+        if (!w || w <= 0 || !h || h <= 0) {
+          alert(`Please enter valid positive Cut Size (Width and Height in inches) for Section "${sec.sectionName || s + 1}", item #${i + 1}.`);
+          return;
+        }
+      }
+    }
+
+    // Format line items with inch calculations and commercial rounding
     const formattedSections = formData.sections.map((sec) => ({
       ...sec,
       items: sec.items.map((item) => {
-        const width = parseFloat(item.widthMm) || 0;
-        const height = parseFloat(item.heightMm) || 0;
-        const qty = parseFloat(item.quantity) || 1;
-        const price = parseFloat(item.unitPrice) || 0;
-        const area = width > 0 && height > 0 ? (width * height) / 1000000 : null;
-        const totalPrice = area ? qty * area * price : qty * price;
+        const metrics = calculateLineItemMetrics(item);
         return {
-          ...item,
-          areaSqM: area,
-          totalPrice
+          productSkuId: item.productSkuId,
+          description: item.description,
+          widthInches: item.widthInches !== '' && item.widthInches !== null ? parseFloat(item.widthInches) : null,
+          heightInches: item.heightInches !== '' && item.heightInches !== null ? parseFloat(item.heightInches) : null,
+          roundedWidthInches: metrics.roundedWidth || null,
+          roundedHeightInches: metrics.roundedHeight || null,
+          quantity: parseFloat(item.quantity) || 1,
+          areaSqFt: metrics.sqft || null,
+          unitPrice: parseFloat(item.unitPrice) || 0,
+          totalPrice: metrics.lineTotal
         };
       })
     }));
 
     setIsSubmitting(true);
     try {
-      await api.createQuotation({
-        ...formData,
-        sections: formattedSections
-      });
-      setIsModalOpen(false);
-      setFormData(initialFormState);
-      fetchQuotations();
+      if (editingQuotation) {
+        const updated = await api.updateQuotation(editingQuotation.id, {
+          ...formData,
+          discountType: formData.discountType || 'PERCENTAGE',
+          discountValue: parseFloat(formData.discountValue) || 0,
+          taxRate: parseFloat(formData.taxRate) || 0,
+          sections: formattedSections
+        });
+
+        if (updated) {
+          const matchedCust = customers.find((c) => c.id === formData.customerId) || updated.customer;
+          const normalized = {
+            ...updated,
+            customer: matchedCust || updated.customer,
+            sections: (updated.sections || []).map((sec) => ({
+              ...sec,
+              items: Array.isArray(sec.items) ? sec.items : (sec.items?.create || [])
+            }))
+          };
+          setQuotations((prev) => prev.map((q) => (q.id === normalized.id ? normalized : q)));
+          if (selectedQuotation && selectedQuotation.id === normalized.id) {
+            setSelectedQuotation(normalized);
+          }
+        }
+
+        setIsModalOpen(false);
+        setEditingQuotation(null);
+        setFormData(createInitialFormState());
+        fetchQuotations();
+      } else {
+        const created = await api.createQuotation({
+          ...formData,
+          discountType: formData.discountType || 'PERCENTAGE',
+          discountValue: parseFloat(formData.discountValue) || 0,
+          taxRate: parseFloat(formData.taxRate) || 0,
+          sections: formattedSections
+        });
+
+        if (created) {
+          const matchedCust = customers.find((c) => c.id === formData.customerId) || created.customer;
+          const normalized = {
+            ...created,
+            customer: matchedCust || created.customer,
+            sections: (created.sections || []).map((sec) => ({
+              ...sec,
+              items: Array.isArray(sec.items) ? sec.items : (sec.items?.create || [])
+            }))
+          };
+          setQuotations((prev) => [normalized, ...prev.filter((q) => q.id !== normalized.id)]);
+        }
+
+        setIsModalOpen(false);
+        setFormData(createInitialFormState());
+        fetchQuotations();
+      }
     } catch (err) {
-      alert(`Failed to create quotation: ${err.message}`);
+      alert(`Failed to ${editingQuotation ? 'update' : 'create'} quotation: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -125,7 +263,7 @@ const QuotationsView = () => {
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
         statusCounts={statusCounts}
-        onOpenCreateModal={() => setIsModalOpen(true)}
+        onOpenCreateModal={handleOpenCreateModal}
       />
 
       {/* Main Architectural Quotations Table */}
@@ -133,8 +271,10 @@ const QuotationsView = () => {
         quotations={quotations}
         loading={loading}
         onSelectQuotation={(quote) => setSelectedQuotation(quote)}
+        onPrintQuotation={(quote) => setPrintQuotation(quote)}
+        onEditQuotation={handleOpenEditModal}
         selectedQuotationId={selectedQuotation?.id}
-        onOpenCreateModal={() => setIsModalOpen(true)}
+        onOpenCreateModal={handleOpenCreateModal}
       />
 
       {/* Slide-over Inspection Drawer */}
@@ -142,19 +282,34 @@ const QuotationsView = () => {
         quotation={selectedQuotation}
         onClose={() => setSelectedQuotation(null)}
         onStatusUpdated={handleStatusUpdated}
+        onEditQuotation={handleOpenEditModal}
       />
 
       {/* Multi-Section Quotation Builder Modal */}
       <QuotationBuilderModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingQuotation(null);
+        }}
         formData={formData}
         setFormData={setFormData}
         customers={customers}
+        setCustomers={setCustomers}
         products={products}
+        setProducts={setProducts}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
+        editingQuotation={editingQuotation}
       />
+
+      {/* Direct Quotation Print View */}
+      {printQuotation && (
+        <QuotationPrintView
+          quotation={printQuotation}
+          onClose={() => setPrintQuotation(null)}
+        />
+      )}
     </div>
   );
 };
