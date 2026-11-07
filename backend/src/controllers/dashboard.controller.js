@@ -2,12 +2,7 @@ const prisma = require('../lib/prisma');
 
 // Default baseline trend data for architectural visualization (INR ₹)
 const getBaselineTrend = () => [
-  { period: 'Jun', monthName: 'June', glazingArea: 42.5, acceptedArea: 28.0, quotationValue: 184000, acceptedValue: 122000, count: 4 },
-  { period: 'Jul', monthName: 'July', glazingArea: 58.2, acceptedArea: 39.5, quotationValue: 248000, acceptedValue: 171000, count: 5 },
-  { period: 'Aug', monthName: 'August', glazingArea: 71.0, acceptedArea: 48.0, quotationValue: 312000, acceptedValue: 215000, count: 6 },
-  { period: 'Sep', monthName: 'September', glazingArea: 64.8, acceptedArea: 45.2, quotationValue: 289000, acceptedValue: 201000, count: 5 },
-  { period: 'Oct', monthName: 'October', glazingArea: 89.4, acceptedArea: 62.1, quotationValue: 395000, acceptedValue: 278000, count: 8 },
-  { period: 'Nov', monthName: 'November', glazingArea: 96.2, acceptedArea: 68.4, quotationValue: 431000, acceptedValue: 310000, count: 9 }
+  
 ];
 
 const getDashboardStats = async (req, res) => {

@@ -16,7 +16,11 @@ const statusConfig = {
   // Payment Statuses
   UNPAID: { label: 'Unpaid', bg: 'bg-rose-50 text-rose-800 border-rose-200 dot-bg-rose-500' },
   PARTIAL: { label: 'Partial', bg: 'bg-amber-50 text-amber-800 border-amber-200 dot-bg-amber-500' },
-  PAID: { label: 'Paid in Full', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200 dot-bg-emerald-600' }
+  PAID: { label: 'Paid in Full', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200 dot-bg-emerald-600' },
+
+  // Payment Modes
+  CASH: { label: 'Cash', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200 dot-bg-emerald-600' },
+  ONLINE: { label: 'NEFT / UPI / Card', bg: 'bg-blue-50 text-blue-800 border-blue-200 dot-bg-blue-600' }
 };
 
 const StatusBadge = ({ status }) => {

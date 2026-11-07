@@ -119,6 +119,7 @@ model SaleOrder {
   quotation       Quotation?      @relation(fields: [quotationId], references: [id])
   status          String          @default("PENDING")
   paymentStatus   String          @default("UNPAID")
+  paymentMode     String          @default("CASH")
   orderDate       DateTime        @default(now())
   deliveryAddress String?
   totalAmount     Decimal         @default(0)
@@ -130,20 +131,20 @@ model SaleOrder {
 }
 
 model SaleOrderItem {
-  id           String     @id @default(uuid())
+  id           String      @id @default(uuid())
   saleOrderId  String
-  saleOrder    SaleOrder  @relation(fields: [saleOrderId], references: [id], onDelete: Cascade)
+  saleOrder    SaleOrder   @relation(fields: [saleOrderId], references: [id], onDelete: Cascade)
   sectionName  String?
-  productSkuId String
-  productSku   ProductSku @relation(fields: [productSkuId], references: [id])
+  productSkuId String?
+  productSku   ProductSku? @relation(fields: [productSkuId], references: [id])
   description  String?
   widthMm      Decimal?
   heightMm     Decimal?
-  quantity     Decimal    @default(1)
+  quantity     Decimal     @default(1)
   unitPrice    Decimal
   totalPrice   Decimal
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@map("sale_order_items")
 }
