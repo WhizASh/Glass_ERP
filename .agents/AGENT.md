@@ -31,3 +31,6 @@ this is a monorepo with both backend and frontend , keep it seperate
 
 - Keep files small and focused. Large files are hard to read.
 - If a file grows too big, split it into smaller components or modules.
+
+
+always add date in db only create a in memory demo data create a seed script that adds data in db

@@ -57,5 +57,7 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return request(`/sales${query ? `?${query}` : ''}`);
   },
-  createSale: (data) => request('/sales', { method: 'POST', body: JSON.stringify(data) })
+  getSaleById: (id) => request(`/sales/${id}`),
+  createSale: (data) => request('/sales', { method: 'POST', body: JSON.stringify(data) }),
+  updateSale: (id, data) => request(`/sales/${id}`, { method: 'PUT', body: JSON.stringify(data) })
 };
