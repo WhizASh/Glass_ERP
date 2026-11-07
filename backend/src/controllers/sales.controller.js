@@ -1,87 +1,4 @@
 const prisma = require('../lib/prisma');
-const { inMemoryCustomers } = require('./customers.controller');
-const { inMemoryProducts } = require('./products.controller');
-
-let inMemorySales = [
-  {
-    id: 'sale-sample-01',
-    orderNumber: 'SO-100201',
-    customerId: inMemoryCustomers[0]?.id || 'cust-nagpur-glass',
-    quotationId: 'quote-sample-facade-01',
-    status: 'IN_PRODUCTION',
-    paymentStatus: 'PARTIAL',
-    paymentMode: 'ONLINE',
-    orderDate: new Date(Date.now() - 3600000 * 48).toISOString(),
-    deliveryAddress: 'Plot 14, Commercial Area, Hingna Road, Nagpur',
-    totalAmount: 5560,
-    customer: inMemoryCustomers[0],
-    quotation: {
-      id: 'quote-sample-facade-01',
-      quoteNumber: '201'
-    },
-    items: [
-      {
-        id: 'so-item-01',
-        saleOrderId: 'sale-sample-01',
-        sectionName: 'Ground Floor Elevation',
-        productSkuId: inMemoryProducts[0]?.id || null,
-        productSku: inMemoryProducts[0] || null,
-        description: '12mm Clear Toughened Glass (57" x 44")',
-        widthMm: 1447.8,
-        heightMm: 1117.6,
-        quantity: 1,
-        unitPrice: 3700,
-        totalPrice: 3700
-      },
-      {
-        id: 'so-item-02',
-        saleOrderId: 'sale-sample-01',
-        sectionName: 'Ground Floor Elevation',
-        productSkuId: inMemoryProducts[1]?.id || null,
-        productSku: inMemoryProducts[1] || null,
-        description: '10mm Toughened Glass (35.5" x 24")',
-        widthMm: 901.7,
-        heightMm: 609.6,
-        quantity: 2,
-        unitPrice: 930,
-        totalPrice: 1860
-      }
-    ],
-    createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-    updatedAt: new Date(Date.now() - 3600000 * 12).toISOString()
-  },
-  {
-    id: 'sale-sample-02',
-    orderNumber: 'SO-100202',
-    customerId: inMemoryCustomers[1]?.id || 'cust-apex-infra',
-    quotationId: null,
-    status: 'PENDING',
-    paymentStatus: 'UNPAID',
-    paymentMode: 'CASH',
-    orderDate: new Date(Date.now() - 3600000 * 10).toISOString(),
-    deliveryAddress: 'Site 8, Hinjewadi Phase 2, Pune',
-    totalAmount: 4300,
-    customer: inMemoryCustomers[1],
-    quotation: null,
-    items: [
-      {
-        id: 'so-item-03',
-        saleOrderId: 'sale-sample-02',
-        sectionName: null,
-        productSkuId: inMemoryProducts[1]?.id || null,
-        productSku: inMemoryProducts[1] || null,
-        description: '10mm Clear Toughened Glass (Partition Panels)',
-        widthMm: 1200,
-        heightMm: 2100,
-        quantity: 2,
-        unitPrice: 2150,
-        totalPrice: 4300
-      }
-    ],
-    createdAt: new Date(Date.now() - 3600000 * 10).toISOString(),
-    updatedAt: new Date(Date.now() - 3600000 * 10).toISOString()
-  }
-];
 
 const normalizeSale = (sale) => ({
   ...sale,
@@ -99,7 +16,7 @@ const ensureSaleColumns = async () => {
     `);
     isMigrationChecked = true;
   } catch (e) {
-    // In-memory or connection offline
+    // If table doesn't exist yet or connection error, allow prisma to handle error
   }
 };
 
@@ -135,46 +52,18 @@ const getSales = async (req, res) => {
       }
     });
 
-    if (sales && sales.length > 0) {
-      return res.json(sales.map(normalizeSale));
-    }
-
-    // In-memory fallback filtering
-    let filtered = [...inMemorySales];
-    if (status) {
-      filtered = filtered.filter(s => s.status.toUpperCase() === status.toUpperCase());
-    }
-    if (q) {
-      const query = q.toLowerCase();
-      filtered = filtered.filter(s =>
-        (s.orderNumber && s.orderNumber.toLowerCase().includes(query)) ||
-        (s.customer?.name && s.customer.name.toLowerCase().includes(query)) ||
-        (s.customer?.companyName && s.customer.companyName.toLowerCase().includes(query))
-      );
-    }
-    return res.json(filtered.map(normalizeSale));
+    // Pure DB: returns empty array if no orders exist in the database
+    return res.json(sales.map(normalizeSale));
   } catch (error) {
-    console.error('Error fetching sales, falling back to in-memory store:', error.message);
-    const { status, q } = req.query;
-    let filtered = [...inMemorySales];
-    if (status) {
-      filtered = filtered.filter(s => s.status.toUpperCase() === status.toUpperCase());
-    }
-    if (q) {
-      const query = q.toLowerCase();
-      filtered = filtered.filter(s =>
-        (s.orderNumber && s.orderNumber.toLowerCase().includes(query)) ||
-        (s.customer?.name && s.customer.name.toLowerCase().includes(query)) ||
-        (s.customer?.companyName && s.customer.companyName.toLowerCase().includes(query))
-      );
-    }
-    return res.json(filtered.map(normalizeSale));
+    console.error('Error fetching sales from database:', error.message || error);
+    return res.status(500).json({ error: 'Failed to fetch sales orders from database' });
   }
 };
 
 const getSaleById = async (req, res) => {
   const { id } = req.params;
   try {
+    await ensureSaleColumns();
     const sale = await prisma.saleOrder.findUnique({
       where: { id },
       include: {
@@ -191,19 +80,10 @@ const getSaleById = async (req, res) => {
     if (sale) {
       return res.json(normalizeSale(sale));
     }
-
-    const fallback = inMemorySales.find(s => s.id === id || s.orderNumber === id);
-    if (fallback) {
-      return res.json(normalizeSale(fallback));
-    }
     return res.status(404).json({ error: 'Sale order not found' });
   } catch (error) {
-    console.error('Error fetching sale by id, using fallback:', error.message);
-    const fallback = inMemorySales.find(s => s.id === id || s.orderNumber === id);
-    if (fallback) {
-      return res.json(normalizeSale(fallback));
-    }
-    return res.status(404).json({ error: 'Sale order not found' });
+    console.error('Error fetching sale by id from database:', error.message || error);
+    return res.status(500).json({ error: 'Failed to fetch sale order from database' });
   }
 };
 
@@ -226,6 +106,30 @@ const createSale = async (req, res) => {
       return res.status(400).json({ error: 'Customer is required' });
     }
 
+    // Defensive check: Verify customer exists
+    const customer = await prisma.customer.findUnique({
+      where: { id: customerId }
+    });
+    if (!customer) {
+      return res.status(400).json({ error: 'Selected customer does not exist' });
+    }
+
+    // Defensive check: Verify quotation exists if provided
+    let validQuotationId = null;
+    if (quotationId) {
+      const quote = await prisma.quotation.findUnique({
+        where: { id: quotationId }
+      });
+      if (!quote) {
+        return res.status(400).json({ error: 'Selected quotation does not exist' });
+      }
+      validQuotationId = quotationId;
+    }
+
+    // Fetch valid SKU IDs to prevent foreign key errors on custom items
+    const existingSkus = await prisma.productSku.findMany({ select: { id: true } });
+    const validSkuIds = new Set(existingSkus.map(s => s.id));
+
     const generatedOrderNumber = orderNumber || `SO-${Date.now().toString().slice(-6)}`;
     const normalizedPaymentMode = (paymentMode || 'CASH').toUpperCase() === 'ONLINE' ? 'ONLINE' : 'CASH';
     const normalizedPaymentStatus = paymentStatus || 'UNPAID';
@@ -241,7 +145,7 @@ const createSale = async (req, res) => {
       return {
         id: item.id || `item-${Date.now()}-${idx}`,
         sectionName: item.sectionName || null,
-        productSkuId: item.productSkuId || null,
+        productSkuId: (item.productSkuId && validSkuIds.has(item.productSkuId)) ? item.productSkuId : null,
         description: item.description || null,
         widthMm: item.widthMm ? parseFloat(item.widthMm) : null,
         heightMm: item.heightMm ? parseFloat(item.heightMm) : null,
@@ -251,72 +155,44 @@ const createSale = async (req, res) => {
       };
     });
 
-    try {
-      const newSale = await prisma.saleOrder.create({
-        data: {
-          orderNumber: generatedOrderNumber,
-          customerId,
-          quotationId: quotationId || null,
-          status: normalizedStatus,
-          paymentStatus: normalizedPaymentStatus,
-          paymentMode: normalizedPaymentMode,
-          deliveryAddress: deliveryAddress || null,
-          orderDate: orderDate ? new Date(orderDate) : new Date(),
-          totalAmount,
-          items: {
-            create: formattedItems.map(item => ({
-              sectionName: item.sectionName,
-              productSkuId: item.productSkuId,
-              description: item.description,
-              widthMm: item.widthMm,
-              heightMm: item.heightMm,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              totalPrice: item.totalPrice
-            }))
-          }
-        },
-        include: {
-          customer: true,
-          quotation: true,
-          items: {
-            include: {
-              productSku: true
-            }
-          }
-        }
-      });
-
-      return res.status(201).json(normalizeSale(newSale));
-    } catch (dbErr) {
-      console.warn('Prisma create failed, falling back to in-memory store:', dbErr.message);
-      const customer = inMemoryCustomers.find(c => c.id === customerId) || { id: customerId, name: 'Direct Customer' };
-      const fallbackSale = {
-        id: `sale-${Date.now()}`,
+    const newSale = await prisma.saleOrder.create({
+      data: {
         orderNumber: generatedOrderNumber,
         customerId,
-        customer,
-        quotationId: quotationId || null,
-        quotation: quotationId ? { id: quotationId, quoteNumber: `QT-${quotationId.slice(-4)}` } : null,
+        quotationId: validQuotationId,
         status: normalizedStatus,
         paymentStatus: normalizedPaymentStatus,
         paymentMode: normalizedPaymentMode,
         deliveryAddress: deliveryAddress || null,
-        orderDate: orderDate ? new Date(orderDate).toISOString() : new Date().toISOString(),
+        orderDate: orderDate ? new Date(orderDate) : new Date(),
         totalAmount,
-        items: formattedItems.map(item => ({
-          ...item,
-          productSku: inMemoryProducts.find(p => p.id === item.productSkuId) || null
-        })),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+        items: {
+          create: formattedItems.map(item => ({
+            sectionName: item.sectionName,
+            productSkuId: item.productSkuId,
+            description: item.description,
+            widthMm: item.widthMm,
+            heightMm: item.heightMm,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            totalPrice: item.totalPrice
+          }))
+        }
+      },
+      include: {
+        customer: true,
+        quotation: true,
+        items: {
+          include: {
+            productSku: true
+          }
+        }
+      }
+    });
 
-      inMemorySales.unshift(fallbackSale);
-      return res.status(201).json(normalizeSale(fallbackSale));
-    }
+    return res.status(201).json(normalizeSale(newSale));
   } catch (error) {
-    console.error('Error creating sale order:', error);
+    console.error('Error creating sale order in database:', error.message || error);
     return res.status(500).json({ error: 'Failed to create sale order' });
   }
 };
@@ -336,19 +212,10 @@ const updateSale = async (req, res) => {
       items
     } = req.body;
 
-    // First retrieve target existing order (from DB or inMemory)
-    let existingSale = null;
-    try {
-      existingSale = await prisma.saleOrder.findUnique({
-        where: { id },
-        include: { items: true }
-      });
-    } catch (e) {
-      // DB might be down
-    }
-    if (!existingSale) {
-      existingSale = inMemorySales.find(s => s.id === id || s.orderNumber === id);
-    }
+    const existingSale = await prisma.saleOrder.findUnique({
+      where: { id },
+      include: { items: true }
+    });
 
     if (!existingSale) {
       return res.status(404).json({ error: 'Sale order not found' });
@@ -359,6 +226,29 @@ const updateSale = async (req, res) => {
       return res.status(400).json({ error: 'Cancelled orders cannot be modified' });
     }
 
+    if (customerId) {
+      const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+      if (!customer) {
+        return res.status(400).json({ error: 'Selected customer does not exist' });
+      }
+    }
+
+    let validQuotationId = undefined;
+    if (quotationId !== undefined) {
+      if (quotationId) {
+        const quote = await prisma.quotation.findUnique({ where: { id: quotationId } });
+        if (!quote) {
+          return res.status(400).json({ error: 'Selected quotation does not exist' });
+        }
+        validQuotationId = quotationId;
+      } else {
+        validQuotationId = null;
+      }
+    }
+
+    const existingSkus = await prisma.productSku.findMany({ select: { id: true } });
+    const validSkuIds = new Set(existingSkus.map(s => s.id));
+
     const normalizedPaymentMode = paymentMode
       ? (paymentMode.toUpperCase() === 'ONLINE' ? 'ONLINE' : 'CASH')
       : existingSale.paymentMode;
@@ -366,8 +256,6 @@ const updateSale = async (req, res) => {
     const normalizedStatus = status || existingSale.status;
     const isDelivered = existingSale.status === 'DELIVERED';
 
-    // If order was delivered, fabrication line items are locked to maintain audit accuracy,
-    // but payment status, payment mode, and delivery address can be updated.
     let totalAmount = Number(existingSale.totalAmount);
     let formattedItems = existingSale.items || [];
 
@@ -383,7 +271,7 @@ const updateSale = async (req, res) => {
           id: item.id || `item-${Date.now()}-${idx}`,
           saleOrderId: id,
           sectionName: item.sectionName || null,
-          productSkuId: item.productSkuId || null,
+          productSkuId: (item.productSkuId && validSkuIds.has(item.productSkuId)) ? item.productSkuId : null,
           description: item.description || null,
           widthMm: item.widthMm ? parseFloat(item.widthMm) : null,
           heightMm: item.heightMm ? parseFloat(item.heightMm) : null,
@@ -394,98 +282,64 @@ const updateSale = async (req, res) => {
       });
     }
 
-    try {
-      const updateData = {
-        paymentMode: normalizedPaymentMode,
-        paymentStatus: normalizedPaymentStatus,
-        status: normalizedStatus,
-        deliveryAddress: deliveryAddress !== undefined ? deliveryAddress : existingSale.deliveryAddress,
-        totalAmount
-      };
+    const updateData = {
+      paymentMode: normalizedPaymentMode,
+      paymentStatus: normalizedPaymentStatus,
+      status: normalizedStatus,
+      deliveryAddress: deliveryAddress !== undefined ? deliveryAddress : existingSale.deliveryAddress,
+      totalAmount
+    };
 
-      if (customerId) updateData.customerId = customerId;
-      if (quotationId !== undefined) updateData.quotationId = quotationId || null;
-      if (orderDate) updateData.orderDate = new Date(orderDate);
+    if (customerId) updateData.customerId = customerId;
+    if (validQuotationId !== undefined) updateData.quotationId = validQuotationId;
+    if (orderDate) updateData.orderDate = new Date(orderDate);
 
-      if (!isDelivered && Array.isArray(items) && items.length > 0) {
-        // Transactionally replace items
-        await prisma.$transaction([
-          prisma.saleOrderItem.deleteMany({ where: { saleOrderId: id } }),
-          prisma.saleOrder.update({
-            where: { id },
-            data: {
-              ...updateData,
-              items: {
-                create: formattedItems.map(item => ({
-                  sectionName: item.sectionName,
-                  productSkuId: item.productSkuId,
-                  description: item.description,
-                  widthMm: item.widthMm,
-                  heightMm: item.heightMm,
-                  quantity: item.quantity,
-                  unitPrice: item.unitPrice,
-                  totalPrice: item.totalPrice
-                }))
-              }
-            }
-          })
-        ]);
-      } else {
-        await prisma.saleOrder.update({
+    if (!isDelivered && Array.isArray(items) && items.length > 0) {
+      // Transactionally replace items
+      await prisma.$transaction([
+        prisma.saleOrderItem.deleteMany({ where: { saleOrderId: id } }),
+        prisma.saleOrder.update({
           where: { id },
-          data: updateData
-        });
-      }
-
-      const updated = await prisma.saleOrder.findUnique({
-        where: { id },
-        include: {
-          customer: true,
-          quotation: true,
-          items: {
-            include: {
-              productSku: true
+          data: {
+            ...updateData,
+            items: {
+              create: formattedItems.map(item => ({
+                sectionName: item.sectionName,
+                productSkuId: item.productSkuId,
+                description: item.description,
+                widthMm: item.widthMm,
+                heightMm: item.heightMm,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.totalPrice
+              }))
             }
           }
-        }
+        })
+      ]);
+    } else {
+      await prisma.saleOrder.update({
+        where: { id },
+        data: updateData
       });
-
-      return res.json(normalizeSale(updated));
-    } catch (dbErr) {
-      console.warn('Prisma update failed, updating in-memory store:', dbErr.message);
-      const index = inMemorySales.findIndex(s => s.id === id || s.orderNumber === id);
-      if (index === -1) {
-        return res.status(404).json({ error: 'Sale order not found' });
-      }
-
-      const current = inMemorySales[index];
-      const customer = customerId
-        ? (inMemoryCustomers.find(c => c.id === customerId) || current.customer)
-        : current.customer;
-
-      const updatedSale = {
-        ...current,
-        customerId: customerId || current.customerId,
-        customer,
-        quotationId: quotationId !== undefined ? (quotationId || null) : current.quotationId,
-        paymentMode: normalizedPaymentMode,
-        paymentStatus: normalizedPaymentStatus,
-        status: normalizedStatus,
-        deliveryAddress: deliveryAddress !== undefined ? deliveryAddress : current.deliveryAddress,
-        orderDate: orderDate ? new Date(orderDate).toISOString() : current.orderDate,
-        totalAmount,
-        items: formattedItems.map(item => ({
-          ...item,
-          productSku: inMemoryProducts.find(p => p.id === item.productSkuId) || item.productSku || null
-        })),
-        updatedAt: new Date().toISOString()
-      };
-
-      inMemorySales[index] = updatedSale;
-      return res.json(normalizeSale(updatedSale));
     }
+
+    const updated = await prisma.saleOrder.findUnique({
+      where: { id },
+      include: {
+        customer: true,
+        quotation: true,
+        items: {
+          include: {
+            productSku: true
+          }
+        }
+      }
+    });
+
+    return res.json(normalizeSale(updated));
   } catch (error) {
-    console.error('Error updating sale order:', error);
+    console.error('Error updating sale order in database:', error.message || error);
     return res.status(500).json({ error: 'Failed to update sale order' });
   }
 };
@@ -494,6 +348,5 @@ module.exports = {
   getSales,
   getSaleById,
   createSale,
-  updateSale,
-  inMemorySales
+  updateSale
 };

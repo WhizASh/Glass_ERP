@@ -144,6 +144,65 @@ let inMemoryQuotations = [
 
 let isDbMigrationDone = false;
 let isMemMigrationDone = false;
+let isStarterQuotesSeeded = false;
+
+/**
+ * Ensures starter sample quotations exist in the PostgreSQL database
+ * so relations to quotations from sale orders are always valid.
+ */
+const ensureStarterQuotations = async () => {
+  if (isStarterQuotesSeeded) return;
+  try {
+    for (const q of inMemoryQuotations) {
+      const existing = await prisma.quotation.findUnique({ where: { id: q.id } });
+      if (!existing) {
+        await prisma.quotation.create({
+          data: {
+            id: q.id,
+            quoteNumber: q.quoteNumber,
+            customerId: q.customerId,
+            status: q.status,
+            issueDate: new Date(q.issueDate),
+            validUntil: q.validUntil ? new Date(q.validUntil) : null,
+            subtotal: q.subtotal,
+            discountType: q.discountType,
+            discountValue: q.discountValue,
+            discountAmount: q.discountAmount,
+            taxRate: q.taxRate,
+            taxAmount: q.taxAmount,
+            totalAmount: q.totalAmount,
+            notes: q.notes,
+            sections: {
+              create: q.sections.map((sec) => ({
+                id: sec.id,
+                sectionName: sec.sectionName,
+                sortOrder: sec.sortOrder,
+                items: {
+                  create: sec.items.map((it) => ({
+                    id: it.id,
+                    productSkuId: it.productSkuId,
+                    description: it.description,
+                    widthInches: it.widthInches,
+                    heightInches: it.heightInches,
+                    roundedWidthInches: it.roundedWidthInches,
+                    roundedHeightInches: it.roundedHeightInches,
+                    quantity: it.quantity,
+                    areaSqFt: it.areaSqFt,
+                    unitPrice: it.unitPrice,
+                    totalPrice: it.totalPrice
+                  }))
+                }
+              }))
+            }
+          }
+        });
+      }
+    }
+    isStarterQuotesSeeded = true;
+  } catch (err) {
+    // If DB is offline or table not ready, allow fallback
+  }
+};
 
 /**
  * Normalizes existing quotations in database and in-memory store so they use
@@ -253,11 +312,13 @@ const generateNextQuoteNumber = async () => {
   return candidate;
 };
 
-// Eagerly trigger migration on startup
+// Eagerly trigger migration and starter seeding on startup
 normalizeExistingQuoteNumbers().catch(() => {});
+ensureStarterQuotations().catch(() => {});
 
 const getQuotations = async (req, res) => {
   await normalizeExistingQuoteNumbers();
+  await ensureStarterQuotations();
   try {
     const { status, q } = req.query;
     const where = {};

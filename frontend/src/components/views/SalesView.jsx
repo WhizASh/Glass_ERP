@@ -30,6 +30,7 @@ const SalesView = () => {
 
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState(null);
 
   const fetchSales = () => {
     setLoading(true);
@@ -58,6 +59,7 @@ const SalesView = () => {
 
   const handleOpenCreateModal = () => {
     setEditingSaleOrder(null);
+    setFormError(null);
     setFormData(INITIAL_FORM_STATE);
     setIsModalOpen(true);
   };
@@ -69,6 +71,7 @@ const SalesView = () => {
     }
 
     setEditingSaleOrder(order);
+    setFormError(null);
     setFormData({
       customerId: order.customerId || order.customer?.id || '',
       quotationId: order.quotationId || order.quotation?.id || '',
@@ -185,10 +188,11 @@ const SalesView = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.customerId) {
-      alert('Please choose or confirm a customer.');
+      setFormError('Please choose or confirm a customer.');
       return;
     }
 
+    setFormError(null);
     setIsSubmitting(true);
     try {
       const payload = {
@@ -204,10 +208,11 @@ const SalesView = () => {
 
       setIsModalOpen(false);
       setEditingSaleOrder(null);
+      setFormError(null);
       setFormData(INITIAL_FORM_STATE);
       fetchSales();
     } catch (err) {
-      alert(`Failed to save sale order: ${err.message}`);
+      setFormError(err.message || 'Failed to save sale order');
     } finally {
       setIsSubmitting(false);
     }
@@ -380,14 +385,31 @@ const SalesView = () => {
         maxWidth="max-w-3xl"
       >
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          {/* Error Banner */}
+          {formError && (
+            <div className="p-2.5 rounded-md bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between">
+              <span>{formError}</span>
+              <button
+                type="button"
+                onClick={() => setFormError(null)}
+                className="text-rose-600 hover:text-rose-800 font-bold ml-2"
+                aria-label="Dismiss error"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {/* Header Row: Invoice Selection & Customer */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="sale-order-quotation" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <FileText className="w-3.5 h-3.5 text-teal-600" />
                 <span>Select Invoice / Quotation</span>
               </label>
               <select
+                id="sale-order-quotation"
+                name="quotationId"
                 value={formData.quotationId}
                 onChange={(e) => handleQuotationChange(e.target.value)}
                 disabled={isOrderDelivered}
@@ -408,8 +430,10 @@ const SalesView = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">Customer / Project *</label>
+              <label htmlFor="sale-order-customer" className="block text-xs font-semibold text-steel-700 mb-1">Customer / Project *</label>
               <select
+                id="sale-order-customer"
+                name="customerId"
                 required
                 value={formData.customerId}
                 onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
@@ -434,11 +458,13 @@ const SalesView = () => {
           {/* Payment & Status Row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 bg-steel-50/70 p-3 rounded-lg border border-steel-200">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="sale-order-payment-mode" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <CreditCard className="w-3.5 h-3.5 text-blue-600" />
                 <span>Mode of Payment *</span>
               </label>
               <select
+                id="sale-order-payment-mode"
+                name="paymentMode"
                 value={formData.paymentMode}
                 onChange={(e) => setFormData({ ...formData, paymentMode: e.target.value })}
                 className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 text-steel-900 bg-white focus:outline-none focus:ring-1 focus:ring-edge-600 font-medium"
@@ -449,11 +475,13 @@ const SalesView = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="sale-order-payment-status" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Payment Status *</span>
               </label>
               <select
+                id="sale-order-payment-status"
+                name="paymentStatus"
                 value={formData.paymentStatus}
                 onChange={(e) => setFormData({ ...formData, paymentStatus: e.target.value })}
                 className="w-full px-2.5 py-1.5 rounded-md border border-steel-300 text-steel-900 bg-white focus:outline-none focus:ring-1 focus:ring-edge-600 font-medium"
@@ -465,8 +493,10 @@ const SalesView = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">Fulfillment Status *</label>
+              <label htmlFor="sale-order-fulfillment-status" className="block text-xs font-semibold text-steel-700 mb-1">Fulfillment Status *</label>
               <select
+                id="sale-order-fulfillment-status"
+                name="status"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 disabled={isOrderDelivered}
@@ -483,8 +513,10 @@ const SalesView = () => {
 
           {/* Delivery Address */}
           <div>
-            <label className="block text-xs font-semibold text-steel-700 mb-1">Delivery / Plant Site Address</label>
+            <label htmlFor="sale-order-delivery-address" className="block text-xs font-semibold text-steel-700 mb-1">Delivery / Plant Site Address</label>
             <input
+              id="sale-order-delivery-address"
+              name="deliveryAddress"
               type="text"
               value={formData.deliveryAddress}
               onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
@@ -536,6 +568,7 @@ const SalesView = () => {
                           type="text"
                           required
                           disabled={isOrderDelivered}
+                          aria-label={`Item ${idx + 1} specification`}
                           value={item.description || ''}
                           onChange={(e) => updateItem(idx, 'description', e.target.value)}
                           placeholder="e.g. 12mm Clear Toughened Glass (57&quot; × 44&quot;)"
@@ -548,6 +581,7 @@ const SalesView = () => {
                           min="1"
                           required
                           disabled={isOrderDelivered}
+                          aria-label={`Item ${idx + 1} quantity`}
                           value={item.quantity}
                           onChange={(e) => updateItem(idx, 'quantity', e.target.value)}
                           className="w-full p-1.5 rounded border border-steel-300 text-xs text-center font-mono focus:outline-none focus:ring-1 focus:ring-edge-600 disabled:bg-steel-100 disabled:text-steel-600"
@@ -560,6 +594,7 @@ const SalesView = () => {
                           min="0"
                           required
                           disabled={isOrderDelivered}
+                          aria-label={`Item ${idx + 1} rate in rupees`}
                           value={item.unitPrice}
                           onChange={(e) => updateItem(idx, 'unitPrice', e.target.value)}
                           className="w-full p-1.5 rounded border border-steel-300 text-xs text-right font-mono focus:outline-none focus:ring-1 focus:ring-edge-600 disabled:bg-steel-100 disabled:text-steel-600"

@@ -17,7 +17,7 @@ ASSUMPTIONS I'M MAKING:
 3. Item Sourcing: When an Invoice/Quotation is selected, its line items (from all sections) are copied into the Sales Order items with their existing `productSkuId`, description, cut dimensions, quantity, and unit rate.
 4. Editable Line Items: Users can adjust quantities, edit rates, add custom notes/descriptions, or remove specific line items if the client requests partial fabrication or price adjustments.
 5. Order Editing Scope: Existing sales orders can be edited at any time (updating items, recalculating totalAmount, updating delivery address, payment mode, payment status, and fulfillment status).
-6. Database & In-Memory Resiliency: The database schema will be updated via a migration (`paymentMode` on `sale_orders`), and the backend controller will include a robust in-memory fallback store so the system continues operating smoothly even if PostgreSQL is offline.
+6. Pure Database Architecture: Removed all in-memory mock store fallback logic for Sales. All sales orders, updates, and fetches interact purely with PostgreSQL via Prisma. If the database is empty, it returns an empty list `[]`.
 → Correct me now or I'll proceed with these.
 ```
 

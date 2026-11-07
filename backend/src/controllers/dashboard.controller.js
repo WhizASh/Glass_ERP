@@ -2,7 +2,12 @@ const prisma = require('../lib/prisma');
 
 // Default baseline trend data for architectural visualization (INR ₹)
 const getBaselineTrend = () => [
-  
+  { period: 'Jun', monthName: 'June', glazingArea: 42.5, acceptedArea: 28.0, quotationValue: 184000, acceptedValue: 122000, count: 4 },
+  { period: 'Jul', monthName: 'July', glazingArea: 58.2, acceptedArea: 39.5, quotationValue: 248000, acceptedValue: 171000, count: 5 },
+  { period: 'Aug', monthName: 'August', glazingArea: 71.0, acceptedArea: 48.0, quotationValue: 312000, acceptedValue: 215000, count: 6 },
+  { period: 'Sep', monthName: 'September', glazingArea: 64.8, acceptedArea: 45.2, quotationValue: 289000, acceptedValue: 201000, count: 5 },
+  { period: 'Oct', monthName: 'October', glazingArea: 89.4, acceptedArea: 62.1, quotationValue: 395000, acceptedValue: 278000, count: 8 },
+  { period: 'Nov', monthName: 'November', glazingArea: 96.2, acceptedArea: 68.4, quotationValue: 431000, acceptedValue: 310000, count: 9 }
 ];
 
 const getDashboardStats = async (req, res) => {
@@ -92,13 +97,13 @@ const getDashboardStats = async (req, res) => {
 
     // Generate trend data from real quotes or baseline
     let trendData = getBaselineTrend();
-    if (allQuotes.length > 0) {
+    if (allQuotes.length > 0 && Array.isArray(trendData) && trendData.length > 0) {
       // Overlay actual aggregated volume on current period
       const lastIdx = trendData.length - 1;
-      trendData[lastIdx].glazingArea = Math.max(trendData[lastIdx].glazingArea, parseFloat(totalGlazingArea.toFixed(2)));
-      trendData[lastIdx].quotationValue = Math.max(trendData[lastIdx].quotationValue, totalPipelineValue);
-      trendData[lastIdx].acceptedArea = Math.max(trendData[lastIdx].acceptedArea, parseFloat((statusBreakdown.ACCEPTED?.areaSqM || 0).toFixed(2)));
-      trendData[lastIdx].count = Math.max(trendData[lastIdx].count, allQuotes.length);
+      trendData[lastIdx].glazingArea = Math.max(trendData[lastIdx].glazingArea || 0, parseFloat(totalGlazingArea.toFixed(2)));
+      trendData[lastIdx].quotationValue = Math.max(trendData[lastIdx].quotationValue || 0, totalPipelineValue);
+      trendData[lastIdx].acceptedArea = Math.max(trendData[lastIdx].acceptedArea || 0, parseFloat((statusBreakdown.ACCEPTED?.areaSqM || 0).toFixed(2)));
+      trendData[lastIdx].count = Math.max(trendData[lastIdx].count || 0, allQuotes.length);
     }
 
     return res.json({
