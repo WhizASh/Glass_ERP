@@ -2,71 +2,212 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #ccfbf1;
+    color: #134e4a;
+  }
+}
+
+/* Explicit fallback & safety styles for guaranteed structural contrast */
+.app-sidebar {
+  background-color: #0f172a !important;
+  color: #f8fafc;
+}
+
+.btn-primary {
+  background-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover {
+  background-color: #0f766e !important;
+}
+
+/* Explicit filter pill states for guaranteed high-contrast legibility */
+.filter-pill-active {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+.filter-pill-inactive {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.filter-pill-inactive:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
 @layer utilities {
-  /* Frosted light glass elements */
+  /* Architectural Solid & Framed Elements - High Precision Glazing CAD */
   .glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
   }
 
   .glass-header {
-    background: rgba(255, 255, 255, 0.82);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(219, 234, 254, 0.7);
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
   }
 
   .glass-sidebar {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-right: 1px solid rgba(219, 234, 254, 0.7);
+    background: #0f172a;
+    border-right: 1px solid #1e293b;
   }
 
   .glass-button {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(191, 219, 254, 0.7);
-    transition: all 0.2s ease;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    transition: all 0.15s ease;
   }
 
   .glass-button:hover {
-    background: rgba(239, 246, 255, 0.95);
-    border-color: rgba(147, 197, 253, 0.9);
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
   }
 
   .glass-input {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(203, 213, 225, 0.7);
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    transition: all 0.15s ease;
   }
 
   .glass-input:focus {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: #3b82f6;
+    background: #ffffff;
+    border-color: #0d9488;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  }
+
+  /* Architectural Technical Grid Border */
+  .cad-border {
+    border: 1px solid #e2e8f0;
+  }
+  
+  .cad-border-b {
+    border-bottom: 1px solid #e2e8f0;
   }
 }
 
-/* Custom scrollbars with blue accent */
+/* Precision scrollbar with glass-edge accent */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #e2e8f0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(147, 197, 253, 0.6);
-  border-radius: 9999px;
+  background: #94a3b8;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
+  background: #0d9488;
 }
+
+/* ==========================================================================
+   Print Stylesheet for Quotations & Glazing Schedules
+   Matches the commercial spreadsheet reference on A4 portrait
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide app navigation, main root container, background drawers, and buttons */
+  #root,
+  .no-print,
+  [role="dialog"]:not(.print-dialog) {
+    display: none !important;
+  }
+
+  /* Reset portal modal wrappers so the print sheet sits in normal document flow */
+  .print-modal-overlay {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+    height: auto !important;
+    inset: auto !important;
+    z-index: auto !important;
+    backdrop-filter: none !important;
+  }
+
+  .print-preview-container {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  /* Display only the dedicated printable sheet */
+  #quotation-print-sheet {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-page-break {
+    page-break-before: always !important;
+  }
+
+  /* Crisp borders for commercial quotation grid */
+  .print-border {
+    border-color: #000000 !important;
+  }
+}
+

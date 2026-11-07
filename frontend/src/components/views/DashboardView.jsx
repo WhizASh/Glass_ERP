@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  FileText, 
-  ShoppingBag, 
-  Users, 
-  Layers, 
-  Plus, 
-  ArrowUpRight,
-  TrendingUp,
-  Clock
-} from 'lucide-react';
-import StatCard from '../common/StatCard';
-import StatusBadge from '../common/StatusBadge';
+import { Plus, Users } from 'lucide-react';
+import DashboardKpis from '../dashboard/DashboardKpis';
+import GlazingAnalyticsGraph from '../dashboard/GlazingAnalyticsGraph';
+import RecentActivityGrid from '../dashboard/RecentActivityGrid';
 import { api } from '../../services/api';
 
-const DashboardView = ({ onNavigateTab, onOpenModal }) => {
+const DashboardView = ({ onNavigateTab }) => {
   const [stats, setStats] = useState({
     kpis: {
+      totalGlazingArea: 0,
+      inReviewQuotes: 0,
+      acceptedQuotes: 0,
+      draftQuotes: 0,
+      totalPipelineValue: 0,
       totalQuotations: 0,
       activeQuotes: 0,
       totalSales: 0,
@@ -23,6 +20,8 @@ const DashboardView = ({ onNavigateTab, onOpenModal }) => {
       totalCustomers: 0,
       totalProductSkus: 0
     },
+    statusBreakdown: {},
+    trendData: [],
     recentQuotations: [],
     recentSales: []
   });
@@ -30,14 +29,20 @@ const DashboardView = ({ onNavigateTab, onOpenModal }) => {
 
   useEffect(() => {
     let mounted = true;
+
     api.getDashboardStats()
       .then((data) => {
-        if (mounted && data) {
-          setStats(data);
-        }
+        if (!mounted || !data) return;
+        setStats({
+          kpis: data.kpis || {},
+          statusBreakdown: data.statusBreakdown || {},
+          trendData: data.trendData || [],
+          recentQuotations: data.recentQuotations || [],
+          recentSales: data.recentSales || []
+        });
       })
       .catch((err) => {
-        console.warn('Dashboard stats notice (starting clean):', err.message);
+        console.warn('Dashboard stats notice:', err.message);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -49,165 +54,51 @@ const DashboardView = ({ onNavigateTab, onOpenModal }) => {
   }, []);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-4 animate-in fade-in duration-200">
       {/* Top Welcome / Overview Bar */}
-      <div className="glass-card rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-lg border border-steel-200 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-800 tracking-tight">
-            Glass Operations Overview
+          <h2 className="text-base font-bold text-steel-900 tracking-tight">
+            Architectural Glazing Operations Overview
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Real-time status of quotations, sales orders, clients, and glass catalog specifications.
+          <p className="text-xs text-steel-500 mt-0.5">
+            Real-time status of glass takeoff quotes, fabrication orders, and glazing specs.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => onNavigateTab('quotations')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-500/25 transition-all"
+            className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>New Quotation</span>
           </button>
           <button
             onClick={() => onNavigateTab('customers')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold glass-button text-slate-700 shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-steel-700 border border-steel-300 hover:bg-steel-50 transition-colors"
           >
-            <Users className="w-4 h-4 text-blue-600" />
-            <span>Add Customer</span>
+            <Users className="w-3.5 h-3.5 text-steel-500" />
+            <span>Add Client</span>
           </button>
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Total Quotations"
-          value={stats.kpis.totalQuotations}
-          icon={FileText}
-          description={`${stats.kpis.activeQuotes || 0} active in pipeline`}
-        />
-        <StatCard
-          title="Sales Orders"
-          value={stats.kpis.totalSales}
-          icon={ShoppingBag}
-          description={`${stats.kpis.pendingOrders || 0} pending processing`}
-        />
-        <StatCard
-          title="Total Customers"
-          value={stats.kpis.totalCustomers}
-          icon={Users}
-          description="Organizations & Individuals"
-        />
-        <StatCard
-          title="Product SKUs"
-          value={stats.kpis.totalProductSkus}
-          icon={Layers}
-          description="Active glass specifications"
-        />
-      </div>
+      {/* High-Impact Glazing & Operations KPI Cards */}
+      <DashboardKpis kpis={stats.kpis} />
 
-      {/* Recent Activity Sections (Clean Empty States) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Quotations */}
-        <div className="glass-card rounded-2xl p-5 border border-slate-200/80">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600" />
-              <h3 className="text-sm font-bold text-slate-800">
-                Recent Quotations
-              </h3>
-            </div>
-            <button
-              onClick={() => onNavigateTab('quotations')}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-              <span>View all</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+      {/* Architectural Glazing Trend & Status Graph */}
+      <GlazingAnalyticsGraph
+        trendData={stats.trendData}
+        statusBreakdown={stats.statusBreakdown}
+        kpis={stats.kpis}
+      />
 
-          <div className="mt-4">
-            {stats.recentQuotations && stats.recentQuotations.length > 0 ? (
-              <div className="divide-y divide-slate-100">
-                {stats.recentQuotations.map((quote) => (
-                  <div key={quote.id} className="py-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800">{quote.quoteNumber}</p>
-                      <p className="text-xs text-slate-400">{quote.customer?.companyName || quote.customer?.name}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-slate-800">${Number(quote.totalAmount).toFixed(2)}</p>
-                      <StatusBadge status={quote.status} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-10 text-center">
-                <p className="text-sm font-medium text-slate-600">No quotations generated yet</p>
-                <p className="text-xs text-slate-400 mt-1">Quotations created in the Quotations tab will appear here.</p>
-                <button
-                  onClick={() => onNavigateTab('quotations')}
-                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create first quote</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Sales Orders */}
-        <div className="glass-card rounded-2xl p-5 border border-slate-200/80">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-sm font-bold text-slate-800">
-                Recent Sales Orders
-              </h3>
-            </div>
-            <button
-              onClick={() => onNavigateTab('sales')}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-              <span>View all</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="mt-4">
-            {stats.recentSales && stats.recentSales.length > 0 ? (
-              <div className="divide-y divide-slate-100">
-                {stats.recentSales.map((order) => (
-                  <div key={order.id} className="py-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800">{order.orderNumber}</p>
-                      <p className="text-xs text-slate-400">{order.customer?.companyName || order.customer?.name}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-slate-800">${Number(order.totalAmount).toFixed(2)}</p>
-                      <StatusBadge status={order.status} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-10 text-center">
-                <p className="text-sm font-medium text-slate-600">No sales orders registered yet</p>
-                <p className="text-xs text-slate-400 mt-1">Sales converted or created will appear in this list.</p>
-                <button
-                  onClick={() => onNavigateTab('sales')}
-                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create sale order</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* Recent Activity Sections */}
+      <RecentActivityGrid
+        recentQuotations={stats.recentQuotations}
+        recentSales={stats.recentSales}
+        onNavigateTab={onNavigateTab}
+      />
     </div>
   );
 };

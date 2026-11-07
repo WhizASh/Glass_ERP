@@ -1,31 +1,32 @@
 import React from 'react';
-import { Building2 } from 'lucide-react';
+import { Building2, Compass } from 'lucide-react';
 
 const Header = ({ activeTabTitle }) => {
-  const companyName = import.meta.env.VITE_COMPANY_NAME || 'ClearView Glass Solutions';
+  const companyName = import.meta.env.VITE_COMPANY_NAME || 'Bharat Glass Solutions India';
 
   return (
-    <header className="glass-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+    <header className="bg-white border-b border-steel-200 sticky top-0 z-30 px-5 py-3 flex items-center justify-between">
       {/* Company Branding */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-gradient-to-tr from-blue-600 to-sky-500 rounded-xl shadow-sm text-white flex items-center justify-center">
-          <Building2 className="w-5 h-5" />
+      <div className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded bg-steel-100 border border-steel-300 text-steel-800 flex items-center justify-center">
+          <Building2 className="w-4 h-4 text-edge-700" />
         </div>
         <div>
-          <h1 className="text-lg font-bold text-slate-800 tracking-tight leading-tight">
+          <h1 className="text-sm font-bold text-steel-900 tracking-tight leading-none">
             {companyName}
           </h1>
-          <p className="text-xs text-blue-600 font-medium tracking-wide uppercase">
-            Glass ERP Suite
+          <p className="text-[10px] text-steel-500 font-mono tracking-wider uppercase mt-0.5">
+            Commercial Glass & Glazing ERP
           </p>
         </div>
       </div>
 
       {/* Current Active Section Badge */}
-      <div className="flex items-center">
-        <div className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60 shadow-xs">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2 animate-pulse"></span>
-          {activeTabTitle}
+      <div className="flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-steel-500 bg-steel-50 px-2.5 py-1 rounded border border-steel-200">
+          <Compass className="w-3.5 h-3.5 text-edge-600" />
+          <span>MODULE:</span>
+          <span className="font-bold text-steel-800">{activeTabTitle}</span>
         </div>
       </div>
     </header>

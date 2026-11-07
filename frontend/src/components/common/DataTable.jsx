@@ -14,17 +14,17 @@ const DataTable = ({
       tabIndex={0}
       role="region"
       aria-label={tableAriaLabel}
-      className="glass-card rounded-2xl overflow-hidden border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+      className="bg-white rounded-lg border border-steel-200 overflow-hidden shadow-xs focus:outline-none focus:ring-1 focus:ring-edge-600"
     >
       <div className="overflow-x-auto max-h-[600px]">
         <table className="w-full text-left border-collapse">
-          <thead className="sticky top-0 z-10 bg-slate-50/90 backdrop-blur-md border-b border-slate-200/80">
+          <thead className="sticky top-0 z-10 bg-steel-50 border-b border-steel-200 text-[11px] font-semibold text-steel-600 uppercase tracking-wider">
             <tr>
               {columns.map((col, idx) => (
                 <th
                   key={idx}
                   scope="col"
-                  className={`px-5 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider ${
+                  className={`px-4 py-2.5 ${
                     col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                   }`}
                 >
@@ -33,18 +33,18 @@ const DataTable = ({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white/50">
+          <tbody className="divide-y divide-steel-100 text-xs">
             {data && data.length > 0 ? (
               data.map((row, rowIdx) => (
                 <tr
                   key={row.id || rowIdx}
-                  className="hover:bg-blue-50/40 transition-colors duration-150"
+                  className="hover:bg-steel-50/80 transition-colors"
                 >
                   {columns.map((col, colIdx) => (
                     <td
                       key={colIdx}
-                      className={`px-5 py-3.5 text-sm text-slate-700 whitespace-nowrap ${
-                        col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
+                      className={`px-4 py-3 text-steel-800 whitespace-nowrap ${
+                        col.align === 'right' ? 'text-right font-mono' : col.align === 'center' ? 'text-center' : 'text-left'
                       }`}
                     >
                       {col.render ? col.render(row) : row[col.accessor]}
@@ -54,19 +54,19 @@ const DataTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-14 text-center">
+                <td colSpan={columns.length} className="px-6 py-12 text-center">
                   <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 mb-3 border border-blue-100">
-                      <Inbox className="w-6 h-6" />
+                    <div className="w-10 h-10 rounded-lg bg-steel-100 flex items-center justify-center text-steel-500 mb-2.5">
+                      <Inbox className="w-5 h-5" />
                     </div>
-                    <p className="text-sm font-semibold text-slate-700">
+                    <p className="text-xs font-bold text-steel-800">
                       {emptyMessage}
                     </p>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-[11px] text-steel-500 mt-0.5">
                       {emptySubtext}
                     </p>
                     {actionButton && (
-                      <div className="mt-4">
+                      <div className="mt-3.5">
                         {actionButton}
                       </div>
                     )}
