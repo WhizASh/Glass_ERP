@@ -1,15 +1,37 @@
 const prisma = require('../lib/prisma');
 
-// Default baseline trend data for architectural visualization (INR ₹)
-const getBaselineTrend = () => [
-  { period: 'Jun', monthName: 'June', glazingArea: 42.5, acceptedArea: 28.0, quotationValue: 184000, acceptedValue: 122000, count: 4 },
-  { period: 'Jul', monthName: 'July', glazingArea: 58.2, acceptedArea: 39.5, quotationValue: 248000, acceptedValue: 171000, count: 5 },
-  { period: 'Aug', monthName: 'August', glazingArea: 71.0, acceptedArea: 48.0, quotationValue: 312000, acceptedValue: 215000, count: 6 },
-  { period: 'Sep', monthName: 'September', glazingArea: 64.8, acceptedArea: 45.2, quotationValue: 289000, acceptedValue: 201000, count: 5 },
-  { period: 'Oct', monthName: 'October', glazingArea: 89.4, acceptedArea: 62.1, quotationValue: 395000, acceptedValue: 278000, count: 8 },
-  { period: 'Nov', monthName: 'November', glazingArea: 96.2, acceptedArea: 68.4, quotationValue: 431000, acceptedValue: 310000, count: 9 }
-];
+/**
+ * Generates empty baseline month periods for the last 6 months.
+ */
+const getMonthlyPeriods = () => {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const fullMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const now = new Date();
+  const periods = [];
 
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const mIdx = d.getMonth();
+    periods.push({
+      year: d.getFullYear(),
+      month: mIdx,
+      period: months[mIdx],
+      monthName: fullMonths[mIdx],
+      glazingArea: 0,
+      acceptedArea: 0,
+      quotationValue: 0,
+      acceptedValue: 0,
+      count: 0
+    });
+  }
+
+  return periods;
+};
+
+/**
+ * GET /api/dashboard/stats
+ * Pure DB metrics aggregation. Fail-fast error handling if database is unreachable.
+ */
 const getDashboardStats = async (req, res) => {
   try {
     const [
@@ -22,12 +44,12 @@ const getDashboardStats = async (req, res) => {
       recentQuotations,
       recentSales
     ] = await Promise.all([
-      (prisma?.quotation?.count?.() || Promise.resolve(0)).catch(() => 0),
-      (prisma?.saleOrder?.count?.() || Promise.resolve(0)).catch(() => 0),
-      (prisma?.saleOrder?.count?.({ where: { status: 'PENDING' } }) || Promise.resolve(0)).catch(() => 0),
-      (prisma?.customer?.count?.() || Promise.resolve(0)).catch(() => 0),
-      (prisma?.productSku?.count?.() || Promise.resolve(0)).catch(() => 0),
-      (prisma?.quotation?.findMany?.({
+      prisma.quotation.count(),
+      prisma.saleOrder.count(),
+      prisma.saleOrder.count({ where: { status: 'PENDING' } }),
+      prisma.customer.count(),
+      prisma.productSku.count(),
+      prisma.quotation.findMany({
         orderBy: { createdAt: 'desc' },
         include: {
           customer: true,
@@ -35,23 +57,22 @@ const getDashboardStats = async (req, res) => {
             include: { items: true }
           }
         }
-      }) || Promise.resolve([])).catch(() => []),
-      (prisma?.quotation?.findMany?.({
+      }),
+      prisma.quotation.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
         include: {
           customer: true,
           sections: { include: { items: true } }
         }
-      }) || Promise.resolve([])).catch(() => []),
-      (prisma?.saleOrder?.findMany?.({
+      }),
+      prisma.saleOrder.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
         include: { customer: true }
-      }) || Promise.resolve([])).catch(() => [])
+      })
     ]);
 
-    // Aggregate quotation stats & glazing area from real data
     let totalGlazingArea = 0;
     let totalPipelineValue = 0;
     let inReviewCount = 0;
@@ -65,9 +86,9 @@ const getDashboardStats = async (req, res) => {
       CANCELLED: { count: 0, areaSqM: 0, totalValue: 0 }
     };
 
-    const quotesList = Array.isArray(allQuotes) ? allQuotes : [];
+    const monthlyTrend = getMonthlyPeriods();
 
-    quotesList.forEach((q) => {
+    allQuotes.forEach((q) => {
       const val = Number(q.totalAmount) || 0;
       totalPipelineValue += val;
       const st = (q.status || 'DRAFT').toUpperCase();
@@ -77,8 +98,7 @@ const getDashboardStats = async (req, res) => {
 
       let quoteArea = 0;
       (q.sections || []).forEach((sec) => {
-        const items = Array.isArray(sec.items) ? sec.items : (sec.items?.create || []);
-        items.forEach((item) => {
+        (sec.items || []).forEach((item) => {
           let area = Number(item.areaSqM) || 0;
           if (!area && item.areaSqFt) {
             area = Number(item.areaSqFt) * 0.092903;
@@ -100,21 +120,25 @@ const getDashboardStats = async (req, res) => {
         statusBreakdown[st] = { count: 0, areaSqM: 0, totalValue: 0 };
       }
       statusBreakdown[st].count += 1;
-      statusBreakdown[st].areaSqM += quoteArea;
-      statusBreakdown[st].totalValue += val;
-    });
+      statusBreakdown[st].areaSqM = Number((statusBreakdown[st].areaSqM + quoteArea).toFixed(2));
+      statusBreakdown[st].totalValue = Number((statusBreakdown[st].totalValue + val).toFixed(2));
 
-    // Trend data
-    const trendData = getBaselineTrend();
-    if (quotesList.length > 0 && Array.isArray(trendData) && trendData.length > 0) {
-      const lastIdx = trendData.length - 1;
-      if (trendData[lastIdx]) {
-        trendData[lastIdx].glazingArea = Math.max(Number(trendData[lastIdx].glazingArea) || 0, parseFloat(totalGlazingArea.toFixed(2)) || 0);
-        trendData[lastIdx].quotationValue = Math.max(Number(trendData[lastIdx].quotationValue) || 0, totalPipelineValue || 0);
-        trendData[lastIdx].acceptedArea = Math.max(Number(trendData[lastIdx].acceptedArea) || 0, parseFloat(((statusBreakdown.ACCEPTED && statusBreakdown.ACCEPTED.areaSqM) || 0).toFixed(2)) || 0);
-        trendData[lastIdx].count = Math.max(Number(trendData[lastIdx].count) || 0, quotesList.length);
+      // Bucket into monthly trends
+      const qDate = new Date(q.createdAt || q.issueDate);
+      const qYear = qDate.getFullYear();
+      const qMonth = qDate.getMonth();
+
+      const matchedBucket = monthlyTrend.find((b) => b.year === qYear && b.month === qMonth);
+      if (matchedBucket) {
+        matchedBucket.count += 1;
+        matchedBucket.quotationValue = Number((matchedBucket.quotationValue + val).toFixed(2));
+        matchedBucket.glazingArea = Number((matchedBucket.glazingArea + quoteArea).toFixed(2));
+        if (st === 'ACCEPTED') {
+          matchedBucket.acceptedArea = Number((matchedBucket.acceptedArea + quoteArea).toFixed(2));
+          matchedBucket.acceptedValue = Number((matchedBucket.acceptedValue + val).toFixed(2));
+        }
       }
-    }
+    });
 
     return res.json({
       kpis: {
@@ -123,44 +147,21 @@ const getDashboardStats = async (req, res) => {
         acceptedQuotes: acceptedCount,
         draftQuotes: draftCount,
         totalPipelineValue: Math.round(totalPipelineValue) || 0,
-        totalQuotations: totalQuotations || quotesList.length,
+        totalQuotations,
         activeQuotes: inReviewCount + draftCount,
-        totalSales: totalSales || 0,
-        pendingOrders: pendingOrders || 0,
-        totalCustomers: totalCustomers || 0,
-        totalProductSkus: totalProductSkus || 0
+        totalSales,
+        pendingOrders,
+        totalCustomers,
+        totalProductSkus
       },
       statusBreakdown,
-      trendData,
-      recentQuotations: Array.isArray(recentQuotations) ? recentQuotations : [],
-      recentSales: Array.isArray(recentSales) ? recentSales : []
+      trendData: monthlyTrend.map(({ year, month, ...rest }) => rest),
+      recentQuotations,
+      recentSales
     });
   } catch (error) {
-    console.warn('Dashboard stats fallback triggered:', error.message || error);
-    return res.json({
-      kpis: {
-        totalGlazingArea: 0,
-        inReviewQuotes: 0,
-        acceptedQuotes: 0,
-        draftQuotes: 0,
-        totalPipelineValue: 0,
-        totalQuotations: 0,
-        activeQuotes: 0,
-        totalSales: 0,
-        pendingOrders: 0,
-        totalCustomers: 0,
-        totalProductSkus: 0
-      },
-      statusBreakdown: {
-        ACCEPTED: { count: 0, areaSqM: 0, totalValue: 0 },
-        SENT: { count: 0, areaSqM: 0, totalValue: 0 },
-        DRAFT: { count: 0, areaSqM: 0, totalValue: 0 },
-        CANCELLED: { count: 0, areaSqM: 0, totalValue: 0 }
-      },
-      trendData: getBaselineTrend(),
-      recentQuotations: [],
-      recentSales: []
-    });
+    console.error('Error fetching dashboard stats from database:', error.message || error);
+    return res.status(500).json({ error: 'Failed to fetch dashboard metrics from database' });
   }
 };
 

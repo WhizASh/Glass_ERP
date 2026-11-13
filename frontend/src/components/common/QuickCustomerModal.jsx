@@ -14,14 +14,22 @@ const initialCustomerData = {
   notes: ''
 };
 
-const QuickCustomerModal = ({ isOpen, onClose, onSuccess }) => {
+const QuickCustomerModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  subtitle = 'Create customer in-place without losing form progress'
+}) => {
   const [formData, setFormData] = useState(initialCustomerData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) onClose();
+      if (e.key === 'Escape' && isOpen) {
+        e.stopPropagation();
+        onClose();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -71,17 +79,7 @@ const QuickCustomerModal = ({ isOpen, onClose, onSuccess }) => {
         notes: formData.notes?.trim() || null
       };
 
-      let created;
-      try {
-        created = await api.createCustomer(payload);
-      } catch (apiErr) {
-        console.warn('API error creating customer, creating client fallback:', apiErr.message || apiErr);
-        created = {
-          id: 'cust-' + Date.now(),
-          ...payload,
-          createdAt: new Date().toISOString()
-        };
-      }
+      const created = await api.createCustomer(payload);
 
       setFormData(initialCustomerData);
       if (onSuccess) {
@@ -122,7 +120,7 @@ const QuickCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                 Quick Add Client / Contractor
               </h2>
               <p className="text-[11px] text-steel-400">
-                Create customer in-place without losing quotation progress
+                {subtitle}
               </p>
             </div>
           </div>
@@ -186,7 +184,7 @@ const QuickCustomerModal = ({ isOpen, onClose, onSuccess }) => {
               {/* Company / Firm Name */}
               <div>
                 <label className="block text-xs font-semibold text-steel-700 mb-1">
-                  Company / Contractor / Firm Name *
+                  Company / Contractor / Firm Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
                 </label>
                 <input
                   type="text"
@@ -215,7 +213,7 @@ const QuickCustomerModal = ({ isOpen, onClose, onSuccess }) => {
           ) : (
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1">
-                Client / Individual Full Name *
+                Client / Individual Full Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
               <input
                 type="text"

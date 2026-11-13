@@ -59,5 +59,10 @@ export const api = {
   },
   getSaleById: (id) => request(`/sales/${id}`),
   createSale: (data) => request('/sales', { method: 'POST', body: JSON.stringify(data) }),
-  updateSale: (id, data) => request(`/sales/${id}`, { method: 'PUT', body: JSON.stringify(data) })
+  updateSale: (id, data) => request(`/sales/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  toggleSaleLock: (id, isLocked) =>
+    request(`/sales/${id}/lock`, {
+      method: 'PATCH',
+      body: JSON.stringify(isLocked !== undefined ? { isLocked } : {})
+    })
 };

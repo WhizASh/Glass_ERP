@@ -162,7 +162,8 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <Shield className="w-3 h-3 text-steel-400" />
-                <span>Glass Treatment / Type *</span>
+                <span>Glass Treatment / Type</span>
+                <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
               <select
                 value={formData.glassType}
@@ -177,7 +178,7 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
 
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1">
-                Thickness (mm) *
+                Thickness (mm) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
               <div className="flex gap-1.5 items-center">
                 <select
@@ -196,7 +197,7 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
           {/* Product Name */}
           <div>
             <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center justify-between">
-              <span>Glass Product Name *</span>
+              <span>Glass Product Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span></span>
               <button
                 type="button"
                 onClick={() => {
@@ -227,7 +228,8 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <Tag className="w-3 h-3 text-steel-400" />
-                <span>SKU Code *</span>
+                <span>SKU Code</span>
+                <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
               <input
                 type="text"
@@ -242,7 +244,8 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <DollarSign className="w-3 h-3 text-steel-400" />
-                <span>Rate (₹/sqft) *</span>
+                <span>Rate (₹/sqft)</span>
+                <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
               <input
                 type="number"

@@ -161,6 +161,91 @@ async function runTests() {
   assert.strictEqual(cancelErrData.error, 'Cancelled orders cannot be modified');
   console.log('  ✓ Verified CANCELLED order guardrail blocks modification.');
 
+  // 9. Test Payment Complete Locking Guardrails
+  console.log('• Test 9: Guardrails on PAID Order Record Locking');
+  // Create a new unpaid test order
+  const newOrderRes = await fetch(`${API_BASE}/sales`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      customerId: quote201.customerId,
+      paymentMode: 'CASH',
+      paymentStatus: 'UNPAID',
+      items: [
+        {
+          description: '10mm Clear Toughened Glass',
+          quantity: 1,
+          unitPrice: 500
+        }
+      ]
+    })
+  });
+  assert.strictEqual(newOrderRes.status, 201);
+  const testOrder = await newOrderRes.json();
+  assert.strictEqual(testOrder.isLocked, false);
+
+  // Attempt to lock an UNPAID order (should be rejected)
+  const lockUnpaidRes = await fetch(`${API_BASE}/sales/${testOrder.id}/lock`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isLocked: true })
+  });
+  assert.strictEqual(lockUnpaidRes.status, 400, 'Should reject locking when payment is incomplete');
+  const lockUnpaidErr = await lockUnpaidRes.json();
+  assert.ok(lockUnpaidErr.error.includes('Payment is not complete'), 'Should state payment must be complete');
+  console.log('  ✓ Verified incomplete payment cannot be locked.');
+
+  // Update order to PAID
+  const markPaidRes = await fetch(`${API_BASE}/sales/${testOrder.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paymentStatus: 'PAID' })
+  });
+  assert.strictEqual(markPaidRes.status, 200);
+
+  // Lock the PAID order
+  const lockPaidRes = await fetch(`${API_BASE}/sales/${testOrder.id}/lock`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isLocked: true })
+  });
+  assert.strictEqual(lockPaidRes.status, 200, 'Should allow locking when payment is PAID');
+  const lockedOrder = await lockPaidRes.json();
+  assert.strictEqual(lockedOrder.isLocked, true);
+  console.log('  ✓ Verified sale record locked upon payment completion.');
+
+  // Attempt to modify the locked order (should be rejected)
+  const modifyLockedRes = await fetch(`${API_BASE}/sales/${testOrder.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deliveryAddress: 'Hacked address' })
+  });
+  assert.strictEqual(modifyLockedRes.status, 400, 'Should reject modification of locked order');
+  const modifyLockedErr = await modifyLockedRes.json();
+  assert.ok(modifyLockedErr.error.includes('locked'), 'Should indicate record is locked');
+  console.log('  ✓ Verified modifications blocked on locked sale record.');
+
+  // Unlock the order
+  const unlockRes = await fetch(`${API_BASE}/sales/${testOrder.id}/lock`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isLocked: false })
+  });
+  assert.strictEqual(unlockRes.status, 200, 'Should allow unlocking');
+  const unlockedOrder = await unlockRes.json();
+  assert.strictEqual(unlockedOrder.isLocked, false);
+
+  // Modification now succeeds
+  const modifyUnlockedRes = await fetch(`${API_BASE}/sales/${testOrder.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deliveryAddress: 'Valid unlocked address update' })
+  });
+  assert.strictEqual(modifyUnlockedRes.status, 200, 'Should allow modification after unlock');
+  const finalUpdated = await modifyUnlockedRes.json();
+  assert.strictEqual(finalUpdated.deliveryAddress, 'Valid unlocked address update');
+  console.log('  ✓ Verified administrative unlock and subsequent modification succeed.');
+
   console.log('\n========================================');
   console.log('🎉 ALL SALES API INTEGRATION TESTS PASSED!');
   console.log('========================================');

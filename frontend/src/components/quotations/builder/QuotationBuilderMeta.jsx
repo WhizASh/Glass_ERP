@@ -16,7 +16,7 @@ const QuotationBuilderMeta = ({
       <div>
         <div className="flex items-center justify-between mb-1">
           <label className="text-xs font-semibold text-steel-700">
-            Customer / Project Client *
+            Customer / Project Client <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
           </label>
           {onOpenAddCustomer && (
             <button
@@ -50,7 +50,7 @@ const QuotationBuilderMeta = ({
       <div>
         <div className="flex items-center justify-between mb-1">
           <label className="block text-xs font-semibold text-steel-700">
-            Date *
+            Date <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
           </label>
           <span className="text-[10px] text-steel-400 font-mono">Today</span>
         </div>

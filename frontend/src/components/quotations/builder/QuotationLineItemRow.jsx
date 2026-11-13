@@ -40,7 +40,11 @@ const QuotationLineItemRow = ({
             onChange={(e) => handleProductChange(e.target.value)}
             className="w-full text-xs py-1.5 px-2 bg-white border border-steel-300 rounded-md text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600 focus:border-edge-600 font-medium"
           >
-            <option value="">-- Select Glass Specification --</option>
+            {products.length === 0 ? (
+              <option value="" disabled>No products in catalog — click + to add</option>
+            ) : (
+              <option value="">-- Select Glass Specification --</option>
+            )}
             {products.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.skuCode} | {p.name} ({p.thicknessMm}mm) - ₹{Number(p.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/sqft

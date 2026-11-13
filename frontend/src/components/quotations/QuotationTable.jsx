@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Inbox, FileText, Printer, Edit3 } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
+import TableSkeleton from '../common/TableSkeleton';
 import { formatCurrency, formatSqft, getItemDisplayMetrics } from '../../lib/glassCalculations';
 
 const QuotationTable = ({
@@ -13,16 +14,7 @@ const QuotationTable = ({
   onOpenCreateModal
 }) => {
   if (loading) {
-    return (
-      <div className="bg-white rounded-lg border border-steel-200 p-6 space-y-3" role="status" aria-busy="true" aria-label="Loading quotations">
-        <div className="h-5 bg-steel-100 rounded w-1/4 animate-pulse" />
-        <div className="space-y-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-12 bg-steel-50 rounded border border-steel-100 animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
+    return <TableSkeleton ariaLabel="Loading quotations" rows={4} />;
   }
 
   if (quotations.length === 0) {

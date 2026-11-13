@@ -10,7 +10,7 @@ import ProductSKUsView from './components/views/ProductSKUsView';
 const tabTitles = {
   dashboard: 'Operations Dashboard',
   quotations: 'Glass Quotations & Takeoff',
-  sales: 'Sales Orders & Fulfillment',
+  sales: 'Sales Orders',
   customers: 'Customer & Contractor Directory',
   products: 'Glass Product SKU Catalog'
 };

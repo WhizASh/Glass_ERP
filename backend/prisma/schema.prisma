@@ -122,7 +122,14 @@ model SaleOrder {
   paymentMode     String          @default("CASH")
   orderDate       DateTime        @default(now())
   deliveryAddress String?
+  subtotal        Decimal?
+  discountType    String?         @default("PERCENTAGE")
+  discountValue   Decimal?        @default(0)
+  discountAmount  Decimal?        @default(0)
+  taxRate         Decimal?        @default(0)
+  taxAmount       Decimal?        @default(0)
   totalAmount     Decimal         @default(0)
+  isLocked        Boolean         @default(false)
   items           SaleOrderItem[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -140,6 +147,9 @@ model SaleOrderItem {
   description  String?
   widthMm      Decimal?
   heightMm     Decimal?
+  widthInches  Decimal?
+  heightInches Decimal?
+  areaSqFt     Decimal?
   quantity     Decimal     @default(1)
   unitPrice    Decimal
   totalPrice   Decimal

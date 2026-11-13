@@ -1,30 +1,9 @@
 const prisma = require('../lib/prisma');
 
-const defaultCustomers = [
-  {
-    id: 'cust-nagpur-glass',
-    customerType: 'ORGANIZATION',
-    name: 'Yusuf Bhai',
-    companyName: 'Nagpur Glass & Hardware Traders',
-    city: 'Nagpur',
-    phone: '+91 98222 11223',
-    taxId: '27AABCT1234F1Z8',
-    email: 'nagpur.glass@example.com'
-  },
-  {
-    id: 'cust-apex-infra',
-    customerType: 'ORGANIZATION',
-    name: 'Rajesh Sharma',
-    companyName: 'Apex Facades & Infrastructure Pvt Ltd',
-    city: 'Pune',
-    phone: '+91 98900 55443',
-    taxId: '27AAACA9988G1ZQ',
-    email: 'info@apexfacades.com'
-  }
-];
-
-let inMemoryCustomers = [...defaultCustomers];
-
+/**
+ * GET /api/customers
+ * Pure DB fetch with filtering by customerType and text query.
+ */
 const getCustomers = async (req, res) => {
   try {
     const { type, q } = req.query;
@@ -53,16 +32,17 @@ const getCustomers = async (req, res) => {
       }
     });
 
-    if (customers && customers.length > 0) {
-      return res.json(customers);
-    }
-    return res.json(inMemoryCustomers);
+    return res.json(customers);
   } catch (error) {
-    console.warn('DB offline, returning in-memory customers catalog:', error.message || error);
-    return res.json(inMemoryCustomers);
+    console.error('Error fetching customers from database:', error.message || error);
+    return res.status(500).json({ error: 'Failed to fetch customers from database' });
   }
 };
 
+/**
+ * POST /api/customers
+ * Creates a customer directly in PostgreSQL via Prisma.
+ */
 const createCustomer = async (req, res) => {
   try {
     const { customerType, name, companyName, taxId, email, phone, address, city, notes } = req.body;
@@ -91,31 +71,14 @@ const createCustomer = async (req, res) => {
       }
     });
 
-    inMemoryCustomers.unshift(newCustomer);
     return res.status(201).json(newCustomer);
   } catch (error) {
-    console.warn('Prisma error creating customer, using resilient fallback:', error.message || error);
-    const fallbackCustomer = {
-      id: 'cust-' + Date.now(),
-      customerType: req.body.customerType || 'ORGANIZATION',
-      name: primaryName,
-      companyName: cleanCompanyName,
-      taxId: taxId && taxId.trim() ? taxId.trim() : null,
-      email: cleanEmail,
-      phone: phone && phone.trim() ? phone.trim() : null,
-      city: city && city.trim() ? city.trim() : null,
-      address: address && address.trim() ? address.trim() : null,
-      notes: notes && notes.trim() ? notes.trim() : null,
-      createdAt: new Date().toISOString()
-    };
-    inMemoryCustomers.unshift(fallbackCustomer);
-    return res.status(201).json(fallbackCustomer);
+    console.error('Error creating customer in database:', error.message || error);
+    return res.status(500).json({ error: 'Failed to create customer in database' });
   }
 };
 
 module.exports = {
   getCustomers,
-  createCustomer,
-  inMemoryCustomers,
-  defaultCustomers
+  createCustomer
 };

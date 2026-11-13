@@ -8,7 +8,12 @@
     "dev": "nodemon src/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "db:reset": "node scripts/reset-db.js"
+    "db:reset": "node scripts/reset-db.js",
+    "db:seed": "node scripts/reset-db.js",
+    "test": "node src/services/glassCalculations.service.test.js"
+  },
+  "prisma": {
+    "seed": "node scripts/reset-db.js"
   },
   "dependencies": {
     "@prisma/client": "^6.4.0",

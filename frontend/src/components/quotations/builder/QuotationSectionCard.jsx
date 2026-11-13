@@ -81,13 +81,23 @@ const QuotationSectionCard = ({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="text-[11px] font-semibold text-steel-500 uppercase tracking-wider border-b border-steel-200 pb-1">
-              <th className="pb-1.5 font-medium min-w-[240px]">Glass Specification / SKU</th>
-              <th className="pb-1.5 text-right font-medium w-24">Width (in)</th>
-              <th className="pb-1.5 text-right font-medium w-24">Height (in)</th>
+              <th className="pb-1.5 font-medium min-w-[240px]">
+                Glass Specification / SKU <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </th>
+              <th className="pb-1.5 text-right font-medium w-24">
+                Width (in) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </th>
+              <th className="pb-1.5 text-right font-medium w-24">
+                Height (in) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </th>
               <th className="pb-1.5 text-center font-medium w-28">Billing Size</th>
               <th className="pb-1.5 text-right font-medium w-24">Sqft</th>
-              <th className="pb-1.5 text-center font-medium w-16">Qty</th>
-              <th className="pb-1.5 text-right font-medium w-24">Rate (₹/sqft)</th>
+              <th className="pb-1.5 text-center font-medium w-16">
+                Qty <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </th>
+              <th className="pb-1.5 text-right font-medium w-24">
+                Rate (₹/sqft) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </th>
               <th className="pb-1.5 text-right font-medium w-28">Line Total</th>
               <th className="pb-1.5 w-8"></th>
             </tr>

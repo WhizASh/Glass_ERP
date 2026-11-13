@@ -169,6 +169,7 @@ const CustomersView = () => {
       <DataTable
         columns={columns}
         data={customers}
+        loading={loading}
         tableAriaLabel="Customer Directory Table"
         emptyMessage="No clients found in directory"
         emptySubtext="Start building your client base by registering architectural contractors or buyers."
@@ -226,7 +227,9 @@ const CustomersView = () => {
           {formData.customerType === 'ORGANIZATION' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-steel-700 mb-1">Company / Firm Name *</label>
+                <label className="block text-xs font-semibold text-steel-700 mb-1">
+                  Company / Firm Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+                </label>
                 <input
                   type="text"
                   required
@@ -252,7 +255,7 @@ const CustomersView = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1">
-                {formData.customerType === 'ORGANIZATION' ? 'Contact Person Name *' : 'Full Name *'}
+                {formData.customerType === 'ORGANIZATION' ? 'Contact Person Name' : 'Full Name'} <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
               <input
                 type="text"

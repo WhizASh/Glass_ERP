@@ -101,7 +101,7 @@ const QuotationPrintView = ({ quotation, onClose }) => {
               </div>
 
               <div className="flex items-center gap-4">
-                {/* Official Quotation Seal */}
+                {/* Quotation Status Text */}
                 <QuotationSeal status={quotation.status} size="lg" />
 
                 {/* Quote Meta Card */}
@@ -329,11 +329,6 @@ const QuotationPrintView = ({ quotation, onClose }) => {
                 Customer Acceptance
               </div>
               <div className="text-[9px] text-slate-500">Signature &amp; Stamp</div>
-            </div>
-
-            {/* Status Stamp in Signatory / Authorization Section */}
-            <div className="text-center pb-2">
-              <QuotationSeal status={quotation.status} size="md" />
             </div>
 
             <div className="text-center w-56">

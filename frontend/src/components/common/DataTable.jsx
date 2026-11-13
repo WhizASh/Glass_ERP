@@ -1,14 +1,20 @@
 import React from 'react';
 import { Inbox } from 'lucide-react';
+import TableSkeleton from './TableSkeleton';
 
 const DataTable = ({
   columns = [],
   data = [],
+  loading = false,
   emptyMessage = 'No records found',
   emptySubtext = 'Get started by creating a new entry above.',
   actionButton = null,
   tableAriaLabel = 'Data Table'
 }) => {
+  if (loading) {
+    return <TableSkeleton ariaLabel={`Loading ${tableAriaLabel}`} rows={4} />;
+  }
+
   return (
     <div
       tabIndex={0}

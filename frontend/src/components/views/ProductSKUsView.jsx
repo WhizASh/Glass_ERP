@@ -171,6 +171,7 @@ const ProductSKUsView = () => {
       <DataTable
         columns={columns}
         data={products}
+        loading={loading}
         tableAriaLabel="Glass Product Catalog Table"
         emptyMessage="No product SKUs cataloged yet"
         emptySubtext="Define your glass specifications and base rates per unit (m², ft², KG, PCS)."
@@ -195,7 +196,9 @@ const ProductSKUsView = () => {
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">SKU Code *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">
+                SKU Code <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </label>
               <input
                 type="text"
                 required
@@ -206,7 +209,9 @@ const ProductSKUsView = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">Product Name *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">
+                Product Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </label>
               <input
                 type="text"
                 required
@@ -220,7 +225,9 @@ const ProductSKUsView = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">Glass Type *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">
+                Glass Type <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </label>
               <select
                 required
                 value={formData.glassType}
@@ -233,7 +240,9 @@ const ProductSKUsView = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">Nominal Thickness (mm) *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">
+                Nominal Thickness (mm) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </label>
               <input
                 type="number"
                 step="0.1"
@@ -249,7 +258,9 @@ const ProductSKUsView = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">Unit of Measure *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">
+                Unit of Measure <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </label>
               <select
                 required
                 value={formData.unitOfMeasure}
@@ -262,7 +273,9 @@ const ProductSKUsView = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">Unit Base Price (₹) *</label>
+              <label className="block text-xs font-semibold text-steel-700 mb-1">
+                Unit Base Price (₹) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+              </label>
               <input
                 type="number"
                 step="0.01"

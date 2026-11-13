@@ -233,10 +233,13 @@ const QuotationDrawer = ({ quotation, onClose, onStatusUpdated, onEditQuotation 
                 )}
               </div>
 
-              {/* Right: Official Rubber Stamp Seal */}
+              {/* Right: Confirmation / Cancellation Status */}
               <div className="flex sm:justify-end items-center">
                 {(currentQuote.status === 'CANCELLED' || currentQuote.status === 'ACCEPTED') && (
-                  <QuotationSeal status={currentQuote.status} size="md" />
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-steel-500 block">Status</span>
+                    <QuotationSeal status={currentQuote.status} size="md" />
+                  </div>
                 )}
               </div>
             </div>
