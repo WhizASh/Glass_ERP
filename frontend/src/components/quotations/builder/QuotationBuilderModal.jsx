@@ -5,7 +5,7 @@ import QuotationBuilderMeta from './QuotationBuilderMeta';
 import QuotationBuilderFooter from './QuotationBuilderFooter';
 import QuickCustomerModal from '../../common/QuickCustomerModal';
 import QuickProductSkuModal from '../../common/QuickProductSkuModal';
-import { calculateQuotationTotals } from '../../../lib/glassCalculations';
+import { calculateQuotationTotals, convertRateBetweenUnits } from '../../../lib/glassCalculations';
 
 const QuotationBuilderModal = ({
   isOpen,
@@ -149,13 +149,18 @@ const QuotationBuilderModal = ({
     }
     if (activeSkuTarget) {
       const { sectionIndex, itemIndex } = activeSkuTarget;
+      const unit = formData.measurementUnit || 'SQ_FT';
+      const initialRate = unit === 'SQ_METER'
+        ? convertRateBetweenUnits(newProduct.unitPrice, 'SQ_FT', 'SQ_METER')
+        : Number(newProduct.unitPrice);
+
       setFormData((prev) => {
         const updated = [...prev.sections];
         if (updated[sectionIndex] && updated[sectionIndex].items[itemIndex]) {
           updated[sectionIndex].items[itemIndex] = {
             ...updated[sectionIndex].items[itemIndex],
             productSkuId: newProduct.id,
-            unitPrice: Number(newProduct.unitPrice),
+            unitPrice: initialRate,
             description: `${newProduct.name} (${newProduct.thicknessMm}mm - ${newProduct.glassType})`
           };
         }
@@ -165,12 +170,43 @@ const QuotationBuilderModal = ({
     setActiveSkuTarget(null);
   };
 
+  // Unit change handler: converts all existing line item rates automatically
+  const handleUnitChange = (newUnit) => {
+    const oldUnit = formData.measurementUnit || 'SQ_FT';
+    if (newUnit === oldUnit) return;
+
+    setFormData((prev) => {
+      const updatedSections = (prev.sections || []).map((sec) => ({
+        ...sec,
+        items: (sec.items || []).map((item) => {
+          const currentRate = parseFloat(item.unitPrice) || 0;
+          const convertedRate = currentRate > 0
+            ? convertRateBetweenUnits(currentRate, oldUnit, newUnit)
+            : 0;
+
+          return {
+            ...item,
+            unitPrice: convertedRate
+          };
+        })
+      }));
+
+      return {
+        ...prev,
+        measurementUnit: newUnit,
+        sections: updatedSections
+      };
+    });
+  };
+
   // Calculate live commercial totals
+  const currentUnit = formData.measurementUnit || 'SQ_FT';
   const totals = calculateQuotationTotals(
     formData.sections,
     formData.discountType || 'PERCENTAGE',
     formData.discountValue || 0,
-    formData.taxRate !== undefined ? formData.taxRate : 18
+    formData.taxRate !== undefined ? formData.taxRate : 18,
+    currentUnit
   );
 
   return (
@@ -179,29 +215,29 @@ const QuotationBuilderModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="builder-title"
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto no-print"
+        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto no-print"
       >
         <div
           onClick={onClose}
           className="fixed inset-0 bg-steel-950/60 backdrop-blur-xs transition-opacity"
         />
 
-        <div className="relative w-full max-w-5xl bg-white rounded-xl border border-steel-200 shadow-2xl z-10 my-4 flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-98 duration-150">
+        <div className="relative w-full max-w-5xl bg-white rounded-xl border border-steel-200 shadow-2xl z-10 my-2 sm:my-4 flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-98 duration-150">
           {/* Header */}
-          <div className="px-5 py-3.5 bg-[#0f172a] text-white flex items-center justify-between border-b border-slate-800">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 id="builder-title" className="text-sm font-bold tracking-tight text-white flex items-center gap-2">
-                  <Calculator className="w-4 h-4 text-edge-400" />
-                  <span>{editingQuotation ? `Edit Quotation #${editingQuotation.quoteNumber}` : 'Glass Quotation & Glazing Takeoff Builder'}</span>
+          <div className="px-4 sm:px-5 py-3 sm:py-3.5 bg-[#0f172a] text-white flex items-center justify-between border-b border-slate-800 shrink-0 gap-2">
+            <div className="min-w-0 pr-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 id="builder-title" className="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-2 truncate">
+                  <Calculator className="w-4 h-4 text-edge-400 shrink-0" />
+                  <span className="truncate">{editingQuotation ? `Edit Quotation #${editingQuotation.quoteNumber}` : 'Glass Quotation & Glazing Takeoff Builder'}</span>
                 </h2>
                 {editingQuotation && (
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800 uppercase font-semibold">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800 uppercase font-semibold shrink-0">
                     {editingQuotation.status}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-steel-400 mt-0.5">
+              <p className="text-[10px] sm:text-[11px] text-steel-400 mt-0.5 truncate">
                 {editingQuotation
                   ? 'Update customer details, dimensions in inches, pricing, discount, and notes.'
                   : 'Input dimensions in inches; billing sizes automatically round to commercial 6" slabs with live sqft'}
@@ -209,7 +245,7 @@ const QuotationBuilderModal = ({
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors"
+              className="p-1 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors shrink-0"
               aria-label="Close quote builder"
             >
               <X className="w-4 h-4" />
@@ -217,13 +253,14 @@ const QuotationBuilderModal = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
-            {/* Meta Block (Customer + Validity + GST) */}
+          <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-4 sm:space-y-5">
+            {/* Meta Block (Customer + Validity + Conversion Unit + GST) */}
             <QuotationBuilderMeta
               formData={formData}
               setFormData={setFormData}
               customers={customers}
               onOpenAddCustomer={() => setIsAddCustomerOpen(true)}
+              onUnitChange={handleUnitChange}
             />
 
             {/* Sections Container */}
@@ -248,6 +285,7 @@ const QuotationBuilderModal = ({
                   key={sIdx}
                   section={section}
                   sectionIndex={sIdx}
+                  measurementUnit={currentUnit}
                   products={products}
                   onUpdateSectionName={handleUpdateSectionName}
                   onAddItem={handleAddItem}
@@ -280,11 +318,12 @@ const QuotationBuilderModal = ({
               onDiscountTypeChange={(val) => setFormData({ ...formData, discountType: val })}
               discountValue={formData.discountValue}
               onDiscountValueChange={(val) => setFormData({ ...formData, discountValue: val })}
+              measurementUnit={currentUnit}
               totals={totals}
             />
 
             {/* Actions Bar */}
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-steel-200">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5 pt-3 border-t border-steel-200">
               <button
                 type="button"
                 onClick={onClose}

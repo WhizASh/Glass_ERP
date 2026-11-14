@@ -10,7 +10,7 @@ const StatusBreakdownView = ({ statusBreakdown = {}, totalStatusArea = 1, winRat
 
   return (
     <div className="py-3 space-y-4">
-      <div className="flex items-center justify-between text-xs font-medium">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-medium gap-1">
         <span className="text-steel-600">Glazing Area Distribution by Status</span>
         <span className="font-mono text-steel-900 font-bold">Conversion Rate: {winRate}% Won</span>
       </div>
@@ -34,7 +34,7 @@ const StatusBreakdownView = ({ statusBreakdown = {}, totalStatusArea = 1, winRat
       </div>
 
       {/* Status Breakdown Legend & Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
         {statuses.map((item, idx) => {
           const s = statusBreakdown[item.st] || { count: 0, areaSqM: 0 };
           return (

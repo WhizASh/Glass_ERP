@@ -27,12 +27,14 @@ const RecentActivityGrid = ({ recentQuotations = [], recentSales = [], onNavigat
           {recentQuotations && recentQuotations.length > 0 ? (
             <div className="divide-y divide-steel-100">
               {recentQuotations.map((quote) => (
-                <div key={quote.id} className="py-2.5 flex items-center justify-between text-xs">
-                  <div>
+                <div key={quote.id} className="py-2.5 flex items-center justify-between text-xs gap-2 min-w-0">
+                  <div className="min-w-0">
                     <p className="font-mono font-bold text-steel-900">{quote.quoteNumber}</p>
-                    <p className="text-[11px] text-steel-500">{quote.customer?.companyName || quote.customer?.name}</p>
+                    <p className="text-[11px] text-steel-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px]">
+                      {quote.customer?.companyName || quote.customer?.name}
+                    </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <p className="font-mono font-bold text-steel-900">₹{Number(quote.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     <StatusBadge status={quote.status} />
                   </div>
@@ -71,12 +73,14 @@ const RecentActivityGrid = ({ recentQuotations = [], recentSales = [], onNavigat
           {recentSales && recentSales.length > 0 ? (
             <div className="divide-y divide-steel-100">
               {recentSales.map((order) => (
-                <div key={order.id} className="py-2.5 flex items-center justify-between text-xs">
-                  <div>
+                <div key={order.id} className="py-2.5 flex items-center justify-between text-xs gap-2 min-w-0">
+                  <div className="min-w-0">
                     <p className="font-mono font-bold text-steel-900">{order.orderNumber}</p>
-                    <p className="text-[11px] text-steel-500">{order.customer?.companyName || order.customer?.name}</p>
+                    <p className="text-[11px] text-steel-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px]">
+                      {order.customer?.companyName || order.customer?.name}
+                    </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <p className="font-mono font-bold text-steel-900">₹{Number(order.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     <StatusBadge status={order.status} />
                   </div>

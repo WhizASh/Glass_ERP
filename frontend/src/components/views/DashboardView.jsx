@@ -56,26 +56,26 @@ const DashboardView = ({ onNavigateTab }) => {
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
       {/* Top Welcome / Overview Bar */}
-      <div className="bg-white rounded-lg border border-steel-200 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-lg border border-steel-200 p-3.5 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-steel-900 tracking-tight">
+          <h2 className="text-sm sm:text-base font-bold text-steel-900 tracking-tight">
             Architectural Glazing Operations Overview
           </h2>
           <p className="text-xs text-steel-500 mt-0.5">
             Real-time status of glass takeoff quotes, fabrication orders, and glazing specs.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => onNavigateTab('quotations')}
-            className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors"
+            className="btn-primary inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors flex-1 sm:flex-initial"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Quotation</span>
           </button>
           <button
             onClick={() => onNavigateTab('customers')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-steel-700 border border-steel-300 hover:bg-steel-50 transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-md text-xs font-semibold bg-white text-steel-700 border border-steel-300 hover:bg-steel-50 transition-colors flex-1 sm:flex-initial"
           >
             <Users className="w-3.5 h-3.5 text-steel-500" />
             <span>Add Client</span>

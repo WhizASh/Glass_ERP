@@ -3,7 +3,8 @@ const {
   generateNextQuoteNumber,
   formatSectionsForPrisma,
   calculateQuotationTotals,
-  normalizeQuotation
+  normalizeQuotation,
+  embedUnitInNotes
 } = require('../services/quotations.service');
 
 /**
@@ -98,6 +99,7 @@ const createQuotation = async (req, res) => {
     customerId,
     quoteNumber,
     validUntil,
+    measurementUnit = 'SQ_FT',
     discountType = 'PERCENTAGE',
     discountValue = 0,
     taxRate = 0,
@@ -120,13 +122,15 @@ const createQuotation = async (req, res) => {
       ? String(quoteNumber).trim()
       : await generateNextQuoteNumber(prisma);
 
-    const { formattedSections, subtotal } = formatSectionsForPrisma(sections);
+    const { formattedSections, subtotal } = formatSectionsForPrisma(sections, measurementUnit);
     const totals = calculateQuotationTotals({
       subtotal,
       discountType,
       discountValue,
       taxRate
     });
+
+    const embeddedNotes = embedUnitInNotes(notes, measurementUnit);
 
     const newQuotation = await prisma.quotation.create({
       data: {
@@ -141,7 +145,7 @@ const createQuotation = async (req, res) => {
         taxRate: totals.taxRate,
         taxAmount: totals.taxAmount,
         totalAmount: totals.totalAmount,
-        notes: notes || null,
+        notes: embeddedNotes,
         sections: {
           create: formattedSections
         }
@@ -176,6 +180,7 @@ const updateQuotation = async (req, res) => {
   const {
     customerId,
     validUntil,
+    measurementUnit = 'SQ_FT',
     discountType = 'PERCENTAGE',
     discountValue = 0,
     taxRate = 0,
@@ -204,13 +209,15 @@ const updateQuotation = async (req, res) => {
       });
     }
 
-    const { formattedSections, subtotal } = formatSectionsForPrisma(sections);
+    const { formattedSections, subtotal } = formatSectionsForPrisma(sections, measurementUnit);
     const totals = calculateQuotationTotals({
       subtotal,
       discountType,
       discountValue,
       taxRate
     });
+
+    const embeddedNotes = embedUnitInNotes(notes, measurementUnit);
 
     const updated = await prisma.$transaction(async (tx) => {
       // Delete existing sections and items cascade
@@ -230,7 +237,7 @@ const updateQuotation = async (req, res) => {
           taxRate: totals.taxRate,
           taxAmount: totals.taxAmount,
           totalAmount: totals.totalAmount,
-          notes: notes || null,
+          notes: embeddedNotes,
           sections: {
             create: formattedSections
           }

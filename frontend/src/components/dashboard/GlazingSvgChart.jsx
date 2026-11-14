@@ -95,9 +95,9 @@ const GlazingSvgChart = ({ data = [], metric = 'area' }) => {
 
       {/* Floating Inspection Tooltip */}
       {hoveredIdx !== null && data[hoveredIdx] && (
-        <div className="absolute top-2 right-4 bg-slate-900 text-white px-3 py-2 rounded-md shadow-lg border border-slate-700 text-xs font-mono z-10 pointer-events-none">
+        <div className="absolute top-2 right-2 sm:right-4 bg-slate-900 text-white px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-md shadow-lg border border-slate-700 text-[10px] sm:text-xs font-mono z-10 pointer-events-none max-w-[200px] sm:max-w-xs">
           <p className="font-bold text-teal-400">{data[hoveredIdx].period} Glazing Summary</p>
-          <div className="mt-1 space-y-0.5 text-[11px] text-slate-200">
+          <div className="mt-1 space-y-0.5 text-[10px] sm:text-[11px] text-slate-200">
             <p>Quoted: <span className="font-bold text-white">{data[hoveredIdx].glazingArea} m²</span> (₹{data[hoveredIdx].quotationValue?.toLocaleString('en-IN')})</p>
             <p>Accepted: <span className="font-bold text-emerald-400">{data[hoveredIdx].acceptedArea} m²</span></p>
             <p className="text-slate-400">{data[hoveredIdx].count} glass takeoff projects</p>

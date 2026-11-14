@@ -17,11 +17,17 @@ const tabTitles = {
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleSelectTab = (tab) => {
+    setActiveTab(tab);
+    setMobileMenuOpen(false);
+  };
 
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardView onNavigateTab={setActiveTab} />;
+        return <DashboardView onNavigateTab={handleSelectTab} />;
       case 'quotations':
         return <QuotationsView />;
       case 'sales':
@@ -31,20 +37,29 @@ function App() {
       case 'products':
         return <ProductSKUsView />;
       default:
-        return <DashboardView onNavigateTab={setActiveTab} />;
+        return <DashboardView onNavigateTab={handleSelectTab} />;
     }
   };
 
   return (
     <div className="flex min-h-screen bg-[#f1f5f9] text-steel-900 font-sans antialiased">
-      {/* Structural Framing Sidebar */}
-      <Sidebar activeTab={activeTab} onSelectTab={setActiveTab} />
+      {/* Structural Framing Sidebar (Desktop + Mobile Responsive Drawer) */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={handleSelectTab}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <Header activeTabTitle={tabTitles[activeTab]} />
+        <Header
+          activeTabTitle={tabTitles[activeTab]}
+          onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
+          mobileMenuOpen={mobileMenuOpen}
+        />
 
-        <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto min-w-0">
           {renderActiveView()}
         </main>
       </div>

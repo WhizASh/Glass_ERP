@@ -99,7 +99,7 @@ const QuickCustomerModal = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="quick-customer-title"
-      className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4 overflow-y-auto no-print"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 overflow-y-auto no-print"
     >
       {/* Backdrop */}
       <div
@@ -108,18 +108,18 @@ const QuickCustomerModal = ({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-white rounded-xl border border-steel-200 shadow-2xl z-10 my-4 overflow-hidden animate-in fade-in zoom-in-98 duration-150">
+      <div className="relative w-full max-w-lg bg-white rounded-xl border border-steel-200 shadow-2xl z-10 my-auto sm:my-4 flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-98 duration-150">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#0f172a] text-white border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md bg-edge-900 text-edge-400 border border-edge-700">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 bg-[#0f172a] text-white border-b border-slate-800 shrink-0 gap-2">
+          <div className="flex items-center gap-2 min-w-0 pr-2">
+            <div className="p-1.5 rounded-md bg-edge-900 text-edge-400 border border-edge-700 shrink-0">
               <UserPlus className="w-4 h-4" />
             </div>
-            <div>
-              <h2 id="quick-customer-title" className="text-sm font-bold text-white tracking-tight">
+            <div className="min-w-0">
+              <h2 id="quick-customer-title" className="text-xs sm:text-sm font-bold text-white tracking-tight truncate">
                 Quick Add Client / Contractor
               </h2>
-              <p className="text-[11px] text-steel-400">
+              <p className="text-[10px] sm:text-[11px] text-steel-400 truncate">
                 {subtitle}
               </p>
             </div>
@@ -127,7 +127,7 @@ const QuickCustomerModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors"
+            className="p-1 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors shrink-0"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -135,7 +135,7 @@ const QuickCustomerModal = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto text-xs">
+        <form onSubmit={handleSubmit} className="p-3.5 sm:p-5 space-y-4 overflow-y-auto flex-1 text-xs">
           {error && (
             <div className="p-2.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs">
               {error}
@@ -301,19 +301,19 @@ const QuickCustomerModal = ({
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-steel-200">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5 pt-3 border-t border-steel-200">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-3.5 py-1.5 text-xs font-semibold text-steel-700 bg-white border border-steel-300 rounded-md hover:bg-steel-50 transition-colors"
+              className="px-4 py-2 sm:py-1.5 text-xs font-semibold text-steel-700 bg-white border border-steel-300 rounded-md hover:bg-steel-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-md shadow-xs transition-colors"
+              className="btn-primary inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:py-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-md shadow-xs transition-colors"
             >
               {loading ? 'Saving...' : 'Add & Select Customer'}
             </button>

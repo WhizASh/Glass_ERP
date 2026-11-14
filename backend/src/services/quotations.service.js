@@ -43,11 +43,12 @@ const generateNextQuoteNumber = async (prisma) => {
 
 /**
  * Validates and formats sections & line items for Prisma creation / updates.
- * Computes individual item dimensions, sqft, and item totals.
+ * Computes individual item dimensions, sqft, sqm, and item totals.
  * @param {Array} sections
+ * @param {string} measurementUnit 'SQ_FT' | 'SQ_METER'
  * @returns {{ formattedSections: Array, subtotal: number }}
  */
-const formatSectionsForPrisma = (sections = []) => {
+const formatSectionsForPrisma = (sections = [], measurementUnit = 'SQ_FT') => {
   let subtotal = 0;
 
   const formattedSections = sections.map((sec, secIdx) => {
@@ -82,9 +83,12 @@ const formatSectionsForPrisma = (sections = []) => {
         sqft = parseFloat((areaSqM / 0.092903).toFixed(2));
       }
 
+      const isM2 = measurementUnit === 'SQ_METER';
       const total = item.totalPrice !== undefined && item.totalPrice !== null
         ? parseFloat(item.totalPrice)
-        : (sqft ? parseFloat((qty * sqft * price).toFixed(2)) : (areaSqM ? parseFloat((qty * areaSqM * price).toFixed(2)) : parseFloat((qty * price).toFixed(2))));
+        : (isM2 && areaSqM
+            ? parseFloat((qty * areaSqM * price).toFixed(2))
+            : (sqft ? parseFloat((qty * sqft * price).toFixed(2)) : (areaSqM ? parseFloat((qty * areaSqM * price).toFixed(2)) : parseFloat((qty * price).toFixed(2)))));
 
       subtotal += total;
 
@@ -121,6 +125,33 @@ const formatSectionsForPrisma = (sections = []) => {
 };
 
 /**
+ * Embeds measurementUnit metadata into quotation notes string if needed.
+ * @param {string|null} notes
+ * @param {string} unit 'SQ_FT' | 'SQ_METER'
+ * @returns {string|null}
+ */
+const embedUnitInNotes = (notes, unit) => {
+  const cleanNotes = (notes || '').replace(/<!--unit:(SQ_FT|SQ_METER)-->\s*/g, '').trim();
+  if (!unit || unit === 'SQ_FT') {
+    return cleanNotes || null;
+  }
+  return `<!--unit:${unit}-->\n${cleanNotes}`.trim();
+};
+
+/**
+ * Extracts measurementUnit and clean notes from raw quotation notes string.
+ * @param {string|null} rawNotes
+ * @returns {{ measurementUnit: string, notes: string|null }}
+ */
+const extractUnitFromNotes = (rawNotes) => {
+  if (!rawNotes) return { measurementUnit: 'SQ_FT', notes: null };
+  const match = rawNotes.match(/<!--unit:(SQ_FT|SQ_METER)-->/);
+  const measurementUnit = match ? match[1] : 'SQ_FT';
+  const notes = rawNotes.replace(/<!--unit:(SQ_FT|SQ_METER)-->\s*/g, '').trim() || null;
+  return { measurementUnit, notes };
+};
+
+/**
  * Normalizes a Quotation entity from Prisma, converting Decimal types to primitive Numbers.
  * @param {Object} quote
  * @returns {Object}
@@ -128,8 +159,14 @@ const formatSectionsForPrisma = (sections = []) => {
 const normalizeQuotation = (quote) => {
   if (!quote) return null;
 
+  const extracted = extractUnitFromNotes(quote.notes);
+  const measurementUnit = quote.measurementUnit || extracted.measurementUnit || 'SQ_FT';
+  const notes = extracted.notes;
+
   return {
     ...quote,
+    measurementUnit,
+    notes,
     subtotal: Number(quote.subtotal) || 0,
     discountValue: Number(quote.discountValue) || 0,
     discountAmount: Number(quote.discountAmount) || 0,
@@ -160,5 +197,7 @@ module.exports = {
   generateNextQuoteNumber,
   formatSectionsForPrisma,
   calculateQuotationTotals,
-  normalizeQuotation
+  normalizeQuotation,
+  embedUnitInNotes,
+  extractUnitFromNotes
 };
