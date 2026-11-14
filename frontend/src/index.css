@@ -3,17 +3,31 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     background-color: #f1f5f9;
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   ::selection {
     background-color: #ccfbf1;
     color: #134e4a;
   }
+}
+
+/* Touch-friendly and hide scrollbar utilities for responsive carousels and tabs */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Explicit fallback & safety styles for guaranteed structural contrast */

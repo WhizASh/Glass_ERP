@@ -20,7 +20,7 @@ const QuotationBuilderFooter = ({
   const isM2 = measurementUnit === 'SQ_METER';
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start pt-2">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start pt-2">
       {/* Terms & Notes and Discount Modifier */}
       <div className="space-y-3">
         <div>

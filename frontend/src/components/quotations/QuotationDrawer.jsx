@@ -104,32 +104,33 @@ const QuotationDrawer = ({ quotation, onClose, onStatusUpdated, onEditQuotation 
 
         {/* Top-to-Bottom Full Screen Height Panel with Smooth Slide Animation */}
         <div
-          className={`fixed top-0 bottom-0 right-0 w-full max-w-2xl bg-white h-screen shadow-2xl flex flex-col border-l border-slate-200 z-10 transition-transform duration-300 ease-in-out transform ${
+          className={`fixed top-0 bottom-0 right-0 w-full max-w-full sm:max-w-2xl bg-white h-full h-[100dvh] shadow-2xl flex flex-col border-l border-slate-200 z-10 transition-transform duration-300 ease-in-out transform ${
             isOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
           }`}
         >
           {/* Header */}
-          <div className="px-5 py-3.5 bg-[#0f172a] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
-            <div>
-              <div className="flex items-center gap-2">
+          <div className="px-4 sm:px-5 py-3 sm:py-3.5 bg-[#0f172a] text-white flex items-center justify-between border-b border-slate-800 shrink-0 gap-2">
+            <div className="min-w-0 pr-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono text-xs font-bold text-teal-300 bg-teal-950 px-2 py-0.5 rounded border border-teal-800">
                   {currentQuote.quoteNumber}
                 </span>
                 <StatusBadge status={currentQuote.status} />
               </div>
-              <h2 id="drawer-title" className="text-sm font-semibold text-white mt-1">
+              <h2 id="drawer-title" className="text-xs sm:text-sm font-semibold text-white mt-1 truncate">
                 {currentQuote.customer?.companyName || currentQuote.customer?.name}
               </h2>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsPrintOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
                 title="Print or Save PDF"
               >
                 <Printer className="w-3.5 h-3.5" />
-                <span>Print / PDF</span>
+                <span className="hidden xs:inline">Print / PDF</span>
+                <span className="xs:hidden">Print</span>
               </button>
               <button
                 type="button"
@@ -143,11 +144,11 @@ const QuotationDrawer = ({ quotation, onClose, onStatusUpdated, onEditQuotation 
           </div>
 
           {/* Drawer Body (Scrollable from top to bottom) */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs text-steel-700">
+          <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-4 sm:space-y-5 text-xs text-steel-700">
             {/* Pipeline Action Bar */}
-            <div className="bg-steel-50 p-3 rounded-lg border border-steel-200 flex flex-wrap items-center justify-between gap-2">
+            <div className="bg-steel-50 p-3 rounded-lg border border-steel-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <span className="text-[11px] font-semibold uppercase text-steel-500">Pipeline Action:</span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {(currentQuote.status === 'DRAFT' || currentQuote.status === 'SENT') && onEditQuotation && (
                   <button
                     type="button"

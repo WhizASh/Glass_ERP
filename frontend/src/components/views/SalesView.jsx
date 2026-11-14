@@ -546,14 +546,14 @@ const SalesView = () => {
     <div className="space-y-4">
       {/* Filters and Actions */}
       <div className="bg-white rounded-lg border border-steel-200 p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto">
           <Filter className="w-3.5 h-3.5 text-steel-400 shrink-0" />
           <span className="text-xs font-semibold text-steel-600 uppercase tracking-wider mr-1 shrink-0">Payment:</span>
           {PAYMENT_STATUS_FILTERS.map((s) => (
             <button
               key={s}
               onClick={() => setSelectedPaymentStatus(s)}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
                 selectedPaymentStatus === s
                   ? 'filter-pill-active bg-slate-900 text-white font-semibold shadow-xs'
                   : 'filter-pill-inactive text-slate-600 bg-slate-100 hover:bg-slate-200'
@@ -564,11 +564,11 @@ const SalesView = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0">
           <button
             type="button"
             onClick={() => setIsAddCustomerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-steel-300 text-steel-700 hover:bg-steel-50 hover:text-steel-900 shadow-2xs transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-md text-xs font-semibold bg-white border border-steel-300 text-steel-700 hover:bg-steel-50 hover:text-steel-900 shadow-2xs transition-colors"
             title="Register a new customer or contractor directly from sales view"
           >
             <UserPlus className="w-3.5 h-3.5 text-teal-600" />
@@ -576,7 +576,7 @@ const SalesView = () => {
           </button>
           <button
             onClick={handleOpenCreateModal}
-            className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors"
+            className="btn-primary inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Sale Order</span>
@@ -933,8 +933,8 @@ const SalesView = () => {
             </div>
 
             {/* Line Items Table */}
-            <div className="overflow-x-auto p-3">
-              <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto p-2 sm:p-3 touch-scroll">
+              <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
                   <tr className="text-[11px] font-semibold text-steel-500 uppercase tracking-wider border-b border-steel-200 pb-1">
                     <th className="pb-1.5 font-medium min-w-[240px]">
@@ -1205,21 +1205,21 @@ const SalesView = () => {
                 </button>
               </>
             ) : (
-              <div className="flex items-center justify-end gap-2.5 w-full">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5 w-full">
                 <button
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false);
                     setEditingSaleOrder(null);
                   }}
-                  className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-steel-700 bg-white border border-steel-300 hover:bg-steel-50 transition-colors"
+                  className="px-4 py-2 sm:py-1.5 rounded-md text-xs font-semibold text-steel-700 bg-white border border-steel-300 hover:bg-steel-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn-primary inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 transition-colors shadow-xs"
+                  className="btn-primary inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:py-1.5 rounded-md text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 transition-colors shadow-xs"
                 >
                   {formData.isLocked && <Lock className="w-3.5 h-3.5" />}
                   <span>

@@ -30,8 +30,8 @@ const QuotationDrawerSchedule = ({ sections = [], measurementUnit = 'SQ_FT' }) =
               </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs min-w-[560px]">
+            <div className="overflow-x-auto touch-scroll">
+              <table className="w-full text-left text-xs min-w-[580px]">
                 <thead className="bg-steel-50 text-[10px] uppercase font-bold text-steel-600 border-b border-steel-200">
                   <tr>
                     <th className="py-2 px-3 text-left">Glass Specification</th>

@@ -13,20 +13,20 @@ const QuotationBuilderMeta = ({
   const currentDate = formData.validUntil || getTodayDateString();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 p-3.5 bg-steel-50 rounded-lg border border-steel-200">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5 p-3 sm:p-3.5 bg-steel-50 rounded-lg border border-steel-200">
       <div>
-        <div className="flex items-center justify-between mb-1">
-          <label className="text-xs font-semibold text-steel-700">
-            Customer / Project Client <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+        <div className="flex items-center justify-between mb-1 gap-1">
+          <label className="text-xs font-semibold text-steel-700 truncate">
+            Customer / Client <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
           </label>
           {onOpenAddCustomer && (
             <button
               type="button"
               onClick={onOpenAddCustomer}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-edge-700 hover:text-edge-800 transition-colors"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-edge-700 hover:text-edge-800 transition-colors shrink-0"
             >
               <UserPlus className="w-3 h-3" />
-              <span>+ Add Customer</span>
+              <span>+ Add</span>
             </button>
           )}
         </div>

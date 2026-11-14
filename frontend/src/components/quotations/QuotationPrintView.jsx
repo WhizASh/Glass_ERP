@@ -48,21 +48,22 @@ const QuotationPrintView = ({ quotation, onClose }) => {
       {/* Screen Preview Container */}
       <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-2xl my-4 flex flex-col overflow-hidden print-preview-container">
         {/* On-screen toolbar (hidden when printing) */}
-        <div className="no-print bg-[#0f172a] text-white px-5 py-3 flex items-center justify-between border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <Printer className="w-4 h-4 text-edge-400" />
-            <span className="text-xs font-semibold">
+        <div className="no-print bg-[#0f172a] text-white px-3 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between border-b border-slate-800 shrink-0 gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Printer className="w-4 h-4 text-edge-400 shrink-0" />
+            <span className="text-xs font-semibold truncate max-w-[170px] xs:max-w-[260px] sm:max-w-none">
               Quotation Print &amp; PDF Preview — {quotation.quoteNumber}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Print / Save as PDF</span>
+              <span className="hidden xs:inline">Print / Save as PDF</span>
+              <span className="xs:hidden">Print</span>
             </button>
             {onClose && (
               <button
@@ -80,11 +81,11 @@ const QuotationPrintView = ({ quotation, onClose }) => {
         {/* Dedicated Printable Sheet (Replicates Spreadsheet Design) */}
         <div
           id="quotation-print-sheet"
-          className="p-8 sm:p-10 bg-white text-slate-900 font-sans text-xs flex-1 flex flex-col justify-between"
+          className="p-3.5 sm:p-8 md:p-10 bg-white text-slate-900 font-sans text-xs flex-1 flex flex-col justify-between"
         >
           <div>
             {/* Header Block: Company Details (Left) + Document Meta (Right) */}
-            <div className="border-b-2 border-slate-800 pb-4 mb-4 flex justify-between items-start gap-4">
+            <div className="border-b-2 border-slate-800 pb-4 mb-4 flex flex-col sm:flex-row justify-between items-start gap-4">
               <div>
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-950 uppercase font-serif">
                   SADAR GLASS &amp; ALLUMINIUM

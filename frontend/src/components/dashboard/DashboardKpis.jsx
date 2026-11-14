@@ -58,29 +58,29 @@ const DashboardKpis = ({ kpis = {} }) => {
   ];
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3 sm:space-y-3.5">
       {/* Primary Glazing Fabrication KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
         {primaryCards.map((card, i) => {
           const Icon = card.icon;
           return (
             <div
               key={i}
-              className="bg-white p-4 rounded-lg border border-steel-200 shadow-xs hover:border-steel-300 transition-colors flex items-start justify-between"
+              className="bg-white p-3.5 sm:p-4 rounded-lg border border-steel-200 shadow-xs hover:border-steel-300 transition-colors flex items-start justify-between gap-3 min-w-0"
             >
-              <div>
-                <p className="text-[11px] font-bold text-steel-500 uppercase tracking-wider">
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-[11px] font-bold text-steel-500 uppercase tracking-wider truncate">
                   {card.title}
                 </p>
-                <p className="text-xl font-mono font-bold text-steel-900 mt-1">
+                <p className="text-lg sm:text-xl font-mono font-bold text-steel-900 mt-1 break-words">
                   {card.value}
                 </p>
-                <p className="text-[11px] text-steel-500 mt-1">
+                <p className="text-[10px] sm:text-[11px] text-steel-500 mt-1">
                   {card.subtitle}
                 </p>
               </div>
-              <div className={`p-2.5 rounded-lg border ${card.theme}`}>
-                <Icon className="w-5 h-5" />
+              <div className={`p-2 sm:p-2.5 rounded-lg border shrink-0 ${card.theme}`}>
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
           );
@@ -88,19 +88,19 @@ const DashboardKpis = ({ kpis = {} }) => {
       </div>
 
       {/* Secondary Operational Counters */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5">
         {secondaryStats.map((item, idx) => {
           const ItemIcon = item.icon;
           return (
             <div
               key={idx}
-              className="bg-steel-50/80 px-3.5 py-2 rounded-md border border-steel-200/90 flex items-center justify-between text-xs"
+              className="bg-steel-50/80 px-3 py-2 sm:px-3.5 rounded-md border border-steel-200/90 flex items-center justify-between text-xs min-w-0"
             >
-              <div className="flex items-center gap-2">
-                <ItemIcon className="w-3.5 h-3.5 text-steel-500" />
-                <span className="text-steel-600 font-medium">{item.label}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <ItemIcon className="w-3.5 h-3.5 text-steel-500 shrink-0" />
+                <span className="text-steel-600 font-medium truncate">{item.label}</span>
               </div>
-              <div className="flex items-baseline gap-1 font-mono">
+              <div className="flex items-baseline gap-1 font-mono shrink-0">
                 <span className="font-bold text-steel-900">{item.val}</span>
                 {item.sub && <span className="text-[10px] text-steel-400">({item.sub})</span>}
               </div>
