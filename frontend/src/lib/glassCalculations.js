@@ -7,6 +7,29 @@
  * and commercial discounts (% or ₹) are applied before tax calculation.
  */
 
+export const SQFT_TO_SQM = 0.092903;
+export const SQM_TO_SQFT = 10.76391;
+
+/**
+ * Converts rate between SQ_FT (₹/sqft) and SQ_METER (₹/m²).
+ * @param {number|string} rate
+ * @param {string} fromUnit 'SQ_FT' | 'SQ_METER'
+ * @param {string} toUnit 'SQ_FT' | 'SQ_METER'
+ * @returns {number}
+ */
+export const convertRateBetweenUnits = (rate, fromUnit, toUnit) => {
+  const val = parseFloat(rate);
+  if (isNaN(val) || val <= 0 || fromUnit === toUnit) return Math.max(0, val || 0);
+
+  if (fromUnit === 'SQ_FT' && toUnit === 'SQ_METER') {
+    return Number((val * SQM_TO_SQFT).toFixed(2));
+  }
+  if (fromUnit === 'SQ_METER' && toUnit === 'SQ_FT') {
+    return Number((val * SQFT_TO_SQM).toFixed(2));
+  }
+  return Number(val.toFixed(2));
+};
+
 /**
  * Rounds a dimension in inches up to the nearest multiple of 6 inches (minimum 6").
  * @param {number|string} inches
@@ -64,11 +87,12 @@ export const calculateDiscount = (subtotal, discountType = 'PERCENTAGE', discoun
 };
 
 /**
- * Calculates full line item metrics including rounded dimensions, sqft, and line total.
+ * Calculates full line item metrics including rounded dimensions, sqft, sqm, and line total.
  * @param {object} item
+ * @param {string} measurementUnit 'SQ_FT' | 'SQ_METER'
  * @returns {object}
  */
-export const calculateLineItemMetrics = (item) => {
+export const calculateLineItemMetrics = (item, measurementUnit = 'SQ_FT') => {
   const qty = Math.max(1, parseFloat(item.quantity) || 1);
   const rate = Math.max(0, parseFloat(item.unitPrice) || 0);
   const widthIn = parseFloat(item.widthInches) || 0;
@@ -81,9 +105,24 @@ export const calculateLineItemMetrics = (item) => {
     : (parseFloat(item.areaSqFt) || 0);
 
   const totalSqft = Number((sqft * qty).toFixed(2));
-  const lineTotal = (sqft > 0)
-    ? Number((totalSqft * rate).toFixed(2))
-    : Number((qty * rate).toFixed(2));
+
+  const sqM = item.areaSqM && parseFloat(item.areaSqM) > 0
+    ? parseFloat(item.areaSqM)
+    : Number((sqft * SQFT_TO_SQM).toFixed(4));
+  const totalSqM = Number((sqM * qty).toFixed(4));
+
+  const isM2 = measurementUnit === 'SQ_METER';
+  const area = isM2 ? sqM : sqft;
+  const totalArea = isM2 ? totalSqM : totalSqft;
+
+  let lineTotal = 0;
+  if (isM2 && totalSqM > 0) {
+    lineTotal = Number((totalSqM * rate).toFixed(2));
+  } else if (sqft > 0) {
+    lineTotal = Number((totalSqft * rate).toFixed(2));
+  } else {
+    lineTotal = Number((qty * rate).toFixed(2));
+  }
 
   return {
     widthIn,
@@ -93,6 +132,12 @@ export const calculateLineItemMetrics = (item) => {
     billingSizeText: formatBillingSize(widthIn, heightIn),
     sqft,
     totalSqft,
+    sqM,
+    totalSqM,
+    area,
+    totalArea,
+    unitLabel: isM2 ? 'm²' : 'sqft',
+    rateLabel: isM2 ? '₹/m²' : '₹/sqft',
     lineTotal
   };
 };
@@ -103,26 +148,31 @@ export const calculateLineItemMetrics = (item) => {
  * @param {string} discountType 'PERCENTAGE' | 'FIXED'
  * @param {number|string} discountValue
  * @param {number|string} taxRate GST percentage (default 18)
+ * @param {string} measurementUnit 'SQ_FT' | 'SQ_METER'
  * @returns {object}
  */
 export const calculateQuotationTotals = (
   sections = [],
   discountType = 'PERCENTAGE',
   discountValue = 0,
-  taxRate = 18
+  taxRate = 18,
+  measurementUnit = 'SQ_FT'
 ) => {
   let totalSqft = 0;
+  let totalSqM = 0;
   let subtotal = 0;
 
   (sections || []).forEach((sec) => {
     (sec.items || []).forEach((item) => {
-      const metrics = calculateLineItemMetrics(item);
+      const metrics = calculateLineItemMetrics(item, measurementUnit);
       totalSqft += metrics.totalSqft;
+      totalSqM += metrics.totalSqM;
       subtotal += metrics.lineTotal;
     });
   });
 
   totalSqft = Number(totalSqft.toFixed(2));
+  totalSqM = Number(totalSqM.toFixed(3));
   subtotal = Number(subtotal.toFixed(2));
 
   const discountAmount = calculateDiscount(subtotal, discountType, discountValue);
@@ -134,6 +184,9 @@ export const calculateQuotationTotals = (
 
   return {
     totalSqft,
+    totalSqM,
+    totalArea: measurementUnit === 'SQ_METER' ? totalSqM : totalSqft,
+    measurementUnit,
     subtotal,
     discountType: (discountType === 'FIXED' || discountType === '₹') ? 'FIXED' : 'PERCENTAGE',
     discountValue: parseFloat(discountValue) || 0,
@@ -166,6 +219,17 @@ export const formatCurrency = (amount) => {
 export const formatSqft = (sqft) => {
   const num = parseFloat(sqft) || 0;
   return num.toFixed(2);
+};
+
+/**
+ * Formats area according to measurement unit ('SQ_FT' -> 2 decimals, 'SQ_METER' -> 3 decimals).
+ * @param {number|string} area
+ * @param {string} unit 'SQ_FT' | 'SQ_METER'
+ * @returns {string}
+ */
+export const formatArea = (area, unit = 'SQ_FT') => {
+  const num = parseFloat(area) || 0;
+  return unit === 'SQ_METER' ? num.toFixed(3) : num.toFixed(2);
 };
 
 /**
@@ -215,11 +279,12 @@ export const numberToWordsIndian = (num) => {
 
 /**
  * Universal display metric extractor for line items in drawer schedule and print view.
- * Handles inches, mm, pre-computed billing sizes, and sqft robustly.
+ * Handles inches, mm, pre-computed billing sizes, sqft, and sqm robustly.
  * @param {object} item Line item object
+ * @param {string} measurementUnit 'SQ_FT' | 'SQ_METER'
  * @returns {object}
  */
-export const getItemDisplayMetrics = (item) => {
+export const getItemDisplayMetrics = (item, measurementUnit = 'SQ_FT') => {
   if (!item) {
     return {
       widthIn: null,
@@ -228,6 +293,12 @@ export const getItemDisplayMetrics = (item) => {
       billingSize: '—',
       sqft: 0,
       totalSqft: 0,
+      sqM: 0,
+      totalSqM: 0,
+      area: 0,
+      totalArea: 0,
+      unitLabel: measurementUnit === 'SQ_METER' ? 'm²' : 'sqft',
+      rateLabel: measurementUnit === 'SQ_METER' ? '₹/m²' : '₹/sqft',
       qty: 1,
       rate: 0,
       lineTotal: 0
@@ -284,8 +355,11 @@ export const getItemDisplayMetrics = (item) => {
     billingSize = formatBillingSize(widthIn, heightIn);
   }
 
-  // 4. Square Footage (per piece and total)
+  // 4. Area: Square Footage and Square Meters
+  const isM2 = measurementUnit === 'SQ_METER';
   let sqft = 0;
+  let sqM = 0;
+
   if (item.areaSqFt && parseFloat(item.areaSqFt) > 0) {
     sqft = parseFloat(item.areaSqFt);
   } else if (roundedW && roundedH) {
@@ -293,17 +367,35 @@ export const getItemDisplayMetrics = (item) => {
   } else if (widthIn && heightIn) {
     sqft = calculateItemSqft(widthIn, heightIn);
   } else if (item.areaSqM && parseFloat(item.areaSqM) > 0) {
-    sqft = parseFloat((parseFloat(item.areaSqM) / 0.092903).toFixed(2));
+    sqft = parseFloat((parseFloat(item.areaSqM) / SQFT_TO_SQM).toFixed(2));
   } else if (rate > 0 && item.totalPrice && parseFloat(item.totalPrice) > 0) {
-    sqft = parseFloat((parseFloat(item.totalPrice) / (qty * rate)).toFixed(2));
+    if (isM2) {
+      sqM = parseFloat((parseFloat(item.totalPrice) / (qty * rate)).toFixed(4));
+      sqft = parseFloat((sqM / SQFT_TO_SQM).toFixed(2));
+    } else {
+      sqft = parseFloat((parseFloat(item.totalPrice) / (qty * rate)).toFixed(2));
+    }
   }
 
   const totalSqft = parseFloat((sqft * qty).toFixed(2));
+
+  if (item.areaSqM && parseFloat(item.areaSqM) > 0) {
+    sqM = parseFloat(item.areaSqM);
+  } else if (!sqM && sqft > 0) {
+    sqM = parseFloat((sqft * SQFT_TO_SQM).toFixed(4));
+  }
+
+  const totalSqM = parseFloat((sqM * qty).toFixed(4));
+
+  const area = isM2 ? sqM : sqft;
+  const totalArea = isM2 ? totalSqM : totalSqft;
 
   // 5. Line Total
   let lineTotal = 0;
   if (item.totalPrice !== undefined && item.totalPrice !== null && parseFloat(item.totalPrice) > 0) {
     lineTotal = parseFloat(item.totalPrice);
+  } else if (isM2 && totalSqM > 0) {
+    lineTotal = parseFloat((totalSqM * rate).toFixed(2));
   } else if (sqft > 0) {
     lineTotal = parseFloat((totalSqft * rate).toFixed(2));
   } else {
@@ -319,6 +411,12 @@ export const getItemDisplayMetrics = (item) => {
     billingSize,
     sqft,
     totalSqft,
+    sqM,
+    totalSqM,
+    area,
+    totalArea,
+    unitLabel: isM2 ? 'm²' : 'sqft',
+    rateLabel: isM2 ? '₹/m²' : '₹/sqft',
     qty,
     rate,
     lineTotal

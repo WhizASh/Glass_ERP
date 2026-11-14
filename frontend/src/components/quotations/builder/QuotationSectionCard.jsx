@@ -1,11 +1,12 @@
 import React from 'react';
 import { Plus, Trash2, Layers } from 'lucide-react';
 import QuotationLineItemRow from './QuotationLineItemRow';
-import { calculateLineItemMetrics, formatCurrency, formatSqft } from '../../../lib/glassCalculations';
+import { calculateLineItemMetrics, formatCurrency, formatArea, formatSqft } from '../../../lib/glassCalculations';
 
 const QuotationSectionCard = ({
   section,
   sectionIndex,
+  measurementUnit = 'SQ_FT',
   products = [],
   onUpdateSectionName,
   onAddItem,
@@ -15,13 +16,17 @@ const QuotationSectionCard = ({
   onRemoveSection,
   canRemoveSection
 }) => {
+  const isM2 = measurementUnit === 'SQ_METER';
+  const unitLabel = isM2 ? 'm²' : 'sqft';
+  const rateLabel = isM2 ? '₹/m²' : '₹/sqft';
+
   // Compute section totals
-  let sectionSqft = 0;
+  let sectionTotalArea = 0;
   let sectionSubtotal = 0;
 
   (section.items || []).forEach((item) => {
-    const metrics = calculateLineItemMetrics(item);
-    sectionSqft += metrics.totalSqft;
+    const metrics = calculateLineItemMetrics(item, measurementUnit);
+    sectionTotalArea += metrics.totalArea;
     sectionSubtotal += metrics.lineTotal;
   });
 
@@ -48,7 +53,7 @@ const QuotationSectionCard = ({
         {/* Section Metrics & Actions */}
         <div className="flex items-center gap-3">
           <div className="text-[11px] font-mono text-steel-600 flex items-center gap-2 bg-white px-2.5 py-1 rounded border border-steel-200">
-            <span>Area: <strong className="text-steel-900">{formatSqft(sectionSqft)} sqft</strong></span>
+            <span>Area: <strong className="text-steel-900">{formatArea(sectionTotalArea, measurementUnit)} {unitLabel}</strong></span>
             <span className="text-steel-300">|</span>
             <span>Subtotal: <strong className="text-edge-700">{formatCurrency(sectionSubtotal)}</strong></span>
           </div>
@@ -91,12 +96,12 @@ const QuotationSectionCard = ({
                 Height (in) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </th>
               <th className="pb-1.5 text-center font-medium w-28">Billing Size</th>
-              <th className="pb-1.5 text-right font-medium w-24">Sqft</th>
+              <th className="pb-1.5 text-right font-medium w-24">{isM2 ? 'Area (m²)' : 'Sqft'}</th>
               <th className="pb-1.5 text-center font-medium w-16">
                 Qty <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </th>
               <th className="pb-1.5 text-right font-medium w-24">
-                Rate (₹/sqft) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
+                Rate ({rateLabel}) <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </th>
               <th className="pb-1.5 text-right font-medium w-28">Line Total</th>
               <th className="pb-1.5 w-8"></th>
@@ -109,6 +114,7 @@ const QuotationSectionCard = ({
                 item={item}
                 sectionIndex={sectionIndex}
                 itemIndex={itemIdx}
+                measurementUnit={measurementUnit}
                 products={products}
                 onUpdateField={onUpdateField}
                 onRemoveItem={onRemoveItem}

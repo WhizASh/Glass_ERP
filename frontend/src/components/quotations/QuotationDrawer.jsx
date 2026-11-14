@@ -245,14 +245,25 @@ const QuotationDrawer = ({ quotation, onClose, onStatusUpdated, onEditQuotation 
             </div>
 
             {/* Architectural Schedule Table */}
-            <QuotationDrawerSchedule sections={currentQuote.sections} />
+            <QuotationDrawerSchedule
+              sections={currentQuote.sections}
+              measurementUnit={currentQuote.measurementUnit || 'SQ_FT'}
+            />
 
             {/* Commercial Totals Card */}
             <div className="bg-steel-50 p-3.5 rounded-lg border border-steel-200 space-y-1.5 font-mono text-xs shadow-2xs">
               <div className="flex justify-between text-steel-600">
                 <span>Total Glazing Area:</span>
                 <span className="font-bold text-steel-900">
-                  {formatSqft(totalSqft)} sq.ft <span className="text-steel-400 font-normal">({(totalSqft * 0.092903).toFixed(2)} m²)</span>
+                  {currentQuote.measurementUnit === 'SQ_METER' ? (
+                    <>
+                      {(totalSqft * 0.092903).toFixed(3)} m² <span className="text-steel-400 font-normal">({formatSqft(totalSqft)} sqft)</span>
+                    </>
+                  ) : (
+                    <>
+                      {formatSqft(totalSqft)} sqft <span className="text-steel-400 font-normal">({(totalSqft * 0.092903).toFixed(2)} m²)</span>
+                    </>
+                  )}
                 </span>
               </div>
               <div className="flex justify-between text-steel-600">

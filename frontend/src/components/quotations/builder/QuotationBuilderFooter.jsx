@@ -9,11 +9,15 @@ const QuotationBuilderFooter = ({
   onDiscountTypeChange,
   discountValue = 0,
   onDiscountValueChange,
+  measurementUnit = 'SQ_FT',
   totals = {}
 }) => {
   const isPercentage = discountType === 'PERCENTAGE' || discountType === '%';
   const sqftVal = totals.totalSqft || 0;
-  const sqMVal = sqftVal > 0 ? (sqftVal * 0.092903).toFixed(2) : '0.00';
+  const sqMVal = totals.totalSqM !== undefined && totals.totalSqM !== null
+    ? Number(totals.totalSqM).toFixed(3)
+    : (sqftVal > 0 ? (sqftVal * 0.092903).toFixed(3) : '0.000');
+  const isM2 = measurementUnit === 'SQ_METER';
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start pt-2">
@@ -104,7 +108,15 @@ const QuotationBuilderFooter = ({
         <div className="flex justify-between text-steel-600">
           <span>Total Glazing Area:</span>
           <span className="font-bold text-steel-900">
-            {formatSqft(sqftVal)} sqft <span className="font-normal text-steel-400">({sqMVal} m²)</span>
+            {isM2 ? (
+              <>
+                {sqMVal} m² <span className="font-normal text-steel-400">({formatSqft(sqftVal)} sqft)</span>
+              </>
+            ) : (
+              <>
+                {formatSqft(sqftVal)} sqft <span className="font-normal text-steel-400">({sqMVal} m²)</span>
+              </>
+            )}
           </span>
         </div>
 

@@ -1,13 +1,15 @@
 import React from 'react';
-import { formatSqft, formatCurrency, getItemDisplayMetrics } from '../../lib/glassCalculations';
+import { formatSqft, formatArea, formatCurrency, getItemDisplayMetrics } from '../../lib/glassCalculations';
 
-const QuotationDrawerSchedule = ({ sections = [] }) => {
+const QuotationDrawerSchedule = ({ sections = [], measurementUnit = 'SQ_FT' }) => {
+  const isM2 = measurementUnit === 'SQ_METER';
+
   return (
     <div className="space-y-4">
       <h3 className="font-bold text-steel-900 uppercase tracking-wider text-[11px] flex items-center justify-between">
         <span>Architectural Glass Specifications &amp; Takeoff Schedule</span>
         <span className="text-[10px] text-steel-500 font-normal font-mono">
-          Commercial 6" Grid Rounding
+          Commercial 6" Grid Rounding ({isM2 ? 'm² Metric' : 'Sqft Imperial'})
         </span>
       </h3>
 
@@ -37,13 +39,13 @@ const QuotationDrawerSchedule = ({ sections = [] }) => {
                     <th className="py-2 px-2 text-center w-28 text-teal-800">Billing Size</th>
                     <th className="py-2 px-2 text-right w-24">Glazing Area</th>
                     <th className="py-2 px-2 text-center w-14">Qty</th>
-                    <th className="py-2 px-2 text-right w-24">Rate (₹/sqft)</th>
+                    <th className="py-2 px-2 text-right w-24">Rate ({isM2 ? '₹/m²' : '₹/sqft'})</th>
                     <th className="py-2 px-3 text-right w-28">Line Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-steel-100 font-mono text-[11px]">
                   {items.map((item, iIdx) => {
-                    const metrics = getItemDisplayMetrics(item);
+                    const metrics = getItemDisplayMetrics(item, measurementUnit);
 
                     return (
                       <tr key={item.id || iIdx} className="hover:bg-steel-50/80 transition-colors">
@@ -68,10 +70,10 @@ const QuotationDrawerSchedule = ({ sections = [] }) => {
                           </span>
                         </td>
                         <td className="py-2.5 px-2 text-right text-steel-900">
-                          <div className="font-bold">{formatSqft(metrics.totalSqft)} sqft</div>
+                          <div className="font-bold">{formatArea(metrics.totalArea, measurementUnit)} {metrics.unitLabel}</div>
                           {metrics.qty > 1 && (
                             <div className="text-[10px] text-steel-400 font-normal">
-                              ({formatSqft(metrics.sqft)}/pc)
+                              ({formatArea(metrics.area, measurementUnit)}/pc)
                             </div>
                           )}
                         </td>

@@ -4,7 +4,10 @@ const {
   calculateItemSqft,
   formatBillingSize,
   calculateDiscount,
-  calculateQuotationTotals
+  calculateQuotationTotals,
+  convertRateBetweenUnits,
+  SQFT_TO_SQM,
+  SQM_TO_SQFT
 } = require('./glassCalculations.service');
 
 console.log('🧪 Testing Backend Glass Calculations Service...');
@@ -56,5 +59,13 @@ assert.strictEqual(sqftPerPiece, 20.00);
 assert.strictEqual(totalSqft, 40.00);
 assert.strictEqual(lineTotal, 4800.00);
 console.log('  ✓ Sales order total sqft pricing tests passed (verified 40 sqft * ₹120 = ₹4,800)');
+
+// Test 6: Rate conversion between SQ_FT and SQ_METER
+const sqftRate = 120;
+const sqMRate = convertRateBetweenUnits(sqftRate, 'SQ_FT', 'SQ_METER'); // 120 * 10.76391 = 1291.67
+assert.strictEqual(sqMRate, 1291.67);
+const roundTripSqftRate = convertRateBetweenUnits(sqMRate, 'SQ_METER', 'SQ_FT'); // 1291.67 * 0.092903 = 120.00
+assert.strictEqual(roundTripSqftRate, 120.00);
+console.log('  ✓ Rate conversion between SQ_FT and SQ_METER passed (120 ₹/sqft <-> 1291.67 ₹/m²)');
 
 console.log('✅ All backend calculation tests passed successfully!');

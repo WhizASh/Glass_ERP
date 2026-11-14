@@ -112,7 +112,33 @@ const calculateQuotationTotals = ({ subtotal = 0, discountType = 'PERCENTAGE', d
   };
 };
 
+const SQFT_TO_SQM = 0.092903;
+const SQM_TO_SQFT = 10.76391;
+
+/**
+ * Converts rate between SQ_FT (₹/sqft) and SQ_METER (₹/m²).
+ * @param {number|string} rate
+ * @param {string} fromUnit 'SQ_FT' | 'SQ_METER'
+ * @param {string} toUnit 'SQ_FT' | 'SQ_METER'
+ * @returns {number}
+ */
+const convertRateBetweenUnits = (rate, fromUnit, toUnit) => {
+  const val = parseFloat(rate);
+  if (isNaN(val) || val <= 0 || fromUnit === toUnit) return Math.max(0, val || 0);
+
+  if (fromUnit === 'SQ_FT' && toUnit === 'SQ_METER') {
+    return Number((val * SQM_TO_SQFT).toFixed(2));
+  }
+  if (fromUnit === 'SQ_METER' && toUnit === 'SQ_FT') {
+    return Number((val * SQFT_TO_SQM).toFixed(2));
+  }
+  return Number(val.toFixed(2));
+};
+
 module.exports = {
+  SQFT_TO_SQM,
+  SQM_TO_SQFT,
+  convertRateBetweenUnits,
   roundDimensionTo6Inches,
   calculateItemSqft,
   formatBillingSize,

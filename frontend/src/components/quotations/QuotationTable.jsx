@@ -2,7 +2,7 @@ import React from 'react';
 import { Eye, Inbox, FileText, Printer, Edit3 } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
 import TableSkeleton from '../common/TableSkeleton';
-import { formatCurrency, formatSqft, getItemDisplayMetrics } from '../../lib/glassCalculations';
+import { formatCurrency, formatSqft, formatArea, getItemDisplayMetrics } from '../../lib/glassCalculations';
 
 const QuotationTable = ({
   quotations = [],
@@ -126,7 +126,11 @@ const QuotationTable = ({
 
                   {/* Total Area */}
                   <td className="py-3 px-3.5 whitespace-nowrap text-right font-mono font-medium text-steel-700">
-                    {quoteSqft > 0 ? `${formatSqft(quoteSqft)} sqft` : '—'}
+                    {quoteSqft > 0 ? (
+                      quote.measurementUnit === 'SQ_METER'
+                        ? `${(quoteSqft * 0.092903).toFixed(3)} m²`
+                        : `${formatSqft(quoteSqft)} sqft`
+                    ) : '—'}
                   </td>
 
                   {/* Total Amount */}

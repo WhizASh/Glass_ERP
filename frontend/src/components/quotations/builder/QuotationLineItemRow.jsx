@@ -1,24 +1,35 @@
 import React from 'react';
 import { Trash2, Plus } from 'lucide-react';
-import { calculateLineItemMetrics, formatCurrency } from '../../../lib/glassCalculations';
+import {
+  calculateLineItemMetrics,
+  formatCurrency,
+  formatArea,
+  convertRateBetweenUnits
+} from '../../../lib/glassCalculations';
 
 const QuotationLineItemRow = ({
   item,
   sectionIndex,
   itemIndex,
+  measurementUnit = 'SQ_FT',
   products = [],
   onUpdateField,
   onRemoveItem,
   onOpenAddSku,
   canRemove
 }) => {
-  const metrics = calculateLineItemMetrics(item);
+  const isM2 = measurementUnit === 'SQ_METER';
+  const metrics = calculateLineItemMetrics(item, measurementUnit);
 
   const handleProductChange = (productId) => {
     onUpdateField(sectionIndex, itemIndex, 'productSkuId', productId);
     const prod = products.find((p) => p.id === productId);
     if (prod) {
-      onUpdateField(sectionIndex, itemIndex, 'unitPrice', Number(prod.unitPrice));
+      const baseRate = Number(prod.unitPrice);
+      const convertedRate = isM2
+        ? convertRateBetweenUnits(baseRate, 'SQ_FT', 'SQ_METER')
+        : baseRate;
+      onUpdateField(sectionIndex, itemIndex, 'unitPrice', convertedRate);
       onUpdateField(
         sectionIndex,
         itemIndex,
@@ -45,11 +56,16 @@ const QuotationLineItemRow = ({
             ) : (
               <option value="">-- Select Glass Specification --</option>
             )}
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.skuCode} | {p.name} ({p.thicknessMm}mm) - ₹{Number(p.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/sqft
-              </option>
-            ))}
+            {products.map((p) => {
+              const displayRate = isM2
+                ? convertRateBetweenUnits(p.unitPrice, 'SQ_FT', 'SQ_METER')
+                : Number(p.unitPrice);
+              return (
+                <option key={p.id} value={p.id}>
+                  {p.skuCode} | {p.name} ({p.thicknessMm}mm) - ₹{displayRate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/{isM2 ? 'm²' : 'sqft'}
+                </option>
+              );
+            })}
           </select>
           {onOpenAddSku && (
             <button
@@ -109,10 +125,10 @@ const QuotationLineItemRow = ({
         </span>
       </td>
 
-      {/* Calculated Sqft (Per piece) */}
+      {/* Calculated Area Per Piece (Sqft or m²) */}
       <td className="py-2.5 px-1.5 w-24 text-right">
         <span className="font-mono text-xs text-steel-800 bg-steel-100 px-1.5 py-0.5 rounded border border-steel-200 font-semibold">
-          {metrics.sqft > 0 ? `${metrics.sqft.toFixed(2)}` : '—'}
+          {metrics.area > 0 ? formatArea(metrics.area, measurementUnit) : '—'}
         </span>
       </td>
 
@@ -129,14 +145,14 @@ const QuotationLineItemRow = ({
         />
       </td>
 
-      {/* Unit Rate (₹/sqft) */}
+      {/* Unit Rate (₹/sqft or ₹/m²) */}
       <td className="py-2.5 px-1.5 w-24">
         <input
           type="number"
           step="0.01"
           min="0"
           required
-          aria-label="Unit rate in rupees per square foot"
+          aria-label={`Unit rate in rupees per ${isM2 ? 'square meter' : 'square foot'}`}
           value={item.unitPrice}
           onChange={(e) => onUpdateField(sectionIndex, itemIndex, 'unitPrice', e.target.value)}
           className="w-full text-xs py-1.5 px-2 text-right font-mono bg-white border border-steel-300 rounded-md text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600 focus:border-edge-600"

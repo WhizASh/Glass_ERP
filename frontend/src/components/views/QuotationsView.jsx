@@ -12,6 +12,7 @@ const getTodayDateString = () => new Date().toISOString().split('T')[0];
 const createInitialFormState = () => ({
   customerId: '',
   validUntil: getTodayDateString(),
+  measurementUnit: 'SQ_FT',
   taxRate: 18,
   discountType: 'PERCENTAGE',
   discountValue: '',
@@ -117,6 +118,7 @@ const QuotationsView = () => {
     setFormData({
       customerId: quote.customerId || quote.customer?.id || '',
       validUntil: quote.validUntil ? quote.validUntil.split('T')[0] : getTodayDateString(),
+      measurementUnit: quote.measurementUnit || 'SQ_FT',
       taxRate: quote.taxRate !== undefined ? Number(quote.taxRate) : 18,
       discountType: quote.discountType || 'PERCENTAGE',
       discountValue: quote.discountValue !== undefined ? Number(quote.discountValue) : '',
@@ -161,11 +163,13 @@ const QuotationsView = () => {
       }
     }
 
+    const currentUnit = formData.measurementUnit || 'SQ_FT';
+
     // Format line items with inch calculations and commercial rounding
     const formattedSections = formData.sections.map((sec) => ({
       ...sec,
       items: sec.items.map((item) => {
-        const metrics = calculateLineItemMetrics(item);
+        const metrics = calculateLineItemMetrics(item, currentUnit);
         return {
           productSkuId: item.productSkuId,
           description: item.description,
@@ -175,6 +179,7 @@ const QuotationsView = () => {
           roundedHeightInches: metrics.roundedHeight || null,
           quantity: parseFloat(item.quantity) || 1,
           areaSqFt: metrics.sqft || null,
+          areaSqM: metrics.sqM || null,
           unitPrice: parseFloat(item.unitPrice) || 0,
           totalPrice: metrics.lineTotal
         };
@@ -186,6 +191,7 @@ const QuotationsView = () => {
       if (editingQuotation) {
         const updated = await api.updateQuotation(editingQuotation.id, {
           ...formData,
+          measurementUnit: currentUnit,
           discountType: formData.discountType || 'PERCENTAGE',
           discountValue: parseFloat(formData.discountValue) || 0,
           taxRate: parseFloat(formData.taxRate) || 0,
@@ -197,6 +203,7 @@ const QuotationsView = () => {
           const normalized = {
             ...updated,
             customer: matchedCust || updated.customer,
+            measurementUnit: updated.measurementUnit || currentUnit,
             sections: (updated.sections || []).map((sec) => ({
               ...sec,
               items: Array.isArray(sec.items) ? sec.items : (sec.items?.create || [])
@@ -215,6 +222,7 @@ const QuotationsView = () => {
       } else {
         const created = await api.createQuotation({
           ...formData,
+          measurementUnit: currentUnit,
           discountType: formData.discountType || 'PERCENTAGE',
           discountValue: parseFloat(formData.discountValue) || 0,
           taxRate: parseFloat(formData.taxRate) || 0,
@@ -226,6 +234,7 @@ const QuotationsView = () => {
           const normalized = {
             ...created,
             customer: matchedCust || created.customer,
+            measurementUnit: created.measurementUnit || currentUnit,
             sections: (created.sections || []).map((sec) => ({
               ...sec,
               items: Array.isArray(sec.items) ? sec.items : (sec.items?.create || [])

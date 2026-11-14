@@ -5,6 +5,7 @@ import QuotationSeal from '../common/QuotationSeal';
 import {
   formatCurrency,
   formatSqft,
+  formatArea,
   numberToWordsIndian,
   getItemDisplayMetrics
 } from '../../lib/glassCalculations';
@@ -14,14 +15,16 @@ const QuotationPrintView = ({ quotation, onClose }) => {
 
   const customer = quotation.customer || {};
   const sections = quotation.sections || [];
+  const measurementUnit = quotation.measurementUnit || 'SQ_FT';
+  const isM2 = measurementUnit === 'SQ_METER';
 
-  // Compute total area in sqft using universal display metrics
-  let totalSqft = 0;
+  // Compute total area using universal display metrics
+  let totalArea = 0;
   sections.forEach((sec) => {
     const secItems = Array.isArray(sec.items) ? sec.items : (sec.items?.create || []);
     secItems.forEach((item) => {
-      const metrics = getItemDisplayMetrics(item);
-      totalSqft += metrics.totalSqft;
+      const metrics = getItemDisplayMetrics(item, measurementUnit);
+      totalArea += metrics.totalArea;
     });
   });
 
@@ -173,8 +176,8 @@ const QuotationPrintView = ({ quotation, onClose }) => {
                     <th className="py-1.5 px-2 text-center w-20 border-r border-slate-700">Cut Size</th>
                     <th className="py-1.5 px-2 text-center w-20 border-r border-slate-700">Billing Size</th>
                     <th className="py-1.5 px-2 text-center w-12 border-r border-slate-700">Qty</th>
-                    <th className="py-1.5 px-2 text-right w-16 border-r border-slate-700">Sq.ft</th>
-                    <th className="py-1.5 px-2 text-right w-20 border-r border-slate-700">Rate (₹/sqft)</th>
+                    <th className="py-1.5 px-2 text-right w-16 border-r border-slate-700">{isM2 ? 'Area (m²)' : 'Sq.ft'}</th>
+                    <th className="py-1.5 px-2 text-right w-20 border-r border-slate-700">{isM2 ? 'Rate (₹/m²)' : 'Rate (₹/sqft)'}</th>
                     <th className="py-1.5 px-2 text-right w-24">Amount (₹)</th>
                   </tr>
                 </thead>
@@ -198,7 +201,7 @@ const QuotationPrintView = ({ quotation, onClose }) => {
                         {/* Section Items */}
                         {secItems.map((item, itemIdx) => {
                           const itemNumber = `${sectionNumber}.${itemIdx + 1}`;
-                          const metrics = getItemDisplayMetrics(item);
+                          const metrics = getItemDisplayMetrics(item, measurementUnit);
 
                           return (
                             <tr key={item.id || itemIdx} className="hover:bg-slate-50">
@@ -223,7 +226,7 @@ const QuotationPrintView = ({ quotation, onClose }) => {
                                 {metrics.qty}
                               </td>
                               <td className="py-1 px-2 text-right font-mono border-r border-slate-300 text-slate-800 font-semibold">
-                                {formatSqft(metrics.totalSqft)}
+                                {formatArea(metrics.totalArea, measurementUnit)}
                               </td>
                               <td className="py-1 px-2 text-right font-mono border-r border-slate-300 text-slate-700">
                                 ₹{metrics.rate.toFixed(2)}
@@ -249,7 +252,7 @@ const QuotationPrintView = ({ quotation, onClose }) => {
                     <tr className="border-b border-slate-200">
                       <td className="py-1 px-2.5 text-slate-600 font-sans">Total Glazing Area:</td>
                       <td className="py-1 px-2.5 text-right font-bold text-slate-900">
-                        {formatSqft(totalSqft)} sq.ft
+                        {formatArea(totalArea, measurementUnit)} {isM2 ? 'm²' : 'sq.ft'}
                       </td>
                     </tr>
                     <tr className="border-b border-slate-200">

@@ -5,7 +5,7 @@ import QuotationBuilderMeta from './QuotationBuilderMeta';
 import QuotationBuilderFooter from './QuotationBuilderFooter';
 import QuickCustomerModal from '../../common/QuickCustomerModal';
 import QuickProductSkuModal from '../../common/QuickProductSkuModal';
-import { calculateQuotationTotals } from '../../../lib/glassCalculations';
+import { calculateQuotationTotals, convertRateBetweenUnits } from '../../../lib/glassCalculations';
 
 const QuotationBuilderModal = ({
   isOpen,
@@ -149,13 +149,18 @@ const QuotationBuilderModal = ({
     }
     if (activeSkuTarget) {
       const { sectionIndex, itemIndex } = activeSkuTarget;
+      const unit = formData.measurementUnit || 'SQ_FT';
+      const initialRate = unit === 'SQ_METER'
+        ? convertRateBetweenUnits(newProduct.unitPrice, 'SQ_FT', 'SQ_METER')
+        : Number(newProduct.unitPrice);
+
       setFormData((prev) => {
         const updated = [...prev.sections];
         if (updated[sectionIndex] && updated[sectionIndex].items[itemIndex]) {
           updated[sectionIndex].items[itemIndex] = {
             ...updated[sectionIndex].items[itemIndex],
             productSkuId: newProduct.id,
-            unitPrice: Number(newProduct.unitPrice),
+            unitPrice: initialRate,
             description: `${newProduct.name} (${newProduct.thicknessMm}mm - ${newProduct.glassType})`
           };
         }
@@ -165,12 +170,43 @@ const QuotationBuilderModal = ({
     setActiveSkuTarget(null);
   };
 
+  // Unit change handler: converts all existing line item rates automatically
+  const handleUnitChange = (newUnit) => {
+    const oldUnit = formData.measurementUnit || 'SQ_FT';
+    if (newUnit === oldUnit) return;
+
+    setFormData((prev) => {
+      const updatedSections = (prev.sections || []).map((sec) => ({
+        ...sec,
+        items: (sec.items || []).map((item) => {
+          const currentRate = parseFloat(item.unitPrice) || 0;
+          const convertedRate = currentRate > 0
+            ? convertRateBetweenUnits(currentRate, oldUnit, newUnit)
+            : 0;
+
+          return {
+            ...item,
+            unitPrice: convertedRate
+          };
+        })
+      }));
+
+      return {
+        ...prev,
+        measurementUnit: newUnit,
+        sections: updatedSections
+      };
+    });
+  };
+
   // Calculate live commercial totals
+  const currentUnit = formData.measurementUnit || 'SQ_FT';
   const totals = calculateQuotationTotals(
     formData.sections,
     formData.discountType || 'PERCENTAGE',
     formData.discountValue || 0,
-    formData.taxRate !== undefined ? formData.taxRate : 18
+    formData.taxRate !== undefined ? formData.taxRate : 18,
+    currentUnit
   );
 
   return (
@@ -218,12 +254,13 @@ const QuotationBuilderModal = ({
 
           {/* Form */}
           <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
-            {/* Meta Block (Customer + Validity + GST) */}
+            {/* Meta Block (Customer + Validity + Conversion Unit + GST) */}
             <QuotationBuilderMeta
               formData={formData}
               setFormData={setFormData}
               customers={customers}
               onOpenAddCustomer={() => setIsAddCustomerOpen(true)}
+              onUnitChange={handleUnitChange}
             />
 
             {/* Sections Container */}
@@ -248,6 +285,7 @@ const QuotationBuilderModal = ({
                   key={sIdx}
                   section={section}
                   sectionIndex={sIdx}
+                  measurementUnit={currentUnit}
                   products={products}
                   onUpdateSectionName={handleUpdateSectionName}
                   onAddItem={handleAddItem}
@@ -280,6 +318,7 @@ const QuotationBuilderModal = ({
               onDiscountTypeChange={(val) => setFormData({ ...formData, discountType: val })}
               discountValue={formData.discountValue}
               onDiscountValueChange={(val) => setFormData({ ...formData, discountValue: val })}
+              measurementUnit={currentUnit}
               totals={totals}
             />
 
