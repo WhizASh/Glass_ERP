@@ -6,13 +6,15 @@ import QuotationsView from './components/views/QuotationsView';
 import SalesView from './components/views/SalesView';
 import CustomersView from './components/views/CustomersView';
 import ProductSKUsView from './components/views/ProductSKUsView';
+import PurchasesView from './components/views/PurchasesView';
 
 const tabTitles = {
   dashboard: 'Operations Dashboard',
   quotations: 'Glass Quotations & Takeoff',
   sales: 'Sales Orders',
   customers: 'Customer & Contractor Directory',
-  products: 'Glass Product SKU Catalog'
+  products: 'Glass Product SKU Catalog',
+  purchases: 'Purchases'
 };
 
 function App() {
@@ -36,6 +38,8 @@ function App() {
         return <CustomersView />;
       case 'products':
         return <ProductSKUsView />;
+      case 'purchases':
+        return <PurchasesView />;
       default:
         return <DashboardView onNavigateTab={handleSelectTab} />;
     }

@@ -24,6 +24,10 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  // Purchases
+  getPurchases: (params = {}) => request(`/purchases?${new URLSearchParams(params)}`),
+  createPurchase: (data) => request('/purchases', { method: 'POST', body: JSON.stringify(data) }),
+
   // Dashboard
   getDashboardStats: () => request('/dashboard/stats'),
 

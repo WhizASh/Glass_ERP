@@ -5,6 +5,7 @@ import {
   ShoppingBag, 
   Users, 
   Layers,
+  ShoppingCart,
   Box,
   X
 } from 'lucide-react';
@@ -15,6 +16,7 @@ const navItems = [
   { id: 'sales', label: 'Sales Orders', icon: ShoppingBag },
   { id: 'customers', label: 'Customers', icon: Users },
   { id: 'products', label: 'Product SKUs', icon: Layers },
+  { id: 'purchases', label: 'Purchases', icon: ShoppingCart },
 ];
 
 const Sidebar = ({ activeTab, onSelectTab, mobileOpen = false, onCloseMobile }) => {

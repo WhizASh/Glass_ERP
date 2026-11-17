@@ -10,7 +10,7 @@
     "prisma:migrate": "prisma migrate dev",
     "db:reset": "node scripts/reset-db.js",
     "db:seed": "node scripts/reset-db.js",
-    "test": "node src/services/glassCalculations.service.test.js"
+    "test": "node src/services/glassCalculations.service.test.js && node --test src/controllers/purchases.test.js"
   },
   "prisma": {
     "seed": "node scripts/reset-db.js"

@@ -33,6 +33,7 @@ pnpm-debug.log*
 .vite/
 .turbo/
 .cache/
+.taste-skill/
 .eslintcache
 *.tmp
 *.temp
@@ -57,3 +58,5 @@ ehthumbs.db
 tasks/
 scripts/
 .mcp.json
+spec/
+docs/

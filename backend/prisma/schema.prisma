@@ -8,6 +8,24 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Purchase {
+  id             String   @id @default(uuid())
+  materialName   String   @db.VarChar(200)
+  supplier       String?  @db.VarChar(200)
+  purchaseDate   DateTime @db.Date
+  unitOfMeasure  String   @default("PCS")
+  quantity       Decimal  @db.Decimal(12, 3)
+  unitPrice      Decimal  @db.Decimal(14, 2)
+  additionalCost Decimal  @default(0) @db.Decimal(14, 2)
+  totalCost      Decimal  @db.Decimal(24, 2)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([purchaseDate, createdAt])
+  @@map("purchases")
+}
+
 enum CustomerType {
   INDIVIDUAL
   ORGANIZATION
