@@ -176,3 +176,59 @@ model SaleOrderItem {
 
   @@map("sale_order_items")
 }
+
+model Employee {
+  id           String           @id @default(uuid())
+  employeeCode String           @unique @db.VarChar(40)
+  name         String           @db.VarChar(120)
+  role         String           @db.VarChar(120)
+  phone        String?          @db.VarChar(40)
+  address      String?          @db.VarChar(500)
+  joinedOn     DateTime         @db.Date
+  leftOn       DateTime?        @db.Date
+  salaries     EmployeeSalary[]
+  payroll      PayrollEntry[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@map("employees")
+}
+
+model EmployeeSalary {
+  employeeId  String
+  effectiveOn DateTime @db.Date
+  amount      Decimal  @db.Decimal(12, 2)
+  employee    Employee @relation(fields: [employeeId], references: [id])
+
+  @@id([employeeId, effectiveOn])
+  @@map("employee_salaries")
+}
+
+model PayrollRun {
+  month     String         @id @db.VarChar(7)
+  entries   PayrollEntry[]
+  createdAt DateTime       @default(now())
+
+  @@map("payroll_runs")
+}
+
+model PayrollEntry {
+  month         String     @db.VarChar(7)
+  employeeId    String
+  employeeCode  String     @db.VarChar(40)
+  name          String     @db.VarChar(120)
+  eligibleDays  Int
+  unpaidDays    Int
+  paidDays      Int
+  basePay       Decimal    @db.Decimal(12, 2)
+  additions     Decimal    @db.Decimal(12, 2)
+  deductions    Decimal    @db.Decimal(12, 2)
+  grossPay      Decimal    @db.Decimal(13, 2)
+  netPay        Decimal    @db.Decimal(13, 2)
+  run           PayrollRun @relation(fields: [month], references: [month])
+  employee      Employee   @relation(fields: [employeeId], references: [id])
+
+  @@id([month, employeeId])
+  @@index([employeeId])
+  @@map("payroll_entries")
+}

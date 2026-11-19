@@ -22,6 +22,7 @@ const productsRoutes = require('./routes/products.routes');
 const quotationsRoutes = require('./routes/quotations.routes');
 const salesRoutes = require('./routes/sales.routes');
 const purchasesRoutes = require('./routes/purchases.routes');
+const staffRoutes = require('./routes/staff.routes');
 
 app.use('/api/health', healthRoutes);
 app.use('/api/dashboard', dashboardRoutes);
@@ -30,6 +31,7 @@ app.use('/api/products', productsRoutes);
 app.use('/api/quotations', quotationsRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/purchases', purchasesRoutes);
+app.use('/api/staff', staffRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

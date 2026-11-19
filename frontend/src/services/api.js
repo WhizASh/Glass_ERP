@@ -24,6 +24,18 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  getEmployees: (signal) => request('/staff', { signal }),
+  saveEmployee: (data, id) => request(id ? '/staff/employees/' + id : '/staff', {
+    method: id ? 'PUT' : 'POST', body: JSON.stringify(data)
+  }),
+  getPayroll: (month, signal) => request('/staff/payroll/' + month, { signal }),
+  previewPayroll: (month, adjustments) => request('/staff/payroll/' + month + '/preview', {
+    method: 'POST', body: JSON.stringify({ adjustments })
+  }),
+  savePayroll: (month, adjustments, revision) => request('/staff/payroll/' + month, {
+    method: 'POST', body: JSON.stringify({ adjustments, revision })
+  }),
+
   // Purchases
   getPurchases: (params = {}) => request(`/purchases?${new URLSearchParams(params)}`),
   createPurchase: (data) => request('/purchases', { method: 'POST', body: JSON.stringify(data) }),

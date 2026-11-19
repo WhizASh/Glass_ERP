@@ -7,12 +7,14 @@ import SalesView from './components/views/SalesView';
 import CustomersView from './components/views/CustomersView';
 import ProductSKUsView from './components/views/ProductSKUsView';
 import PurchasesView from './components/views/PurchasesView';
+import StaffView from './components/views/StaffView';
 
 const tabTitles = {
   dashboard: 'Operations Dashboard',
   quotations: 'Glass Quotations & Takeoff',
   sales: 'Sales Orders',
   customers: 'Customer & Contractor Directory',
+  staff: 'Staff',
   products: 'Glass Product SKU Catalog',
   purchases: 'Purchases'
 };
@@ -36,6 +38,8 @@ function App() {
         return <SalesView />;
       case 'customers':
         return <CustomersView />;
+      case 'staff':
+        return <StaffView />;
       case 'products':
         return <ProductSKUsView />;
       case 'purchases':

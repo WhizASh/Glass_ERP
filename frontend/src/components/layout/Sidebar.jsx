@@ -4,6 +4,7 @@ import {
   FileText, 
   ShoppingBag, 
   Users, 
+  ContactRound,
   Layers,
   ShoppingCart,
   Box,
@@ -16,6 +17,7 @@ const navItems = [
   { id: 'quotations', label: 'Quotations', icon: FileText },
   { id: 'sales', label: 'Sales Orders', icon: ShoppingBag },
   { id: 'customers', label: 'Customers', icon: Users },
+  { id: 'staff', label: 'Staff', icon: ContactRound },
   { id: 'products', label: 'Product SKUs', icon: Layers },
   { id: 'purchases', label: 'Purchases', icon: ShoppingCart },
 ];
