@@ -1,5 +1,6 @@
+import DialogHeader from '../../common/DialogHeader';
 import React, { useState } from 'react';
-import { X, Plus, Calculator, Layers } from 'lucide-react';
+import { Plus, Layers } from 'lucide-react';
 import QuotationSectionCard from './QuotationSectionCard';
 import QuotationBuilderMeta from './QuotationBuilderMeta';
 import QuotationBuilderFooter from './QuotationBuilderFooter';
@@ -215,45 +216,24 @@ const QuotationBuilderModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="builder-title"
-        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto no-print"
+        className="app-dialog app-dialog-overlay z-50 no-print"
       >
         <div
           onClick={onClose}
-          className="fixed inset-0 bg-steel-950/60 backdrop-blur-xs transition-opacity"
+          className="app-dialog-backdrop"
         />
 
-        <div className="relative w-full max-w-5xl bg-white rounded-xl border border-steel-200 shadow-2xl z-10 my-2 sm:my-4 flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-98 duration-150">
-          {/* Header */}
-          <div className="px-4 sm:px-5 py-3 sm:py-3.5 bg-[#0f172a] text-white flex items-center justify-between border-b border-slate-800 shrink-0 gap-2">
-            <div className="min-w-0 pr-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 id="builder-title" className="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-2 truncate">
-                  <Calculator className="w-4 h-4 text-edge-400 shrink-0" />
-                  <span className="truncate">{editingQuotation ? `Edit Quotation #${editingQuotation.quoteNumber}` : 'Glass Quotation & Glazing Takeoff Builder'}</span>
-                </h2>
-                {editingQuotation && (
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800 uppercase font-semibold shrink-0">
-                    {editingQuotation.status}
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-steel-400 mt-0.5 truncate">
-                {editingQuotation
-                  ? 'Update customer details, dimensions in inches, pricing, discount, and notes.'
-                  : 'Input dimensions in inches; billing sizes automatically round to commercial 6" slabs with live sqft'}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors shrink-0"
-              aria-label="Close quote builder"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+        <div className="app-dialog-panel max-w-7xl">
+          <DialogHeader titleId="builder-title"
+            title={editingQuotation ? `Edit quotation · ${editingQuotation.quoteNumber}` : 'New quotation'}
+            subtitle="Set up the customer, glass sections, dimensions and pricing."
+            busy={isSubmitting || isAddCustomerOpen || isAddSkuOpen} onClose={onClose} />
 
           {/* Form */}
-          <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-4 sm:space-y-5">
+          <form onSubmit={onSubmit} className="app-dialog-form">
+            <div className="app-dialog-fields">
+            <div className="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div className="min-w-0 space-y-4">
             {/* Meta Block (Customer + Validity + Conversion Unit + GST) */}
             <QuotationBuilderMeta
               formData={formData}
@@ -310,20 +290,29 @@ const QuotationBuilderModal = ({
               </button>
             </div>
 
-            {/* Footer Block (Notes + Discount Modifier + Live Totals) */}
+            <div className="rounded-lg border border-steel-200 bg-white p-3 sm:p-4">
+              <label htmlFor="quotation-notes" className="mb-2 block text-xs font-medium text-steel-600">Commercial terms & fabrication notes</label>
+              <textarea id="quotation-notes" rows={3} value={formData.notes || ''}
+                onChange={(event) => setFormData(current => ({ ...current, notes: event.target.value }))}
+                placeholder="Lead time, warranty, fabrication and transport terms…" className="w-full rounded-md" />
+            </div>
+            </div>
+            {/* Live amount summary */}
             <QuotationBuilderFooter
-              notes={formData.notes}
-              onNotesChange={(val) => setFormData({ ...formData, notes: val })}
               discountType={formData.discountType || 'PERCENTAGE'}
               onDiscountTypeChange={(val) => setFormData({ ...formData, discountType: val })}
               discountValue={formData.discountValue}
               onDiscountValueChange={(val) => setFormData({ ...formData, discountValue: val })}
+              taxRate={formData.taxRate ?? 18}
+              onTaxRateChange={(val) => setFormData(current => ({ ...current, taxRate: val }))}
               measurementUnit={currentUnit}
               totals={totals}
             />
 
+            </div>
             {/* Actions Bar */}
-            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5 pt-3 border-t border-steel-200">
+            </div>
+            <div className="app-dialog-actions">
               <button
                 type="button"
                 onClick={onClose}

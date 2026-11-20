@@ -24,6 +24,29 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  getTaxInvoices: () => request('/tax-invoices'),
+  createTaxInvoice: data => request('/tax-invoices', { method: 'POST', body: JSON.stringify(data) }),
+  updateTaxInvoice: (id, data) => request(`/tax-invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  getLedgerParties: () => request('/ledger/parties'),
+  updatePurchase: (id, data) => request(`/purchases/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) }),
+  getLedger: (customerId, signal) => request(`/ledger/${encodeURIComponent(customerId)}`, { signal }),
+  createLedgerReceipt: (customerId, data) => request(`/ledger/${encodeURIComponent(customerId)}/receipts`, { method: 'POST', body: JSON.stringify(data) }),
+  getEmployees: (signal) => request('/staff', { signal }),
+  saveEmployee: (data, id) => request(id ? '/staff/employees/' + id : '/staff', {
+    method: id ? 'PUT' : 'POST', body: JSON.stringify(data)
+  }),
+  getPayroll: (month, signal) => request('/staff/payroll/' + month, { signal }),
+  previewPayroll: (month, adjustments) => request('/staff/payroll/' + month + '/preview', {
+    method: 'POST', body: JSON.stringify({ adjustments })
+  }),
+  savePayroll: (month, adjustments, revision) => request('/staff/payroll/' + month, {
+    method: 'POST', body: JSON.stringify({ adjustments, revision })
+  }),
+
+  // Purchases
+  getPurchases: (params = {}) => request(`/purchases?${new URLSearchParams(params)}`),
+  createPurchase: (data) => request('/purchases', { method: 'POST', body: JSON.stringify(data) }),
+
   // Dashboard
   getDashboardStats: () => request('/dashboard/stats'),
 

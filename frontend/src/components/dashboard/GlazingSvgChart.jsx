@@ -17,12 +17,16 @@ const GlazingSvgChart = ({ data = [], metric = 'area' }) => {
     10
   );
   const roundedMax = Math.ceil(maxVal * 1.15);
-  const colWidth = chartW / data.length;
-  const barW = Math.min(colWidth * 0.45, 36);
+  const colWidth = chartW / Math.max(data.length, 1);
+  const points = data.map((d, idx) => ({
+    x: padL + (idx + 0.5) * colWidth,
+    totalY: padT + chartH * (1 - (metric === 'area' ? d.glazingArea : d.quotationValue / 1000) / roundedMax),
+    acceptedY: padT + chartH * (1 - (metric === 'area' ? d.acceptedArea : d.acceptedValue / 1000) / roundedMax),
+  }));
 
   return (
     <div className="relative">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-52 select-none">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-52 select-none" role="group" aria-label={`${metric === 'area' ? 'Glazing area' : 'Pipeline value'} line chart: quoted and accepted trends`}>
         {/* Horizontal Gridlines */}
         {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
           const y = padT + chartH * (1 - ratio);
@@ -39,14 +43,12 @@ const GlazingSvgChart = ({ data = [], metric = 'area' }) => {
           );
         })}
 
-        {/* Column Bars & Hover Targets */}
+        {/* Separate trend lines share the same scale and monthly positions. */}
+        <polyline points={points.map((p) => `${p.x},${p.totalY}`).join(' ')} fill="none" stroke="#0d9488" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline points={points.map((p) => `${p.x},${p.acceptedY}`).join(' ')} fill="none" stroke="#10b981" strokeWidth="2.5" strokeDasharray="6 4" strokeLinejoin="round" strokeLinecap="round" />
+
         {data.map((d, idx) => {
-          const totalVal = metric === 'area' ? d.glazingArea : d.quotationValue / 1000;
-          const subVal = metric === 'area' ? d.acceptedArea : d.acceptedValue / 1000;
-          const totalH = (totalVal / roundedMax) * chartH;
-          const subH = (subVal / roundedMax) * chartH;
-          const cx = padL + idx * colWidth + colWidth / 2;
-          const x = cx - barW / 2;
+          const { x: cx, totalY, acceptedY } = points[idx];
           const isHovered = hoveredIdx === idx;
 
           return (
@@ -54,31 +56,19 @@ const GlazingSvgChart = ({ data = [], metric = 'area' }) => {
               key={idx}
               onMouseEnter={() => setHoveredIdx(idx)}
               onMouseLeave={() => setHoveredIdx(null)}
-              className="cursor-pointer"
+              onFocus={() => setHoveredIdx(idx)}
+              onBlur={() => setHoveredIdx(null)}
+              tabIndex={0}
+              role="img"
+              aria-label={`${d.period}: quoted ${metric === 'area' ? `${d.glazingArea} square metres` : `${d.quotationValue} rupees`}, accepted ${metric === 'area' ? `${d.acceptedArea} square metres` : `${d.acceptedValue} rupees`}`}
+              className="cursor-pointer focus:outline-none"
             >
               {isHovered && (
                 <rect x={cx - colWidth / 2} y={padT} width={colWidth} height={chartH} fill="#0d9488" fillOpacity="0.06" rx="4" />
               )}
-              {/* Quoted Total Bar (Teal Base) */}
-              <rect
-                x={x}
-                y={padT + chartH - totalH}
-                width={barW}
-                height={totalH}
-                rx="3"
-                className="transition-all duration-200"
-                fill={isHovered ? '#0f766e' : '#0d9488'}
-              />
-              {/* Accepted / Won Bar Overlay (Emerald Accent) */}
-              <rect
-                x={x + 2}
-                y={padT + chartH - subH}
-                width={barW - 4}
-                height={subH}
-                rx="2"
-                fill="#10b981"
-                className="transition-all duration-200"
-              />
+              <rect x={cx - colWidth / 2} y={padT} width={colWidth} height={chartH} fill="transparent" />
+              <circle cx={cx} cy={totalY} r={isHovered ? 5 : 3.5} fill="#0d9488" stroke="white" strokeWidth="1.5" />
+              <circle cx={cx} cy={acceptedY} r={isHovered ? 5 : 3.5} fill="#10b981" stroke="white" strokeWidth="1.5" />
               {/* Month Label */}
               <text
                 x={cx}

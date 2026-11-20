@@ -1,6 +1,7 @@
+import DialogHeader from '../common/DialogHeader';
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { Printer, X } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import QuotationSeal from '../common/QuotationSeal';
 import {
   formatCurrency,
@@ -44,38 +45,14 @@ const QuotationPrintView = ({ quotation, onClose }) => {
     : new Date().toLocaleDateString('en-IN');
 
   const content = (
-    <div className="fixed inset-0 z-[200] overflow-y-auto bg-steel-900/70 backdrop-blur-xs flex justify-center p-2 sm:p-4 print-dialog print-modal-overlay">
+    <div role="dialog" aria-modal="true" aria-labelledby="quotation-preview-title" className="fixed inset-0 z-[200] overflow-y-auto bg-steel-900/70 backdrop-blur-xs flex justify-center p-2 sm:p-4 print-dialog print-modal-overlay">
       {/* Screen Preview Container */}
       <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-2xl my-4 flex flex-col overflow-hidden print-preview-container">
-        {/* On-screen toolbar (hidden when printing) */}
-        <div className="no-print bg-[#0f172a] text-white px-3 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between border-b border-slate-800 shrink-0 gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <Printer className="w-4 h-4 text-edge-400 shrink-0" />
-            <span className="text-xs font-semibold truncate max-w-[170px] xs:max-w-[260px] sm:max-w-none">
-              Quotation Print &amp; PDF Preview — {quotation.quoteNumber}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">Print / Save as PDF</span>
-              <span className="xs:hidden">Print</span>
-            </button>
-            {onClose && (
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-1.5 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors"
-                aria-label="Close preview"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+        {/* Screen controls share the dialog theme; printed quotation stays a document. */}
+        <div className="no-print">
+          <DialogHeader titleId="quotation-preview-title" title="Quotation preview" subtitle={quotation.quoteNumber}
+            onClose={onClose} closeLabel="Close preview"
+            actions={<button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-edge-700 px-3 text-sm font-medium text-white hover:bg-edge-800 focus-visible:ring-2 focus-visible:ring-edge-600"><Printer className="h-4 w-4" aria-hidden="true" /><span>Print / PDF</span></button>} />
         </div>
 
         {/* Dedicated Printable Sheet (Replicates Spreadsheet Design) */}

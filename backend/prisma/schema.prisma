@@ -8,6 +8,29 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Purchase {
+  id             String   @id @default(uuid())
+  materialName   String   @db.VarChar(200)
+  supplier       String?  @db.VarChar(200)
+  paymentStatus  String   @default("UNPAID")
+  amountPaid     Decimal  @default(0) @db.Decimal(24, 2)
+  paymentMode    String   @default("CASH")
+  paymentDate    DateTime? @db.Date
+  paymentReference String? @db.VarChar(200)
+  purchaseDate   DateTime @db.Date
+  unitOfMeasure  String   @default("PCS")
+  quantity       Decimal  @db.Decimal(12, 3)
+  unitPrice      Decimal  @db.Decimal(14, 2)
+  additionalCost Decimal  @default(0) @db.Decimal(14, 2)
+  totalCost      Decimal  @db.Decimal(24, 2)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([purchaseDate, createdAt])
+  @@map("purchases")
+}
+
 enum CustomerType {
   INDIVIDUAL
   ORGANIZATION
@@ -26,10 +49,27 @@ model Customer {
   notes        String?
   quotations   Quotation[]
   saleOrders   SaleOrder[]
+  receipts     CustomerReceipt[]
+  taxInvoices  TaxInvoice[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
   @@map("customers")
+}
+
+model CustomerReceipt {
+  id          String   @id @default(uuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  paymentDate DateTime @db.Date
+  amount      Decimal  @db.Decimal(14, 2)
+  paymentType String   @db.VarChar(20)
+  reference   String?  @db.VarChar(200)
+  notes       String?  @db.VarChar(2000)
+  createdAt   DateTime @default(now())
+
+  @@index([customerId, paymentDate])
+  @@map("customer_receipts")
 }
 
 model ProductSku {
@@ -120,6 +160,9 @@ model SaleOrder {
   status          String          @default("PENDING")
   paymentStatus   String          @default("UNPAID")
   paymentMode     String          @default("CASH")
+  amountReceived  Decimal         @default(0) @db.Decimal(24, 2)
+  paymentDate     DateTime?        @db.Date
+  paymentReference String?        @db.VarChar(200)
   orderDate       DateTime        @default(now())
   deliveryAddress String?
   subtotal        Decimal?
@@ -131,6 +174,7 @@ model SaleOrder {
   totalAmount     Decimal         @default(0)
   isLocked        Boolean         @default(false)
   items           SaleOrderItem[]
+  taxInvoices     TaxInvoice[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -157,4 +201,76 @@ model SaleOrderItem {
   updatedAt    DateTime    @updatedAt
 
   @@map("sale_order_items")
+}
+
+model TaxInvoice {
+  id          String    @id @default(uuid())
+  number      Int       @unique @default(autoincrement())
+  saleOrderId String
+  saleOrder   SaleOrder @relation(fields: [saleOrderId], references: [id])
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  issueDate   DateTime  @default(now()) @db.Date
+  data        Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([saleOrderId])
+  @@map("tax_invoices")
+}
+
+model Employee {
+  id           String           @id @default(uuid())
+  employeeCode String           @unique @db.VarChar(40)
+  name         String           @db.VarChar(120)
+  role         String           @db.VarChar(120)
+  phone        String?          @db.VarChar(40)
+  address      String?          @db.VarChar(500)
+  joinedOn     DateTime         @db.Date
+  leftOn       DateTime?        @db.Date
+  salaries     EmployeeSalary[]
+  payroll      PayrollEntry[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@map("employees")
+}
+
+model EmployeeSalary {
+  employeeId  String
+  effectiveOn DateTime @db.Date
+  amount      Decimal  @db.Decimal(12, 2)
+  employee    Employee @relation(fields: [employeeId], references: [id])
+
+  @@id([employeeId, effectiveOn])
+  @@map("employee_salaries")
+}
+
+model PayrollRun {
+  month     String         @id @db.VarChar(7)
+  entries   PayrollEntry[]
+  createdAt DateTime       @default(now())
+
+  @@map("payroll_runs")
+}
+
+model PayrollEntry {
+  month         String     @db.VarChar(7)
+  employeeId    String
+  employeeCode  String     @db.VarChar(40)
+  name          String     @db.VarChar(120)
+  eligibleDays  Int
+  unpaidDays    Int
+  paidDays      Int
+  basePay       Decimal    @db.Decimal(12, 2)
+  additions     Decimal    @db.Decimal(12, 2)
+  deductions    Decimal    @db.Decimal(12, 2)
+  grossPay      Decimal    @db.Decimal(13, 2)
+  netPay        Decimal    @db.Decimal(13, 2)
+  run           PayrollRun @relation(fields: [month], references: [month])
+  employee      Employee   @relation(fields: [employeeId], references: [id])
+
+  @@id([month, employeeId])
+  @@index([employeeId])
+  @@map("payroll_entries")
 }

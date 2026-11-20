@@ -7,8 +7,8 @@
     "dev:frontend": "npm --prefix frontend run dev",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build:frontend": "npm --prefix frontend run build",
-    "db:reset": "npm --prefix backend run db:reset",
-    "db:seed": "npm --prefix backend run db:seed",
+    "db:reset": "npm --prefix backend run db:reset --",
+    "db:seed": "node backend/prisma/seed-demo.js",
     "test:backend": "npm --prefix backend test",
     "test:frontend": "node frontend/src/lib/glassCalculations.test.js",
     "test": "npm run test:backend && npm run test:frontend"

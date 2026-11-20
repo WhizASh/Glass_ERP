@@ -6,13 +6,21 @@ import QuotationsView from './components/views/QuotationsView';
 import SalesView from './components/views/SalesView';
 import CustomersView from './components/views/CustomersView';
 import ProductSKUsView from './components/views/ProductSKUsView';
+import PurchasesView from './components/views/PurchasesView';
+import StaffView from './components/views/StaffView';
+import LedgerView from './components/views/LedgerView';
+import TaxInvoicesView from './components/views/TaxInvoicesView';
 
 const tabTitles = {
+  ledger: 'Party Ledger',
   dashboard: 'Operations Dashboard',
   quotations: 'Glass Quotations & Takeoff',
   sales: 'Sales Orders',
+  taxInvoices: 'Tax Invoices',
   customers: 'Customer & Contractor Directory',
-  products: 'Glass Product SKU Catalog'
+  staff: 'Staff',
+  products: 'Glass Product SKU Catalog',
+  purchases: 'Purchases'
 };
 
 function App() {
@@ -26,23 +34,31 @@ function App() {
 
   const renderActiveView = () => {
     switch (activeTab) {
+      case 'ledger':
+        return <LedgerView />;
       case 'dashboard':
         return <DashboardView onNavigateTab={handleSelectTab} />;
       case 'quotations':
         return <QuotationsView />;
       case 'sales':
         return <SalesView />;
+      case 'taxInvoices':
+        return <TaxInvoicesView />;
       case 'customers':
         return <CustomersView />;
+      case 'staff':
+        return <StaffView />;
       case 'products':
         return <ProductSKUsView />;
+      case 'purchases':
+        return <PurchasesView />;
       default:
         return <DashboardView onNavigateTab={handleSelectTab} />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f1f5f9] text-steel-900 font-sans antialiased">
+    <div className="flex min-h-screen bg-slate-900 text-steel-900 font-sans antialiased">
       {/* Structural Framing Sidebar (Desktop + Mobile Responsive Drawer) */}
       <Sidebar
         activeTab={activeTab}
@@ -59,8 +75,10 @@ function App() {
           mobileMenuOpen={mobileMenuOpen}
         />
 
-        <main className="flex-1 p-3 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto min-w-0">
-          {renderActiveView()}
+        <main className="flex-1 min-w-0 bg-[#f1f5f9] rounded-tl-3xl">
+          <div className="p-3 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto min-w-0">
+            {renderActiveView()}
+          </div>
         </main>
       </div>
     </div>

@@ -6,33 +6,20 @@ import RecentActivityGrid from '../dashboard/RecentActivityGrid';
 import { api } from '../../services/api';
 
 const DashboardView = ({ onNavigateTab }) => {
-  const [stats, setStats] = useState({
-    kpis: {
-      totalGlazingArea: 0,
-      inReviewQuotes: 0,
-      acceptedQuotes: 0,
-      draftQuotes: 0,
-      totalPipelineValue: 0,
-      totalQuotations: 0,
-      activeQuotes: 0,
-      totalSales: 0,
-      pendingOrders: 0,
-      totalCustomers: 0,
-      totalProductSkus: 0
-    },
-    statusBreakdown: {},
-    trendData: [],
-    recentQuotations: [],
-    recentSales: []
-  });
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let mounted = true;
+    setLoading(true);
+    setError('');
 
     api.getDashboardStats()
       .then((data) => {
-        if (!mounted || !data) return;
+        if (!mounted) return;
+        if (!data?.kpis) throw new Error('Dashboard returned no metrics.');
         setStats({
           kpis: data.kpis || {},
           statusBreakdown: data.statusBreakdown || {},
@@ -42,7 +29,7 @@ const DashboardView = ({ onNavigateTab }) => {
         });
       })
       .catch((err) => {
-        console.warn('Dashboard stats notice:', err.message);
+        if (mounted) setError(err.message);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -51,7 +38,7 @@ const DashboardView = ({ onNavigateTab }) => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [attempt]);
 
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
@@ -83,22 +70,31 @@ const DashboardView = ({ onNavigateTab }) => {
         </div>
       </div>
 
-      {/* High-Impact Glazing & Operations KPI Cards */}
-      <DashboardKpis kpis={stats.kpis} />
-
-      {/* Architectural Glazing Trend & Status Graph */}
-      <GlazingAnalyticsGraph
-        trendData={stats.trendData}
-        statusBreakdown={stats.statusBreakdown}
-        kpis={stats.kpis}
-      />
-
-      {/* Recent Activity Sections */}
-      <RecentActivityGrid
-        recentQuotations={stats.recentQuotations}
-        recentSales={stats.recentSales}
-        onNavigateTab={onNavigateTab}
-      />
+      {loading ? (
+        <div role="status" aria-busy="true" aria-label="Loading dashboard" className="space-y-4">
+          <p className="text-sm text-steel-600">Loading dashboard…</p>
+          <div aria-hidden="true" className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[0, 1, 2, 3].map((key) => (
+              <div key={key} className="h-32 rounded-lg border border-steel-200 bg-white motion-safe:animate-pulse" />
+            ))}
+          </div>
+          <div aria-hidden="true" className="h-64 rounded-lg border border-steel-200 bg-white motion-safe:animate-pulse" />
+        </div>
+      ) : error ? (
+        <div className="rounded-lg border border-steel-200 bg-white p-5">
+          <p role="alert" className="text-sm text-red-700">Could not load dashboard. {error}</p>
+          <button type="button" onClick={() => setAttempt((value) => value + 1)}
+            className="mt-3 min-h-11 rounded-md bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600">
+            Retry dashboard
+          </button>
+        </div>
+      ) : stats && (
+        <>
+          <DashboardKpis kpis={stats.kpis} />
+          <GlazingAnalyticsGraph trendData={stats.trendData} statusBreakdown={stats.statusBreakdown} kpis={stats.kpis} />
+          <RecentActivityGrid recentQuotations={stats.recentQuotations} recentSales={stats.recentSales} onNavigateTab={onNavigateTab} />
+        </>
+      )}
     </div>
   );
 };
