@@ -9,12 +9,14 @@ import ProductSKUsView from './components/views/ProductSKUsView';
 import PurchasesView from './components/views/PurchasesView';
 import StaffView from './components/views/StaffView';
 import LedgerView from './components/views/LedgerView';
+import TaxInvoicesView from './components/views/TaxInvoicesView';
 
 const tabTitles = {
   ledger: 'Party Ledger',
   dashboard: 'Operations Dashboard',
   quotations: 'Glass Quotations & Takeoff',
   sales: 'Sales Orders',
+  taxInvoices: 'Tax Invoices',
   customers: 'Customer & Contractor Directory',
   staff: 'Staff',
   products: 'Glass Product SKU Catalog',
@@ -40,6 +42,8 @@ function App() {
         return <QuotationsView />;
       case 'sales':
         return <SalesView />;
+      case 'taxInvoices':
+        return <TaxInvoicesView />;
       case 'customers':
         return <CustomersView />;
       case 'staff':

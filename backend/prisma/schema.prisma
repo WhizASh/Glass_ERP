@@ -50,6 +50,7 @@ model Customer {
   quotations   Quotation[]
   saleOrders   SaleOrder[]
   receipts     CustomerReceipt[]
+  taxInvoices  TaxInvoice[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -173,6 +174,7 @@ model SaleOrder {
   totalAmount     Decimal         @default(0)
   isLocked        Boolean         @default(false)
   items           SaleOrderItem[]
+  taxInvoices     TaxInvoice[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -199,6 +201,22 @@ model SaleOrderItem {
   updatedAt    DateTime    @updatedAt
 
   @@map("sale_order_items")
+}
+
+model TaxInvoice {
+  id          String    @id @default(uuid())
+  number      Int       @unique @default(autoincrement())
+  saleOrderId String
+  saleOrder   SaleOrder @relation(fields: [saleOrderId], references: [id])
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  issueDate   DateTime  @default(now()) @db.Date
+  data        Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([saleOrderId])
+  @@map("tax_invoices")
 }
 
 model Employee {

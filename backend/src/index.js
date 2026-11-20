@@ -30,6 +30,7 @@ app.use('/api/customers', customersRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/quotations', quotationsRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/tax-invoices', require('./routes/taxInvoices.routes'));
 app.use('/api/purchases', purchasesRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/ledger', require('./routes/ledger.routes'));

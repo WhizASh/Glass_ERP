@@ -7,7 +7,7 @@ import SaleOrderPayment from './SaleOrderPayment';
 import SaleOrderSummary from './SaleOrderSummary';
 import { secondaryButton } from './saleUi';
 
-export default function SaleOrderModal({ form, setForm, order, customers, quotations, products, totals, locked, delivered, saving, error, nestedDialogOpen, onClose, onSubmit, onQuotationChange, onAddCustomer, onAddItem, onRemoveItem, onUpdateItem, getSqft, getLineTotal, onUnlock }) {
+export default function SaleOrderModal({ form, setForm, order, customers, quotations, products, totals, locked, delivered, saving, error, nestedDialogOpen, onClose, onSubmit, onQuotationChange, onAddCustomer, onAddItem, onRemoveItem, onUpdateItem, onAddSection, onRemoveSection, onRenameSection, onAddItemToSection, getSqft, getLineTotal, onUnlock }) {
   const dialogRef = useRef(null);
   const errorRef = useRef(null);
   const nestedReturnFocus = useRef(null);
@@ -51,7 +51,7 @@ export default function SaleOrderModal({ form, setForm, order, customers, quotat
             <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
               <div className="min-w-0 space-y-4">
                 <div className="rounded-lg border border-steel-200 bg-white p-3 sm:p-4"><SaleOrderDetails form={form} setForm={setForm} customers={customers} quotations={quotations} disabled={locked || delivered || saving} onQuotationChange={onQuotationChange} onAddCustomer={() => { nestedReturnFocus.current = document.activeElement; onAddCustomer(); }} /></div>
-                <SaleOrderItems items={form.items} products={products} disabled={locked || delivered || saving} onAdd={onAddItem} onRemove={onRemoveItem} onUpdate={onUpdateItem} getSqft={getSqft} getLineTotal={getLineTotal} />
+                <SaleOrderItems items={form.items} products={products} disabled={locked || delivered || saving} onAdd={onAddItem} onRemove={onRemoveItem} onUpdate={onUpdateItem} onAddSection={onAddSection} onRemoveSection={onRemoveSection} onRenameSection={onRenameSection} onAddItemToSection={onAddItemToSection} getSqft={getSqft} getLineTotal={getLineTotal} />
                 <div className="rounded-lg border border-steel-200 bg-white p-3 sm:p-4"><SaleOrderPayment form={form} setForm={setForm} locked={locked || saving} /></div>
               </div>
               <SaleOrderSummary form={form} setForm={setForm} totals={totals} disabled={locked || delivered || saving} />

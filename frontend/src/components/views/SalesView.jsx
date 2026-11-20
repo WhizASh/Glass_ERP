@@ -23,6 +23,7 @@ const INITIAL_FORM_STATE = {
   taxRate: 0,
   items: [
     {
+      sectionName: 'Section 1',
       productSkuId: '',
       description: '',
       widthInches: '',
@@ -121,6 +122,7 @@ const SalesView = () => {
           })
         : [
             {
+              sectionName: 'Section 1',
               productSkuId: '',
               description: '',
               widthInches: '',
@@ -257,6 +259,7 @@ const SalesView = () => {
       items: [
         ...prev.items,
         {
+          sectionName: prev.items.at(-1)?.sectionName || 'Section 1',
           productSkuId: '',
           description: '',
           widthInches: '',
@@ -268,6 +271,43 @@ const SalesView = () => {
       ]
     }));
   };
+
+  const addSection = () => {
+    setFormData(prev => {
+      const names = new Set(prev.items.map(item => item.sectionName));
+      let number = 1;
+      while (names.has(`Section ${number}`)) number += 1;
+      return {
+        ...prev,
+        items: [...prev.items, {
+          sectionName: `Section ${number}`,
+          productSkuId: '', description: '', widthInches: '', heightInches: '',
+          quantity: 1, totalSqft: '', unitPrice: 0
+        }]
+      };
+    });
+  };
+
+  const renameSection = (indices, name) => setFormData(prev => ({
+    ...prev,
+    items: prev.items.map((item, index) => indices.includes(index) ? { ...item, sectionName: name } : item)
+  }));
+
+  const removeSection = (indices) => setFormData(prev => ({
+    ...prev,
+    items: prev.items.filter((_, index) => !indices.includes(index))
+  }));
+
+  const addItemToSection = (indices) => setFormData(prev => {
+    const items = [...prev.items];
+    const lastIndex = indices.at(-1);
+    items.splice(lastIndex + 1, 0, {
+      sectionName: items[lastIndex]?.sectionName || 'Section 1',
+      productSkuId: '', description: '', widthInches: '', heightInches: '',
+      quantity: 1, totalSqft: '', unitPrice: 0
+    });
+    return { ...prev, items };
+  });
 
   const removeItem = (index) => {
     if (formData.items.length <= 1) return;
@@ -626,6 +666,7 @@ const SalesView = () => {
         onSubmit={handleSubmit} onQuotationChange={handleQuotationChange}
         onAddCustomer={() => setIsAddCustomerOpen(true)}
         onAddItem={addItem} onRemoveItem={removeItem} onUpdateItem={updateItem}
+        onAddSection={addSection} onRemoveSection={removeSection} onRenameSection={renameSection} onAddItemToSection={addItemToSection}
         getSqft={getItemSqft} getLineTotal={getItemLineTotal}
         onUnlock={async () => {
           const sale = editingSaleOrder;

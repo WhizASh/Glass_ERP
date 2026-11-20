@@ -17,6 +17,7 @@ const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'quotations', label: 'Quotations', icon: FileText },
   { id: 'sales', label: 'Sales Orders', icon: ShoppingBag },
+  { id: 'taxInvoices', label: 'Tax Invoice', icon: FileText },
   { id: 'ledger', label: 'Ledger', icon: BookOpen },
   { id: 'customers', label: 'Customers', icon: Users },
   { id: 'staff', label: 'Staff', icon: ContactRound },

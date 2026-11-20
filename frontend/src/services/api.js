@@ -24,6 +24,9 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  getTaxInvoices: () => request('/tax-invoices'),
+  createTaxInvoice: data => request('/tax-invoices', { method: 'POST', body: JSON.stringify(data) }),
+  updateTaxInvoice: (id, data) => request(`/tax-invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   getLedgerParties: () => request('/ledger/parties'),
   updatePurchase: (id, data) => request(`/purchases/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) }),
   getLedger: (customerId, signal) => request(`/ledger/${encodeURIComponent(customerId)}`, { signal }),

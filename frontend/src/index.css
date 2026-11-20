@@ -142,6 +142,8 @@
    Matches the commercial spreadsheet reference on A4 portrait
    ========================================================================== */
 @media print {
+  body:has(.invoice-print-overlay) #root { display: block !important; }
+  body:has(.invoice-print-overlay) [role="dialog"].invoice-print-overlay { display: block !important; }
   @page {
     size: A4 portrait;
     margin: 8mm 10mm;
@@ -246,4 +248,13 @@
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
+}
+@media print {
+  body:has(.invoice-print-overlay) > #root > * { visibility: hidden !important; }
+  .invoice-print-overlay, .invoice-print-overlay * { visibility: visible !important; }
+  .invoice-print-overlay { position: absolute !important; inset: 0 !important; overflow: visible !important; background: white !important; padding: 0 !important; }
+  .invoice-print-actions { display: none !important; }
+  .invoice-print-sheet { width: 100% !important; max-width: none !important; min-height: 0 !important; padding: 12mm !important; box-shadow: none !important; }
+  .invoice-print-sheet tr { break-inside: avoid; }
+  @page { size: A4; margin: 0; }
 }
