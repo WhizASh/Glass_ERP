@@ -5,14 +5,16 @@ export const money = value => `₹${Number(value).toLocaleString('en-IN', { mini
 export const units = { PCS: 'Pieces', SQ_METER: 'Square metres (m²)', SQ_FEET: 'Square feet (ft²)', KG: 'Kilograms (kg)' };
 const inputClass = 'min-h-11 sm:min-h-0 w-full px-2.5 py-2 rounded-md border border-steel-300 text-steel-900 bg-white focus:outline-none focus:ring-2 focus:ring-edge-600';
 
-export default function PurchaseForm({ onSaved, onClose, onSavingChange }) {
+export default function PurchaseForm({ onSaved, onClose, onSavingChange, purchase }) {
   const formRef = useRef(null);
   const submitting = useRef(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState(() => ({
     materialName: '', supplier: '', purchaseDate: new Date().toLocaleDateString('en-CA'),
-    unitOfMeasure: 'PCS', quantity: '', unitPrice: '', additionalCost: '0', notes: ''
+    unitOfMeasure: 'PCS', quantity: '', unitPrice: '', additionalCost: '0', notes: '',
+    paymentStatus: 'UNPAID', amountPaid: '0', paymentMode: 'CASH', paymentDate: '', paymentReference: '',
+    ...(purchase ? { ...purchase, supplier: purchase.supplier || '', notes: purchase.notes || '', purchaseDate: purchase.purchaseDate.slice(0, 10), paymentDate: purchase.paymentDate?.slice(0, 10) || '', paymentReference: purchase.paymentReference || '' } : {})
   }));
 
   useEffect(() => {
@@ -47,7 +49,8 @@ export default function PurchaseForm({ onSaved, onClose, onSavingChange }) {
     onSavingChange(true);
     setError('');
     try {
-      await api.createPurchase(form);
+      if (purchase) await api.updatePurchase(purchase.id, form);
+      else await api.createPurchase(form);
       onSaved();
     } catch (err) {
       setError(err.message);
@@ -59,7 +62,8 @@ export default function PurchaseForm({ onSaved, onClose, onSavingChange }) {
   };
 
   return (
-    <form ref={formRef} onSubmit={submit} className="space-y-4 text-xs">
+    <form ref={formRef} onSubmit={submit} className="app-dialog-form text-xs">
+          <div className="app-dialog-fields space-y-3">
       <fieldset disabled={saving} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         <label className="block font-semibold text-steel-700 sm:col-span-2">
           Material name *
@@ -92,17 +96,27 @@ export default function PurchaseForm({ onSaved, onClose, onSavingChange }) {
           <input name="additionalCost" type="number" required min="0" max="999999999999.99" step="0.01" value={form.additionalCost} onChange={change} aria-describedby="purchase-cost-help" className={`${inputClass} mt-1`} />
           <span id="purchase-cost-help" className="block mt-1 font-normal text-steel-500">Transport, handling, or other purchase expenses.</span>
         </label>
+        <label className="block font-semibold text-steel-700">Payment status
+          <select name="paymentStatus" value={form.paymentStatus} onChange={change} className={`${inputClass} mt-1`}><option value="UNPAID">Unpaid</option><option value="PARTIAL">Partial</option><option value="PAID">Paid in full</option></select>
+        </label>
+        {form.paymentStatus === 'PARTIAL' && <label className="block font-semibold text-steel-700">Amount paid (₹)
+          <input required name="amountPaid" type="number" min="0.01" step="0.01" value={form.amountPaid} onChange={change} className={`${inputClass} mt-1`} />
+        </label>}
+        <label className="block font-semibold text-steel-700">Payment mode<select name="paymentMode" value={form.paymentMode} onChange={change} className={`${inputClass} mt-1`}><option value="CASH">Cash</option><option value="ONLINE">NEFT / UPI / Card</option></select></label>
+        <label className="block font-semibold text-steel-700">Payment date (optional)<input name="paymentDate" type="date" value={form.paymentDate} onChange={change} className={`${inputClass} mt-1`} /></label>
+        <label className="block font-semibold text-steel-700">Payment reference<input name="paymentReference" maxLength={200} value={form.paymentReference} onChange={change} className={`${inputClass} mt-1`} /></label>
         <label className="block font-semibold text-steel-700 sm:col-span-2">
           Notes
           <textarea name="notes" rows={2} maxLength={2000} value={form.notes} onChange={change} className={`${inputClass} mt-1`} />
         </label>
       </fieldset>
-      <div className="rounded-md border border-steel-200 bg-steel-50 p-3 flex flex-wrap justify-between gap-2">
+      <div className="rounded-md border border-edge-200 bg-edge-50 p-3 flex flex-wrap justify-between gap-2">
         <div><span className="font-semibold">Total purchase cost</span><p className="text-steel-500 mt-1">Quantity × unit price + additional costs</p></div>
         <output className="font-mono font-bold text-sm" aria-live="polite">{money(Number.isFinite(estimatedTotal) ? estimatedTotal : 0)}</output>
       </div>
       {error && <p role="alert" className="text-rose-700">{error}</p>}
-      <div className="flex justify-end gap-2 border-t border-steel-200 pt-3">
+      </div>
+          <div className="app-dialog-actions">
         <button type="button" disabled={saving} onClick={onClose} className="min-h-11 sm:min-h-0 px-4 py-2 rounded-md border border-steel-300 font-semibold disabled:opacity-50">Cancel</button>
         <button type="submit" disabled={saving} className="min-h-11 sm:min-h-0 px-4 py-2 rounded-md bg-teal-700 hover:bg-teal-800 text-white font-semibold disabled:opacity-50">{saving ? 'Saving…' : 'Save Purchase'}</button>
       </div>

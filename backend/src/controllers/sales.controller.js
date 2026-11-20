@@ -1,3 +1,4 @@
+const { settlement, SettlementError } = require('../services/settlement.service');
 const prisma = require('../lib/prisma');
 const { calculateItemSqft, calculateDiscount } = require('../services/glassCalculations.service');
 
@@ -256,7 +257,7 @@ const createSale = async (req, res) => {
         customerId,
         quotationId: validQuotationId,
         status: normalizedStatus,
-        paymentStatus: normalizedPaymentStatus,
+        ...settlement(req.body, totalAmount, 'amountReceived'),
         paymentMode: normalizedPaymentMode,
         deliveryAddress: deliveryAddress || null,
         orderDate: orderDate ? new Date(orderDate) : new Date(),
@@ -297,6 +298,7 @@ const createSale = async (req, res) => {
 
     return res.status(201).json(normalizeSale(newSale));
   } catch (error) {
+    if (error instanceof SettlementError) return res.status(400).json({ error: error.message });
     console.error('Error creating sale order in database:', error.message || error);
     return res.status(500).json({ error: 'Failed to create sale order' });
   }
@@ -439,7 +441,7 @@ const updateSale = async (req, res) => {
 
     const updateData = {
       paymentMode: normalizedPaymentMode,
-      paymentStatus: normalizedPaymentStatus,
+      ...settlement(req.body, totalAmount, 'amountReceived', existingSale),
       status: normalizedStatus,
       deliveryAddress: deliveryAddress !== undefined ? deliveryAddress : existingSale.deliveryAddress,
       subtotal,
@@ -514,6 +516,7 @@ const updateSale = async (req, res) => {
 
     return res.json(normalizeSale(updated));
   } catch (error) {
+    if (error instanceof SettlementError) return res.status(400).json({ error: error.message });
     console.error('Error updating sale order in database:', error.message || error);
     return res.status(500).json({ error: 'Failed to update sale order' });
   }

@@ -12,6 +12,11 @@ model Purchase {
   id             String   @id @default(uuid())
   materialName   String   @db.VarChar(200)
   supplier       String?  @db.VarChar(200)
+  paymentStatus  String   @default("UNPAID")
+  amountPaid     Decimal  @default(0) @db.Decimal(24, 2)
+  paymentMode    String   @default("CASH")
+  paymentDate    DateTime? @db.Date
+  paymentReference String? @db.VarChar(200)
   purchaseDate   DateTime @db.Date
   unitOfMeasure  String   @default("PCS")
   quantity       Decimal  @db.Decimal(12, 3)
@@ -44,10 +49,26 @@ model Customer {
   notes        String?
   quotations   Quotation[]
   saleOrders   SaleOrder[]
+  receipts     CustomerReceipt[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
   @@map("customers")
+}
+
+model CustomerReceipt {
+  id          String   @id @default(uuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  paymentDate DateTime @db.Date
+  amount      Decimal  @db.Decimal(14, 2)
+  paymentType String   @db.VarChar(20)
+  reference   String?  @db.VarChar(200)
+  notes       String?  @db.VarChar(2000)
+  createdAt   DateTime @default(now())
+
+  @@index([customerId, paymentDate])
+  @@map("customer_receipts")
 }
 
 model ProductSku {
@@ -138,6 +159,9 @@ model SaleOrder {
   status          String          @default("PENDING")
   paymentStatus   String          @default("UNPAID")
   paymentMode     String          @default("CASH")
+  amountReceived  Decimal         @default(0) @db.Decimal(24, 2)
+  paymentDate     DateTime?        @db.Date
+  paymentReference String?        @db.VarChar(200)
   orderDate       DateTime        @default(now())
   deliveryAddress String?
   subtotal        Decimal?

@@ -9,9 +9,12 @@ const createPurchase = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
   try {
-    const purchase = await prisma.purchase.create({ data });
-    return res.status(201).json(purchase);
+    const purchase = req.params.id
+      ? await prisma.purchase.update({ where: { id: req.params.id }, data })
+      : await prisma.purchase.create({ data });
+    return res.status(req.params.id ? 200 : 201).json(purchase);
   } catch (error) {
+    if (error.code === 'P2025') return res.status(404).json({ error: 'Purchase not found.' });
     console.error('Error creating purchase:', error.message);
     return res.status(500).json({ error: 'Failed to save purchase. Please try again.' });
   }

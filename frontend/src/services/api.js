@@ -24,6 +24,10 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  getLedgerParties: () => request('/ledger/parties'),
+  updatePurchase: (id, data) => request(`/purchases/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) }),
+  getLedger: (customerId, signal) => request(`/ledger/${encodeURIComponent(customerId)}`, { signal }),
+  createLedgerReceipt: (customerId, data) => request(`/ledger/${encodeURIComponent(customerId)}/receipts`, { method: 'POST', body: JSON.stringify(data) }),
   getEmployees: (signal) => request('/staff', { signal }),
   saveEmployee: (data, id) => request(id ? '/staff/employees/' + id : '/staff', {
     method: id ? 'PUT' : 'POST', body: JSON.stringify(data)

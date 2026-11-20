@@ -193,7 +193,8 @@ const ProductSKUsView = () => {
         title="Add Glass Product SKU"
         subtitle="Specify glass category, nominal thickness, unit of measure, and pricing"
       >
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="app-dialog-form text-xs">
+          <div className="app-dialog-fields space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1">
@@ -300,7 +301,8 @@ const ProductSKUsView = () => {
             />
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5 pt-3 border-t border-steel-200">
+          </div>
+          <div className="app-dialog-actions">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}

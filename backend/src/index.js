@@ -32,6 +32,7 @@ app.use('/api/quotations', quotationsRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/purchases', purchasesRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/ledger', require('./routes/ledger.routes'));
 
 // Global error handler
 app.use((err, req, res, next) => {

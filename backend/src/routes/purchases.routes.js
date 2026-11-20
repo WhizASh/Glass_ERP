@@ -3,5 +3,6 @@ const { getPurchases, createPurchase } = require('../controllers/purchases.contr
 
 router.get('/', getPurchases);
 router.post('/', createPurchase);
+router.put('/:id', createPurchase);
 
 module.exports = router;

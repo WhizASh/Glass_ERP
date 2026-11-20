@@ -1,6 +1,7 @@
+import DialogHeader from '../common/DialogHeader';
 import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Printer, Send, CheckCircle2, Ban, Edit3 } from 'lucide-react';
+import { Printer, Send, CheckCircle2, Ban, Edit3 } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
 import QuotationSeal from '../common/QuotationSeal';
 import QuotationDrawerSchedule from './QuotationDrawerSchedule';
@@ -90,7 +91,7 @@ const QuotationDrawer = ({ quotation, onClose, onStatusUpdated, onEditQuotation 
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
-        className={`fixed inset-0 z-[100] overflow-hidden no-print ${
+        className={`app-dialog fixed inset-0 z-[100] overflow-hidden no-print ${
           isOpen ? 'pointer-events-auto' : 'pointer-events-none'
         }`}
       >
@@ -108,40 +109,11 @@ const QuotationDrawer = ({ quotation, onClose, onStatusUpdated, onEditQuotation 
             isOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
           }`}
         >
-          {/* Header */}
-          <div className="px-4 sm:px-5 py-3 sm:py-3.5 bg-[#0f172a] text-white flex items-center justify-between border-b border-slate-800 shrink-0 gap-2">
-            <div className="min-w-0 pr-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-mono text-xs font-bold text-teal-300 bg-teal-950 px-2 py-0.5 rounded border border-teal-800">
-                  {currentQuote.quoteNumber}
-                </span>
-                <StatusBadge status={currentQuote.status} />
-              </div>
-              <h2 id="drawer-title" className="text-xs sm:text-sm font-semibold text-white mt-1 truncate">
-                {currentQuote.customer?.companyName || currentQuote.customer?.name}
-              </h2>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsPrintOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                title="Print or Save PDF"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Print / PDF</span>
-                <span className="xs:hidden">Print</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleSmoothClose}
-                className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                aria-label="Close details"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          <DialogHeader titleId="drawer-title"
+            title={currentQuote.customer?.companyName || currentQuote.customer?.name}
+            eyebrow={<span className="flex flex-wrap items-center gap-2"><span className="text-edge-800">{currentQuote.quoteNumber}</span><StatusBadge status={currentQuote.status} /></span>}
+            onClose={handleSmoothClose} closeLabel="Close details"
+            actions={<button type="button" onClick={() => setIsPrintOpen(true)} className="min-h-11 rounded-md bg-edge-700 px-3 text-sm font-medium text-white hover:bg-edge-800"><Printer className="mr-1.5 inline h-4 w-4" aria-hidden="true" />Print / PDF</button>} />
 
           {/* Drawer Body (Scrollable from top to bottom) */}
           <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-4 sm:space-y-5 text-xs text-steel-700">

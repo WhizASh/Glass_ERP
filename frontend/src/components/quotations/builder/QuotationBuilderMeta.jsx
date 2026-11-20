@@ -13,7 +13,7 @@ const QuotationBuilderMeta = ({
   const currentDate = formData.validUntil || getTodayDateString();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5 p-3 sm:p-3.5 bg-steel-50 rounded-lg border border-steel-200">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 p-3 sm:p-3.5 bg-steel-50 rounded-lg border border-steel-200">
       <div>
         <div className="flex items-center justify-between mb-1 gap-1">
           <label className="text-xs font-semibold text-steel-700 truncate">
@@ -92,21 +92,6 @@ const QuotationBuilderMeta = ({
         </select>
       </div>
 
-      <div>
-        <label className="block text-xs font-semibold text-steel-700 mb-1">
-          Applicable GST (%)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          step="0.5"
-          aria-label="Applicable GST percentage"
-          value={formData.taxRate !== undefined ? formData.taxRate : 18}
-          onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
-          className="w-full text-xs py-1.5 px-2 text-right font-mono bg-white border border-steel-300 rounded-md text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600 focus:border-edge-600 font-medium"
-        />
-      </div>
     </div>
   );
 };

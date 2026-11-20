@@ -1,0 +1,79 @@
+/* Shared transaction-dialog design; scoped to keep page and print styles intact. */
+.app-dialog-overlay {
+  @apply fixed inset-0 flex items-center justify-center p-2 sm:p-5;
+}
+.app-dialog-backdrop {
+  @apply fixed inset-0 bg-steel-950/60 backdrop-blur-sm;
+}
+.app-dialog-panel {
+  @apply relative z-10 flex w-full min-w-0 flex-col overflow-hidden rounded-xl border border-steel-200 bg-white text-steel-900 shadow-2xl;
+  max-height: calc(100dvh - 1rem);
+}
+.app-dialog-header {
+  @apply flex shrink-0 flex-wrap items-start justify-between gap-3 border-b border-edge-100 border-t-2 border-t-edge-600 bg-edge-50/60 px-4 py-3 sm:px-5;
+}
+.app-dialog-close {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-steel-300 bg-white text-steel-700 transition-colors hover:bg-steel-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-edge-600 disabled:cursor-not-allowed disabled:opacity-50;
+}
+.app-dialog-form {
+  @apply flex min-h-0 flex-1 flex-col overflow-hidden;
+}
+.app-dialog-fields {
+  @apply min-h-0 flex-1 overflow-y-auto overscroll-contain bg-steel-50/60 p-3 sm:p-4;
+  scrollbar-gutter: stable;
+}
+.app-dialog .app-dialog-actions {
+  @apply flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-steel-200 bg-white px-4 py-2 sm:py-3;
+  margin-top: 0;
+}
+.app-dialog .app-dialog-actions button,
+.app-dialog .app-dialog-header button:not(.app-dialog-close) {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-edge-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+.app-dialog .app-dialog-actions button[type='submit'] {
+  @apply border border-edge-700 bg-edge-700 text-white hover:border-edge-800 hover:bg-edge-800;
+}
+.app-dialog .app-dialog-actions button[type='button'] {
+  @apply border border-steel-300 bg-white text-steel-700 hover:bg-steel-50;
+}
+.app-dialog .app-dialog-actions .btn-primary {
+  background-color: theme('colors.edge.700') !important;
+}
+.app-dialog .app-dialog-actions .btn-primary:hover {
+  background-color: theme('colors.edge.800') !important;
+}
+.app-dialog :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  @apply min-h-11 min-w-0 rounded-md border border-steel-300 bg-white px-3 py-2 text-sm text-steel-900;
+}
+.app-dialog :is(input, select, textarea):focus-visible {
+  @apply border-edge-600 outline-none ring-2 ring-edge-600/20;
+}
+.app-dialog :is(input, select, textarea):disabled {
+  @apply cursor-not-allowed border-steel-200 bg-steel-100 text-steel-500;
+}
+.app-dialog :is(input[type='checkbox'], input[type='radio']) {
+  accent-color: theme('colors.edge.700');
+}
+.app-dialog label {
+  @apply text-xs font-medium text-steel-600;
+}
+.app-dialog h3 {
+  @apply text-edge-800;
+}
+dialog.app-dialog {
+  @apply m-auto w-[calc(100%-1rem)] overflow-hidden rounded-xl border border-steel-200 bg-white p-0 text-steel-900 shadow-2xl;
+  max-height: calc(100dvh - 1rem);
+}
+dialog.app-dialog[open] {
+  @apply flex flex-col;
+}
+dialog.app-dialog::backdrop {
+  @apply bg-steel-950/60 backdrop-blur-sm;
+}
+@media (min-width: 640px) {
+  .app-dialog-panel, dialog.app-dialog { max-height: 92dvh; }
+}
+@media (max-width: 639px) {
+  .app-dialog :is(input:not([type='checkbox']):not([type='radio']), select, textarea) { font-size: 16px; }
+  .app-dialog .app-dialog-actions button { flex: 1 1 auto; }
+}

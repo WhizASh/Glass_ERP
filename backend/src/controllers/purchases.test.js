@@ -38,6 +38,12 @@ const records = [];
 let failDatabase = false;
 const fakePrisma = {
   purchase: {
+    update: async ({ where, data }) => {
+      const row = records.find(record => record.id === where.id);
+      if (!row) throw Object.assign(new Error('Missing purchase'), { code: 'P2025' });
+      Object.assign(row, data);
+      return row;
+    },
     create: async ({ data }) => {
       if (failDatabase) throw new Error('Test database unavailable');
       const record = { ...data, id: String(records.length + 1), createdAt: new Date() };
@@ -108,4 +114,17 @@ test('database failures return actionable errors without saving a record', async
     assert.match((await response.json()).error, /Failed to save purchase/);
     assert.equal(records.length, 26);
   } finally { failDatabase = false; }
+});
+
+
+test('editing a purchase updates its costs, supplier and payment together', async () => {
+  const response = await fetch(`${base}/1`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...valid, supplier: 'New supplier', unitPrice: '20', paymentStatus: 'PARTIAL', amountPaid: '10.25' }) });
+  assert.equal(response.status, 200);
+  const row = await response.json();
+  assert.equal(row.totalCost, '51.5');
+  assert.equal(row.supplier, 'New supplier');
+  assert.equal(row.amountPaid, '10.25');
+  assert.equal(row.paymentStatus, 'PARTIAL');
+  const bad = await fetch(`${base}/1`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...valid, paymentStatus: 'PARTIAL', amountPaid: '9999' }) });
+  assert.equal(bad.status, 400);
 });

@@ -1,5 +1,6 @@
+import DialogHeader from './DialogHeader';
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus, Building2, User, Phone, MapPin, FileText, Mail } from 'lucide-react';
+import { UserPlus, Building2, User, Phone, MapPin, FileText, Mail } from 'lucide-react';
 import { api } from '../../services/api';
 
 const initialCustomerData = {
@@ -99,43 +100,20 @@ const QuickCustomerModal = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="quick-customer-title"
-      className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 overflow-y-auto no-print"
+      className="app-dialog app-dialog-overlay z-[60] no-print"
     >
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-steel-950/60 backdrop-blur-xs transition-opacity"
+        className="app-dialog-backdrop"
       />
 
-      {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-white rounded-xl border border-steel-200 shadow-2xl z-10 my-auto sm:my-4 flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-98 duration-150">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 bg-[#0f172a] text-white border-b border-slate-800 shrink-0 gap-2">
-          <div className="flex items-center gap-2 min-w-0 pr-2">
-            <div className="p-1.5 rounded-md bg-edge-900 text-edge-400 border border-edge-700 shrink-0">
-              <UserPlus className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <h2 id="quick-customer-title" className="text-xs sm:text-sm font-bold text-white tracking-tight truncate">
-                Quick Add Client / Contractor
-              </h2>
-              <p className="text-[10px] sm:text-[11px] text-steel-400 truncate">
-                {subtitle}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-md text-steel-400 hover:text-white hover:bg-steel-800 transition-colors shrink-0"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+      <div className="app-dialog-panel max-w-lg">
+        <DialogHeader titleId="quick-customer-title" title="Add customer" subtitle={subtitle} busy={loading} onClose={onClose} />
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-3.5 sm:p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+        <form onSubmit={handleSubmit} className="app-dialog-form text-xs">
+          <div className="app-dialog-fields space-y-3">
           {error && (
             <div className="p-2.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs">
               {error}
@@ -150,7 +128,7 @@ const QuickCustomerModal = ({
                 Selected: {formData.customerType === 'ORGANIZATION' ? 'Commercial Organization' : 'Individual Client'}
               </span>
             </label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-200/90 rounded-lg border border-slate-300 shadow-inner">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1 bg-slate-200/90 rounded-lg border border-slate-300 shadow-inner">
               <button
                 type="button"
                 onClick={() => handleTypeChange('ORGANIZATION')}
@@ -227,7 +205,7 @@ const QuickCustomerModal = ({
           )}
 
           {/* Phone & City */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <Phone className="w-3 h-3 text-steel-400" />
@@ -257,7 +235,7 @@ const QuickCustomerModal = ({
           </div>
 
           {/* GSTIN / Tax ID & Email */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <FileText className="w-3 h-3 text-steel-400" />
@@ -301,7 +279,8 @@ const QuickCustomerModal = ({
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5 pt-3 border-t border-steel-200">
+          </div>
+          <div className="app-dialog-actions">
             <button
               type="button"
               onClick={onClose}

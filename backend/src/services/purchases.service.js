@@ -1,3 +1,4 @@
+const { settlement } = require('./settlement.service');
 const { Prisma } = require('@prisma/client');
 
 const UNITS = ['PCS', 'SQ_METER', 'SQ_FEET', 'KG'];
@@ -38,7 +39,7 @@ function parsePurchase(body) {
   const additionalCost = decimal(body.additionalCost === undefined ? 0 : body.additionalCost, 'Additional cost', 12, 2);
   // Use decimal arithmetic for money: https://www.prisma.io/docs/orm/v6/prisma-client/special-fields-and-types#working-with-decimal
   const totalCost = quantity.times(unitPrice).plus(additionalCost).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
-  return { materialName, supplier, notes, purchaseDate, unitOfMeasure: body.unitOfMeasure, quantity, unitPrice, additionalCost, totalCost };
+  return { materialName, supplier, notes, purchaseDate, unitOfMeasure: body.unitOfMeasure, quantity, unitPrice, additionalCost, totalCost, ...settlement(body, totalCost, 'amountPaid') , paymentMode: body.paymentMode === 'ONLINE' ? 'ONLINE' : 'CASH' };
 }
 
 module.exports = { parsePurchase };

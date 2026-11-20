@@ -8,8 +8,10 @@ import CustomersView from './components/views/CustomersView';
 import ProductSKUsView from './components/views/ProductSKUsView';
 import PurchasesView from './components/views/PurchasesView';
 import StaffView from './components/views/StaffView';
+import LedgerView from './components/views/LedgerView';
 
 const tabTitles = {
+  ledger: 'Party Ledger',
   dashboard: 'Operations Dashboard',
   quotations: 'Glass Quotations & Takeoff',
   sales: 'Sales Orders',
@@ -30,6 +32,8 @@ function App() {
 
   const renderActiveView = () => {
     switch (activeTab) {
+      case 'ledger':
+        return <LedgerView />;
       case 'dashboard':
         return <DashboardView onNavigateTab={handleSelectTab} />;
       case 'quotations':
