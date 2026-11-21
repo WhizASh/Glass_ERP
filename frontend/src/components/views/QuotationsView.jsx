@@ -6,6 +6,9 @@ import QuotationPrintView from '../quotations/QuotationPrintView';
 import QuotationBuilderModal from '../quotations/builder/QuotationBuilderModal';
 import { api } from '../../services/api';
 import { calculateLineItemMetrics } from '../../lib/glassCalculations';
+import { Plus } from 'lucide-react';
+import PageLayout, { PageError } from '../common/PageLayout';
+import { primary } from '../common/ui';
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
@@ -39,6 +42,7 @@ const QuotationsView = () => {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedQuotation, setSelectedQuotation] = useState(null);
@@ -50,6 +54,7 @@ const QuotationsView = () => {
 
   const fetchQuotations = () => {
     setLoading(true);
+    setListError('');
     const params = {};
     if (selectedStatus !== 'ALL') params.status = selectedStatus;
     if (searchQuery.trim()) params.q = searchQuery.trim();
@@ -57,8 +62,7 @@ const QuotationsView = () => {
     api.getQuotations(params)
       .then((data) => setQuotations(Array.isArray(data) ? data : []))
       .catch((err) => {
-        console.warn('Quotations fetch notice:', err.message);
-        setQuotations([]);
+        setListError(err.message);
       })
       .finally(() => setLoading(false));
   };
@@ -75,7 +79,6 @@ const QuotationsView = () => {
   // Status counts
   const statusCounts = quotations.reduce(
     (acc, q) => {
-      acc.ALL = (acc.ALL || 0) + 1;
       acc[q.status] = (acc[q.status] || 0) + 1;
       return acc;
     },
@@ -264,7 +267,7 @@ const QuotationsView = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <PageLayout title="Quotations" description="Glass estimates, customer approvals and quotation history." actions={<button type="button" onClick={handleOpenCreateModal} className={primary}><Plus className="h-4 w-4" aria-hidden="true" />New quotation</button>}>
       {/* Filter and Search Bar */}
       <QuotationFilterBar
         searchQuery={searchQuery}
@@ -272,11 +275,10 @@ const QuotationsView = () => {
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
         statusCounts={statusCounts}
-        onOpenCreateModal={handleOpenCreateModal}
       />
 
       {/* Main Architectural Quotations Table */}
-      <QuotationTable
+      {listError ? <PageError message={listError} onRetry={fetchQuotations} /> : <QuotationTable
         quotations={quotations}
         loading={loading}
         onSelectQuotation={(quote) => setSelectedQuotation(quote)}
@@ -284,7 +286,7 @@ const QuotationsView = () => {
         onEditQuotation={handleOpenEditModal}
         selectedQuotationId={selectedQuotation?.id}
         onOpenCreateModal={handleOpenCreateModal}
-      />
+      />}
 
       {/* Slide-over Inspection Drawer */}
       <QuotationDrawer
@@ -319,7 +321,7 @@ const QuotationsView = () => {
           onClose={() => setPrintQuotation(null)}
         />
       )}
-    </div>
+    </PageLayout>
   );
 };
 

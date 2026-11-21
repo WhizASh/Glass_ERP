@@ -1,5 +1,7 @@
+import PageLayout, { FilterTabs, PageError } from '../common/PageLayout';
+import { primary, secondary, rowAction } from '../common/ui';
 import React, { useState, useEffect } from 'react';
-import { Plus, Filter, Edit3, Lock, Unlock, Eye, CreditCard, Banknote, UserPlus } from 'lucide-react';
+import { Plus, Edit3, Lock, Unlock, Eye, CreditCard, Banknote, UserPlus } from 'lucide-react';
 import DataTable from '../common/DataTable';
 import SaleOrderModal from '../sales/SaleOrderModal';
 import StatusBadge from '../common/StatusBadge';
@@ -41,6 +43,7 @@ const SalesView = () => {
   const [quotations, setQuotations] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState('');
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSaleOrder, setEditingSaleOrder] = useState(null);
@@ -61,6 +64,7 @@ const SalesView = () => {
 
   const fetchSales = () => {
     setLoading(true);
+    setListError('');
     const params = {};
     if (selectedPaymentStatus !== 'ALL') params.paymentStatus = selectedPaymentStatus;
 
@@ -69,8 +73,7 @@ const SalesView = () => {
         setSales(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
-        console.warn('Sales fetch notice:', err.message);
-        setSales([]);
+        setListError(err.message);
       })
       .finally(() => setLoading(false));
   };
@@ -434,7 +437,7 @@ const SalesView = () => {
       header: 'Order #',
       accessor: 'orderNumber',
       render: (row) => (
-        <span className="font-mono text-xs font-bold text-edge-800 bg-edge-50 px-2 py-0.5 rounded border border-edge-200">
+        <span className="text-sm font-semibold text-teal-800">
           {row.orderNumber}
         </span>
       )
@@ -448,7 +451,7 @@ const SalesView = () => {
             {row.customer?.companyName || row.customer?.name || '—'}
           </span>
           {row.quotation?.quoteNumber && (
-            <span className="block text-[11px] text-edge-700 font-mono">
+            <span className="block text-xs text-edge-700 font-mono">
               From Invoice/Quote: #{row.quotation.quoteNumber}
             </span>
           )}
@@ -459,7 +462,7 @@ const SalesView = () => {
       header: 'Order Date',
       accessor: 'orderDate',
       render: (row) => (
-        <span className="text-xs font-mono text-steel-600">
+        <span className="text-sm tabular-nums text-steel-600">
           {row.orderDate ? new Date(row.orderDate).toLocaleDateString() : '—'}
         </span>
       )
@@ -470,7 +473,7 @@ const SalesView = () => {
       render: (row) => {
         const mode = (row.paymentMode || 'CASH').toUpperCase();
         return (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border ${
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${
             mode === 'ONLINE'
               ? 'bg-blue-50 text-blue-800 border-blue-200'
               : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -492,16 +495,16 @@ const SalesView = () => {
       align: 'right',
       render: (row) => (
         <div>
-          <span className="font-mono text-xs font-bold text-steel-900 block">
+          <span className="text-sm tabular-nums font-semibold text-steel-900 block">
             ₹{Number(row.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {Number(row.discountAmount) > 0 && (
-            <span className="text-[10px] text-amber-700 font-mono block">
+            <span className="text-xs text-amber-700 font-mono block">
               (Disc: -₹{Number(row.discountAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
             </span>
           )}
           {Number(row.taxRate) > 0 && (
-            <span className="text-[10px] text-teal-700 font-mono block">
+            <span className="text-xs text-teal-700 font-mono block">
               (Incl. {row.taxRate}% GST)
             </span>
           )}
@@ -510,125 +513,25 @@ const SalesView = () => {
     },
     {
       header: 'Actions',
-      align: 'center',
-      render: (row) => {
-        const isCancelled = row.status === 'CANCELLED';
-        if (isCancelled) {
-          return (
-            <span className="inline-flex items-center gap-1 text-[11px] text-steel-400 font-mono py-1 px-2 rounded bg-steel-50 border border-steel-200" title="Cancelled orders cannot be edited">
-              <Lock className="w-3 h-3 text-steel-400" />
-              <span>Cancelled</span>
-            </span>
-          );
-        }
-
-        const isPaid = row.paymentStatus === 'PAID';
-        const isLocked = Boolean(row.isLocked);
-
-        if (isLocked) {
-          return (
-            <div className="inline-flex items-center gap-1.5">
-              <span
-                className="inline-flex items-center gap-1 text-[11px] font-mono py-0.5 px-2 rounded font-semibold text-emerald-800 bg-emerald-50 border border-emerald-300 shadow-2xs"
-                title="Payment complete — record locked against edits"
-              >
-                <Lock className="w-3 h-3 text-emerald-600" />
-                <span>Locked</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => handleOpenViewModal(row)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold text-steel-700 bg-steel-100 hover:bg-steel-200 border border-steel-300 transition-colors shadow-2xs"
-                title="View order details (Read-only)"
-              >
-                <Eye className="w-3.5 h-3.5 text-steel-600" />
-                <span>View</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleToggleLock(row)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-amber-700 hover:bg-amber-50 border border-amber-200 transition-colors"
-                title="Unlock record for editing"
-              >
-                <Unlock className="w-3 h-3 text-amber-600" />
-                <span>Unlock</span>
-              </button>
-            </div>
-          );
-        }
-
-        return (
-          <div className="inline-flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleOpenEditModal(row)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors shadow-2xs"
-              title="Edit Order, Update Payment Status or Adjust Details"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>Edit</span>
-            </button>
-            {isPaid && (
-              <button
-                type="button"
-                onClick={() => handleToggleLock(row)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 transition-colors shadow-2xs"
-                title="Payment complete — lock this sale record against changes"
-              >
-                <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Lock</span>
-              </button>
-            )}
-          </div>
-        );
-      }
+      render: row => row.status === 'CANCELLED' ? <span className="text-sm text-steel-600">Cancelled</span> : <div className="flex flex-wrap items-center gap-1">
+        {row.isLocked && <span className="inline-flex items-center gap-1 rounded border border-steel-200 bg-steel-50 px-2 py-1 text-xs text-steel-600"><Lock className="h-3.5 w-3.5" aria-hidden="true" />Locked</span>}
+        <button type="button" onClick={() => row.isLocked ? handleOpenViewModal(row) : handleOpenEditModal(row)} className={rowAction} aria-label={`${row.isLocked ? 'View' : 'Edit'} ${row.orderNumber}`}>
+          {row.isLocked ? <Eye className="h-4 w-4" aria-hidden="true" /> : <Edit3 className="h-4 w-4" aria-hidden="true" />}{row.isLocked ? 'View' : 'Edit'}
+        </button>
+        {(row.isLocked || row.paymentStatus === 'PAID') && <button type="button" onClick={() => handleToggleLock(row)} className={rowAction} aria-label={`${row.isLocked ? 'Unlock' : 'Lock'} ${row.orderNumber}`}>
+          {row.isLocked ? <Unlock className="h-4 w-4" aria-hidden="true" /> : <Lock className="h-4 w-4" aria-hidden="true" />}{row.isLocked ? 'Unlock' : 'Lock'}
+        </button>}
+      </div>
     }
   ];
 
   return (
-    <div className="space-y-4">
-      {/* Filters and Actions */}
-      <div className="bg-white rounded-lg border border-steel-200 p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto">
-          <Filter className="w-3.5 h-3.5 text-steel-400 shrink-0" />
-          <span className="text-xs font-semibold text-steel-600 uppercase tracking-wider mr-1 shrink-0">Payment:</span>
-          {PAYMENT_STATUS_FILTERS.map((s) => (
-            <button
-              key={s}
-              onClick={() => setSelectedPaymentStatus(s)}
-              className={`px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
-                selectedPaymentStatus === s
-                  ? 'filter-pill-active bg-slate-900 text-white font-semibold shadow-xs'
-                  : 'filter-pill-inactive text-slate-600 bg-slate-100 hover:bg-slate-200'
-              }`}
-            >
-              {s === 'ALL' ? 'All Orders' : s.replace('_', ' ')}
-            </button>
-          ))}
-        </div>
+    <PageLayout title="Sales orders" description="Customer orders, payment status and delivery details." actions={<><button type="button" onClick={() => setIsAddCustomerOpen(true)} className={secondary}><UserPlus className="h-4 w-4" aria-hidden="true" />Add customer</button><button type="button" onClick={handleOpenCreateModal} className={primary}><Plus className="h-4 w-4" aria-hidden="true" />New sales order</button></>}>
+      <FilterTabs label="Payment status" value={selectedPaymentStatus} onChange={setSelectedPaymentStatus} options={PAYMENT_STATUS_FILTERS.map(value => ({ value, label: value === 'ALL' ? 'All orders' : value.charAt(0) + value.slice(1).toLowerCase() }))} />
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => setIsAddCustomerOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-md text-xs font-semibold bg-white border border-steel-300 text-steel-700 hover:bg-steel-50 hover:text-steel-900 shadow-2xs transition-colors"
-            title="Register a new customer or contractor directly from sales view"
-          >
-            <UserPlus className="w-3.5 h-3.5 text-teal-600" />
-            <span>+ Add Customer</span>
-          </button>
-          <button
-            onClick={handleOpenCreateModal}
-            className="btn-primary inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 rounded-md text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Sale Order</span>
-          </button>
-        </div>
-      </div>
-
+      {listError && <PageError message={listError} onRetry={fetchSales} />}
       {/* Orders Table */}
-      <DataTable
+      {!listError && <DataTable
         columns={columns}
         data={sales}
         loading={loading}
@@ -654,7 +557,7 @@ const SalesView = () => {
             </button>
           </div>
         }
-      />
+      />}
 
       {isModalOpen && <SaleOrderModal
         form={formData} setForm={setFormData} order={editingSaleOrder}
@@ -683,7 +586,7 @@ const SalesView = () => {
         onSuccess={handleCustomerCreated}
         subtitle="Create customer in-place without losing sales order progress"
       />
-    </div>
+    </PageLayout>
   );
 };
 

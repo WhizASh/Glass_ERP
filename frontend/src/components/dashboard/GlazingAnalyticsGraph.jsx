@@ -1,5 +1,6 @@
+import { FilterTabs } from '../common/PageLayout';
 import React, { useState } from 'react';
-import { LineChart, Layers, IndianRupee, PieChart, Sparkles } from 'lucide-react';
+import { LineChart, Sparkles } from 'lucide-react';
 import StatusBreakdownView from './StatusBreakdownView';
 import GlazingSvgChart from './GlazingSvgChart';
 
@@ -13,7 +14,7 @@ const GlazingAnalyticsGraph = ({ trendData = [], statusBreakdown = {}, kpis = {}
   const winRate = ((acceptedArea / totalStatusArea) * 100).toFixed(0);
 
   return (
-    <div className="bg-white rounded-lg border border-steel-200 p-3.5 sm:p-5 shadow-xs space-y-4">
+    <div className="bg-white rounded-lg border border-steel-200 p-3.5 sm:p-5 space-y-4">
       {/* Header & Metric Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-steel-200">
         <div className="flex items-center gap-2">
@@ -21,48 +22,17 @@ const GlazingAnalyticsGraph = ({ trendData = [], statusBreakdown = {}, kpis = {}
             <LineChart className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-steel-900 uppercase tracking-wider">
+            <h3 className="text-base font-semibold text-steel-900">
               Glazing Takeoff &amp; Fabrication Trends
             </h3>
-            <p className="text-[11px] text-steel-500">
+            <p className="text-sm text-steel-600">
               Quoted glass area (m²), win velocity, and active pipeline
             </p>
           </div>
         </div>
 
         {/* View Switcher Tabs */}
-        <div className="flex items-center p-0.5 bg-steel-100 rounded-md border border-steel-200 text-xs w-full sm:w-auto overflow-x-auto scrollbar-none">
-          <button
-            type="button"
-            onClick={() => setMetric('area')}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-colors ${
-              metric === 'area' ? 'filter-pill-active bg-slate-900 text-white' : 'filter-pill-inactive text-steel-600'
-            }`}
-          >
-            <Layers className="w-3 h-3 shrink-0" />
-            <span>Glazing Area (m²)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMetric('value')}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-colors ${
-              metric === 'value' ? 'filter-pill-active bg-slate-900 text-white' : 'filter-pill-inactive text-steel-600'
-            }`}
-          >
-            <IndianRupee className="w-3 h-3 shrink-0" />
-            <span>Pipeline (₹)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMetric('breakdown')}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-colors ${
-              metric === 'breakdown' ? 'filter-pill-active bg-slate-900 text-white' : 'filter-pill-inactive text-steel-600'
-            }`}
-          >
-            <PieChart className="w-3 h-3 shrink-0" />
-            <span>Status Share</span>
-          </button>
-        </div>
+        <FilterTabs label="Chart metric" value={metric} onChange={setMetric} options={[{ value: 'area', label: 'Glazing area (m²)' }, { value: 'value', label: 'Pipeline (₹)' }, { value: 'breakdown', label: 'Status share' }]} />
       </div>
 
       {/* Main Graph or Breakdown */}
@@ -90,7 +60,7 @@ const GlazingAnalyticsGraph = ({ trendData = [], statusBreakdown = {}, kpis = {}
             <span className="text-steel-600 font-medium">Accepted for Cutting</span>
           </div>
         </div>
-        <div className="flex items-center gap-1 text-[11px] text-steel-500 font-mono">
+        <div className="flex items-center gap-1 text-sm text-steel-600 font-mono">
           <Sparkles className="w-3.5 h-3.5 text-teal-600 shrink-0" />
           <span>Active Glazing Pipeline: <strong className="text-steel-800">{kpis.totalGlazingArea || 0} m²</strong></span>
         </div>

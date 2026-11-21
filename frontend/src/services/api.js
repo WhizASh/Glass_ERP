@@ -63,11 +63,13 @@ export const api = {
   createCustomer: (data) => request('/customers', { method: 'POST', body: JSON.stringify(data) }),
 
   // Products
-  getProducts: (params = {}) => {
+  getProducts: (params = {}, signal) => {
     const query = new URLSearchParams(params).toString();
-    return request(`/products${query ? `?${query}` : ''}`);
+    return request(`/products${query ? `?${query}` : ''}`, { signal });
   },
   createProduct: (data) => request('/products', { method: 'POST', body: JSON.stringify(data) }),
+  updateProduct: (id, data) => request(`/products/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteProduct: (id) => request(`/products/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 
   // Quotations
   getQuotations: (params = {}) => {

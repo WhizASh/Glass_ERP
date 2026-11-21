@@ -1,6 +1,7 @@
-import DialogHeader from './DialogHeader';
-import React, { useState, useEffect } from 'react';
-import { UserPlus, Building2, User, Phone, MapPin, FileText, Mail } from 'lucide-react';
+import { FilterTabs } from './PageLayout';
+import Modal from './Modal';
+import React, { useState } from 'react';
+import { Phone, MapPin, FileText, Mail } from 'lucide-react';
 import { api } from '../../services/api';
 
 const initialCustomerData = {
@@ -25,16 +26,7 @@ const QuickCustomerModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        e.stopPropagation();
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+
 
   if (!isOpen) return null;
 
@@ -96,75 +88,26 @@ const QuickCustomerModal = ({
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="quick-customer-title"
-      className="app-dialog app-dialog-overlay z-[60] no-print"
-    >
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className="app-dialog-backdrop"
-      />
-
-      <div className="app-dialog-panel max-w-lg">
-        <DialogHeader titleId="quick-customer-title" title="Add customer" subtitle={subtitle} busy={loading} onClose={onClose} />
-
-        {/* Form */}
+    <Modal isOpen={isOpen} onClose={onClose} busy={loading} title="Add customer" subtitle={subtitle} maxWidth="max-w-lg">
         <form onSubmit={handleSubmit} className="app-dialog-form text-xs">
           <div className="app-dialog-fields space-y-3">
           {error && (
-            <div className="p-2.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+            <div role="alert" className="p-2.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs">
               {error}
             </div>
           )}
 
-          {/* Customer Type Toggle with High-Contrast Background Indicator */}
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-steel-700 mb-1.5 flex items-center justify-between">
-              <span>Account Type</span>
-              <span className="text-[10px] font-mono text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
-                Selected: {formData.customerType === 'ORGANIZATION' ? 'Commercial Organization' : 'Individual Client'}
-              </span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1 bg-slate-200/90 rounded-lg border border-slate-300 shadow-inner">
-              <button
-                type="button"
-                onClick={() => handleTypeChange('ORGANIZATION')}
-                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-bold transition-all ${
-                  formData.customerType === 'ORGANIZATION'
-                    ? 'bg-teal-700 text-white shadow-sm ring-1 ring-teal-800'
-                    : 'bg-transparent text-slate-700 hover:text-slate-900 hover:bg-slate-300/60 font-semibold'
-                }`}
-              >
-                <Building2 className={`w-4 h-4 ${formData.customerType === 'ORGANIZATION' ? 'text-white' : 'text-slate-500'}`} />
-                <span>Commercial / Organization</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTypeChange('INDIVIDUAL')}
-                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-bold transition-all ${
-                  formData.customerType === 'INDIVIDUAL'
-                    ? 'bg-teal-700 text-white shadow-sm ring-1 ring-teal-800'
-                    : 'bg-transparent text-slate-700 hover:text-slate-900 hover:bg-slate-300/60 font-semibold'
-                }`}
-              >
-                <User className={`w-4 h-4 ${formData.customerType === 'INDIVIDUAL' ? 'text-white' : 'text-slate-500'}`} />
-                <span>Individual / Residential</span>
-              </button>
-            </div>
-          </div>
+          <div className="space-y-2"><p className="text-sm font-medium text-steel-700">Customer type</p><FilterTabs label="Customer classification" value={formData.customerType} onChange={handleTypeChange} options={[{ value: 'ORGANIZATION', label: 'Organization' }, { value: 'INDIVIDUAL', label: 'Individual' }]} /></div>
 
           {/* Form Fields according to Customer Type */}
           {formData.customerType === 'ORGANIZATION' ? (
             <>
               {/* Company / Firm Name */}
               <div>
-                <label className="block text-xs font-semibold text-steel-700 mb-1">
+                <label htmlFor="quickcustomermodal-field-1" className="block text-xs font-semibold text-steel-700 mb-1">
                   Company / Contractor / Firm Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
                 </label>
-                <input
+                <input id="quickcustomermodal-field-1"
                   type="text"
                   required
                   value={formData.companyName}
@@ -176,10 +119,10 @@ const QuickCustomerModal = ({
 
               {/* Contact Person Name */}
               <div>
-                <label className="block text-xs font-semibold text-steel-700 mb-1">
+                <label htmlFor="quickcustomermodal-field-2" className="block text-xs font-semibold text-steel-700 mb-1">
                   Contact Person Name <span className="font-normal text-steel-400">(Optional)</span>
                 </label>
-                <input
+                <input id="quickcustomermodal-field-2"
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -190,10 +133,10 @@ const QuickCustomerModal = ({
             </>
           ) : (
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1">
+              <label htmlFor="quickcustomermodal-field-3" className="block text-xs font-semibold text-steel-700 mb-1">
                 Client / Individual Full Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
-              <input
+              <input id="quickcustomermodal-field-3"
                 type="text"
                 required
                 value={formData.name}
@@ -207,11 +150,11 @@ const QuickCustomerModal = ({
           {/* Phone & City */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="quickcustomermodal-field-4" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <Phone className="w-3 h-3 text-steel-400" />
                 <span>Phone / Mobile</span>
               </label>
-              <input
+              <input id="quickcustomermodal-field-4"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -220,11 +163,11 @@ const QuickCustomerModal = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="quickcustomermodal-field-5" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-steel-400" />
                 <span>City / Town</span>
               </label>
-              <input
+              <input id="quickcustomermodal-field-5"
                 type="text"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -237,11 +180,11 @@ const QuickCustomerModal = ({
           {/* GSTIN / Tax ID & Email */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="quickcustomermodal-field-6" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <FileText className="w-3 h-3 text-steel-400" />
                 <span>GSTIN / Tax ID</span>
               </label>
-              <input
+              <input id="quickcustomermodal-field-6"
                 type="text"
                 value={formData.taxId}
                 onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
@@ -250,11 +193,11 @@ const QuickCustomerModal = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="quickcustomermodal-field-7" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <Mail className="w-3 h-3 text-steel-400" />
                 <span>Email Address</span>
               </label>
-              <input
+              <input id="quickcustomermodal-field-7"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -266,10 +209,10 @@ const QuickCustomerModal = ({
 
           {/* Detailed Address */}
           <div>
-            <label className="block text-xs font-semibold text-steel-700 mb-1">
+            <label htmlFor="quickcustomermodal-field-8" className="block text-xs font-semibold text-steel-700 mb-1">
               Site / Billing Address
             </label>
-            <textarea
+            <textarea id="quickcustomermodal-field-8"
               rows={2}
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -298,8 +241,7 @@ const QuickCustomerModal = ({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

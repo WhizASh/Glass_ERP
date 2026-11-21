@@ -1,7 +1,7 @@
 export default function StaffSummary({ title, figures, detailTitle, details, count, countLabel }) {
   return (
     <section aria-label={title} className="grid gap-3 md:grid-cols-[1fr_1fr] lg:grid-cols-[2fr_0.8fr_1.25fr]">
-      <div className="min-w-0 rounded-lg border md:col-span-2 lg:col-span-1 border-slate-200 bg-gradient-to-b from-white to-slate-50 p-4 sm:p-5">
+      <div className="min-w-0 rounded-lg border md:col-span-2 lg:col-span-1 border-slate-200 bg-white p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-slate-600">{title}</h2>
         <dl className="mt-4 grid gap-x-4 gap-y-3 min-[375px]:grid-cols-2">
           {figures.map(([label, value]) => (

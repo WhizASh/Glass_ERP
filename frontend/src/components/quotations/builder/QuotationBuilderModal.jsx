@@ -1,4 +1,4 @@
-import DialogHeader from '../../common/DialogHeader';
+import Modal from '../../common/Modal';
 import React, { useState } from 'react';
 import { Plus, Layers } from 'lucide-react';
 import QuotationSectionCard from './QuotationSectionCard';
@@ -212,24 +212,7 @@ const QuotationBuilderModal = ({
 
   return (
     <>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="builder-title"
-        className="app-dialog app-dialog-overlay z-50 no-print"
-      >
-        <div
-          onClick={onClose}
-          className="app-dialog-backdrop"
-        />
-
-        <div className="app-dialog-panel max-w-7xl">
-          <DialogHeader titleId="builder-title"
-            title={editingQuotation ? `Edit quotation · ${editingQuotation.quoteNumber}` : 'New quotation'}
-            subtitle="Set up the customer, glass sections, dimensions and pricing."
-            busy={isSubmitting || isAddCustomerOpen || isAddSkuOpen} onClose={onClose} />
-
-          {/* Form */}
+      <Modal isOpen={isOpen} onClose={onClose} busy={isSubmitting || isAddCustomerOpen || isAddSkuOpen} title={editingQuotation ? `Edit quotation · ${editingQuotation.quoteNumber}` : 'New quotation'} subtitle="Set up the customer, glass sections, dimensions and pricing." maxWidth="max-w-7xl">
           <form onSubmit={onSubmit} className="app-dialog-form">
             <div className="app-dialog-fields">
             <div className="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
@@ -316,6 +299,7 @@ const QuotationBuilderModal = ({
               <button
                 type="button"
                 onClick={onClose}
+                disabled={isSubmitting || isAddCustomerOpen || isAddSkuOpen}
                 className="px-4 py-2 text-xs font-semibold text-steel-700 bg-white border border-steel-300 rounded-md hover:bg-steel-50 transition-colors"
               >
                 Cancel
@@ -331,8 +315,7 @@ const QuotationBuilderModal = ({
               </button>
             </div>
           </form>
-        </div>
-      </div>
+      </Modal>
 
       {/* In-Place Quick Customer Creation Modal */}
       <QuickCustomerModal

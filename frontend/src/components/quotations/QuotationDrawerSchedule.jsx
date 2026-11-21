@@ -51,8 +51,8 @@ const QuotationDrawerSchedule = ({ sections = [], measurementUnit = 'SQ_FT' }) =
                       <tr key={item.id || iIdx} className="hover:bg-steel-50/80 transition-colors">
                         <td className="py-2.5 px-3 font-sans font-medium text-steel-900">
                           <div>
-                            <span>{item.productSku?.name || item.description || 'Glass Specification'}</span>
-                            {item.productSku?.thicknessMm && (
+                            <span>{item.description || item.productSku?.name || 'Glass Specification'}</span>
+                            {!item.description && item.productSku?.thicknessMm && (
                               <span className="text-steel-500 text-[10px] block font-mono">
                                 {Number(item.productSku.thicknessMm)}mm {item.productSku.glassType}
                               </span>

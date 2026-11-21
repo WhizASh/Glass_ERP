@@ -1,90 +1,38 @@
-import React from 'react';
 import { Inbox } from 'lucide-react';
 import TableSkeleton from './TableSkeleton';
 
-const DataTable = ({
-  columns = [],
-  data = [],
-  loading = false,
-  emptyMessage = 'No records found',
-  emptySubtext = 'Get started by creating a new entry above.',
-  actionButton = null,
-  tableAriaLabel = 'Data Table'
-}) => {
-  if (loading) {
-    return <TableSkeleton ariaLabel={`Loading ${tableAriaLabel}`} rows={4} />;
-  }
+const content = (column, row) => column.render ? column.render(row) : row[column.accessor];
+const alignment = align => align === 'right' ? 'text-right tabular-nums' : align === 'center' ? 'text-center' : 'text-left';
 
-  return (
-    <div
-      tabIndex={0}
-      role="region"
-      aria-label={tableAriaLabel}
-      className="bg-white rounded-lg border border-steel-200 overflow-hidden shadow-xs focus:outline-none focus:ring-1 focus:ring-edge-600"
-    >
-      <div className="overflow-x-auto max-h-[600px] touch-scroll">
-        <table className="w-full text-left border-collapse min-w-[620px]">
-          <thead className="sticky top-0 z-10 bg-steel-50 border-b border-steel-200 text-[11px] font-semibold text-steel-600 uppercase tracking-wider">
-            <tr>
-              {columns.map((col, idx) => (
-                <th
-                  key={idx}
-                  scope="col"
-                  className={`px-3 sm:px-4 py-2.5 ${
-                    col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
-                  }`}
-                >
-                  {col.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-steel-100 text-xs">
-            {data && data.length > 0 ? (
-              data.map((row, rowIdx) => (
-                <tr
-                  key={row.id || rowIdx}
-                  className="hover:bg-steel-50/80 transition-colors"
-                >
-                  {columns.map((col, colIdx) => (
-                    <td
-                      key={colIdx}
-                      className={`px-3 sm:px-4 py-2.5 sm:py-3 text-steel-800 whitespace-nowrap ${
-                        col.align === 'right' ? 'text-right font-mono' : col.align === 'center' ? 'text-center' : 'text-left'
-                      }`}
-                    >
-                      {col.render ? col.render(row) : row[col.accessor]}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={columns.length} className="px-4 sm:px-6 py-12 text-center">
-                  <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                    <div className="w-10 h-10 rounded-lg bg-steel-100 flex items-center justify-center text-steel-500 mb-2.5">
-                      <Inbox className="w-5 h-5" />
-                    </div>
-                    <p className="text-xs font-bold text-steel-800">
-                      {emptyMessage}
-                    </p>
-                    <p className="text-[11px] text-steel-500 mt-0.5">
-                      {emptySubtext}
-                    </p>
-                    {actionButton && (
-                      <div className="mt-3.5">
-                        {actionButton}
-                      </div>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+export default function DataTable({ columns = [], data = [], loading = false, emptyMessage = 'No records found', emptySubtext = 'Get started by creating a new entry above.', actionButton, tableAriaLabel = 'Data table', onRowClick, selectedRowId }) {
+  if (loading) return <TableSkeleton ariaLabel={`Loading ${tableAriaLabel}`} rows={4} />;
+  if (!data.length) return (
+    <div className="rounded-lg border border-steel-200 bg-steel-50/50 px-4 py-12 text-center">
+      <Inbox className="mx-auto mb-3 h-8 w-8 text-steel-400" aria-hidden="true" />
+      <p className="text-sm font-semibold text-steel-900">{emptyMessage}</p>
+      <p className="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-steel-600">{emptySubtext}</p>
+      {actionButton && <div className="mt-4 flex flex-wrap justify-center gap-2">{actionButton}</div>}
     </div>
   );
-};
-
-export default DataTable;
+  const [name, ...fields] = columns;
+  return <>
+    <div role="region" aria-label={tableAriaLabel} tabIndex={0} className="hidden overflow-x-auto rounded-lg border border-steel-200 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 lg:block">
+      <table className="w-full text-sm">
+        <caption className="sr-only">{tableAriaLabel}</caption>
+        <thead className="border-b border-steel-200 bg-steel-50 text-steel-600"><tr>{columns.map(column => <th key={column.header} scope="col" className={`whitespace-nowrap px-4 py-3 font-medium ${alignment(column.align)}`}>{column.header}</th>)}</tr></thead>
+        <tbody className="divide-y divide-steel-100">{data.map((row, index) => <tr key={row.id || index} onClick={onRowClick ? () => onRowClick(row) : undefined} className={`${onRowClick ? 'cursor-pointer' : ''} ${selectedRowId === row.id ? 'bg-teal-50' : 'hover:bg-steel-50'}`}>
+          {columns.map(column => <td key={column.header} className={`px-4 py-3 align-top text-steel-800 ${alignment(column.align)}`}>{content(column, row)}</td>)}
+        </tr>)}</tbody>
+      </table>
+    </div>
+    <ul aria-label={tableAriaLabel} className="divide-y divide-steel-200 overflow-hidden rounded-lg border border-steel-200 lg:hidden">
+      {data.map((row, index) => <li key={row.id || index} onClick={onRowClick ? () => onRowClick(row) : undefined} className={`min-w-0 p-4 ${selectedRowId === row.id ? 'bg-teal-50' : 'bg-white'}`}>
+        <div className="break-words text-sm font-semibold">{content(name, row)}</div>
+        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">{fields.map(column => <div key={column.header} className={`min-w-0 ${column.header === 'Actions' ? 'col-span-2 border-t border-steel-100 pt-2' : ''}`}>
+          <dt className="text-xs text-steel-600">{column.header}</dt>
+          <dd className="mt-1 break-words text-sm tabular-nums">{content(column, row)}</dd>
+        </div>)}</dl>
+      </li>)}
+    </ul>
+  </>;
+}

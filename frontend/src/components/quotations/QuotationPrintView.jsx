@@ -187,8 +187,8 @@ const QuotationPrintView = ({ quotation, onClose }) => {
                                 {itemNumber}
                               </td>
                               <td className="py-1 px-2 border-r border-slate-300 font-medium text-slate-900">
-                                {item.productSku?.name || item.description || 'Glass Specification'}
-                                {item.productSku?.thicknessMm && (
+                                {item.description || item.productSku?.name || 'Glass Specification'}
+                                {!item.description && item.productSku?.thicknessMm && (
                                   <span className="text-slate-500 text-[9px] ml-1">
                                     ({Number(item.productSku.thicknessMm)}mm {item.productSku.glassType})
                                   </span>

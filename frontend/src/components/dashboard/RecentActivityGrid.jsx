@@ -6,11 +6,11 @@ const RecentActivityGrid = ({ recentQuotations = [], recentSales = [], onNavigat
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Recent Glass Quotations */}
-      <div className="bg-white rounded-lg border border-steel-200 p-4 shadow-xs">
+      <div className="bg-white rounded-lg border border-steel-200 p-4 ">
         <div className="flex items-center justify-between pb-3 border-b border-steel-200">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-teal-700" />
-            <h3 className="text-xs font-bold text-steel-900 uppercase tracking-wider">
+            <h3 className="text-base font-semibold text-steel-900">
               Recent Glass Quotations
             </h3>
           </div>
@@ -30,7 +30,7 @@ const RecentActivityGrid = ({ recentQuotations = [], recentSales = [], onNavigat
                 <div key={quote.id} className="py-2.5 flex items-center justify-between text-xs gap-2 min-w-0">
                   <div className="min-w-0">
                     <p className="font-mono font-bold text-steel-900">{quote.quoteNumber}</p>
-                    <p className="text-[11px] text-steel-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px]">
+                    <p className="text-xs text-steel-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px]">
                       {quote.customer?.companyName || quote.customer?.name}
                     </p>
                   </div>
@@ -45,18 +45,18 @@ const RecentActivityGrid = ({ recentQuotations = [], recentSales = [], onNavigat
             <div className="py-8 text-center text-xs">
               <FileText className="w-6 h-6 text-steel-300 mx-auto mb-1.5" />
               <p className="font-medium text-steel-700">No quotations logged yet</p>
-              <p className="text-[11px] text-steel-400 mt-0.5">Takeoffs drafted in the builder will appear here.</p>
+              <p className="text-xs text-steel-400 mt-0.5">Takeoffs drafted in the builder will appear here.</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Recent Production Orders */}
-      <div className="bg-white rounded-lg border border-steel-200 p-4 shadow-xs">
+      <div className="bg-white rounded-lg border border-steel-200 p-4 ">
         <div className="flex items-center justify-between pb-3 border-b border-steel-200">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-steel-700" />
-            <h3 className="text-xs font-bold text-steel-900 uppercase tracking-wider">
+            <h3 className="text-base font-semibold text-steel-900">
               Recent Production Orders
             </h3>
           </div>
@@ -76,7 +76,7 @@ const RecentActivityGrid = ({ recentQuotations = [], recentSales = [], onNavigat
                 <div key={order.id} className="py-2.5 flex items-center justify-between text-xs gap-2 min-w-0">
                   <div className="min-w-0">
                     <p className="font-mono font-bold text-steel-900">{order.orderNumber}</p>
-                    <p className="text-[11px] text-steel-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px]">
+                    <p className="text-xs text-steel-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px]">
                       {order.customer?.companyName || order.customer?.name}
                     </p>
                   </div>
@@ -91,7 +91,7 @@ const RecentActivityGrid = ({ recentQuotations = [], recentSales = [], onNavigat
             <div className="py-8 text-center text-xs">
               <TrendingUp className="w-6 h-6 text-steel-300 mx-auto mb-1.5" />
               <p className="font-medium text-steel-700">No production orders yet</p>
-              <p className="text-[11px] text-steel-400 mt-0.5">Accepted quotations convert directly to orders.</p>
+              <p className="text-xs text-steel-400 mt-0.5">Accepted quotations convert directly to orders.</p>
             </div>
           )}
         </div>

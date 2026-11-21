@@ -12,7 +12,7 @@
     "prisma:migrate": "prisma migrate dev",
     "db:reset": "node scripts/reset-db.js",
     "db:seed": "node prisma/seed-demo.js",
-    "test": "node src/services/glassCalculations.service.test.js && node --test src/controllers/purchases.test.js src/controllers/inventory.test.js src/services/payroll.service.test.js src/services/ledger.service.test.js src/controllers/ledger.test.js && node prisma/seed-demo.test.js"
+    "test": "node src/services/glassCalculations.service.test.js && node --test src/controllers/products.test.js src/controllers/purchases.test.js src/controllers/inventory.test.js src/services/payroll.service.test.js src/services/ledger.service.test.js src/controllers/ledger.test.js && node prisma/seed-demo.test.js"
   },
   "prisma": {
     "seed": "node prisma/seed-demo.js"

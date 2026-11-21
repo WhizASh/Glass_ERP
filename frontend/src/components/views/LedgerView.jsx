@@ -1,3 +1,5 @@
+import PageLayout, { PageError } from '../common/PageLayout';
+import { primary } from '../common/ui';
 import React, { useEffect, useState } from 'react';
 import { BookOpen, Plus, Search } from 'lucide-react';
 import { api } from '../../services/api';
@@ -55,11 +57,7 @@ export default function LedgerView() {
   const currentLedger = ledger?.customer.id === customerId ? ledger : null;
   const credit = currentLedger && Number(currentLedger.totals.balanceReceivable) < 0;
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="text-xl font-bold tracking-tight text-steel-900">Party ledger</h1><p className="mt-1 text-sm text-steel-500">Sales, purchases, payroll and payments.</p></div>
-        <button type="button" disabled={!currentLedger || loading || customerId === 'all' || customerId.startsWith('supplier:') || customerId.startsWith('employee:')} onClick={() => setReceiptOpen(true)} className="flex min-h-11 items-center gap-2 rounded-md bg-teal-700 px-4 text-sm font-medium text-white hover:bg-teal-800 disabled:opacity-50"><Plus className="h-4 w-4" aria-hidden="true" />Record receipt</button>
-      </div>
+    <PageLayout title="Party ledger" description="Sales, purchases, payroll and payments." actions={<button type="button" disabled={!currentLedger || loading || customerId === 'all' || customerId.startsWith('supplier:') || customerId.startsWith('employee:')} onClick={() => setReceiptOpen(true)} className={primary}><Plus className="h-4 w-4" aria-hidden="true" />Record receipt</button>}>
       <div className="grid gap-5 lg:grid-cols-[15rem_minmax(0,1fr)]">
         <aside className="self-start rounded-lg border border-steel-200 bg-white p-4">
           <label htmlFor="ledger-search" className="text-xs font-semibold text-steel-700">Search parties</label>
@@ -87,6 +85,6 @@ export default function LedgerView() {
         </div>
       </div>
       {receiptOpen && currentLedger && <ReceiptForm customer={currentLedger.customer} sales={currentLedger.sales} onClose={() => setReceiptOpen(false)} onSaved={() => { setReceiptOpen(false); setNotice('Receipt recorded successfully.'); setRevision(value => value + 1); }} />}
-    </div>
+    </PageLayout>
   );
 }
