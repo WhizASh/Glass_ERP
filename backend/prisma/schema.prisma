@@ -10,6 +10,8 @@ datasource db {
 
 model Purchase {
   id             String   @id @default(uuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
   materialName   String   @db.VarChar(200)
   supplier       String?  @db.VarChar(200)
   paymentStatus  String   @default("UNPAID")
@@ -28,7 +30,24 @@ model Purchase {
   updatedAt      DateTime @updatedAt
 
   @@index([purchaseDate, createdAt])
+  @@index([inventoryItemId])
   @@map("purchases")
+}
+
+model InventoryItem {
+  id            String   @id @default(uuid())
+  materialName  String   @db.VarChar(200)
+  nameKey       String   @db.VarChar(200)
+  unitOfMeasure String
+  quantity      Decimal  @default(0) @db.Decimal(18, 3)
+  notes         String?  @db.VarChar(2000)
+  revision      Int      @default(0)
+  purchases     Purchase[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([nameKey, unitOfMeasure])
+  @@map("inventory_items")
 }
 
 enum CustomerType {

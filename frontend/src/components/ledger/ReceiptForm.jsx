@@ -44,7 +44,7 @@ export default function ReceiptForm({ customer, sales = [], onClose, onSaved }) 
   };
   return (
     <div onKeyDown={trapFocus}>
-      <Modal isOpen onClose={() => { if (!submitting.current) onClose(); }} title="Record receipt" subtitle={customer.companyName || customer.name} maxWidth="max-w-lg">
+      <Modal isOpen busy={saving} onClose={() => { if (!submitting.current) onClose(); }} title="Record receipt" subtitle={customer.companyName || customer.name} maxWidth="max-w-lg">
         <form ref={formRef} onSubmit={submit} className="app-dialog-form text-xs">
           <div className="app-dialog-fields space-y-3">
           <p className="text-xs text-steel-500">Choose a sale to add this payment to its total received and update its payment status. Date and reference describe the latest payment.</p>

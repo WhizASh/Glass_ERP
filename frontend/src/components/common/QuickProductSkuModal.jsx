@@ -1,5 +1,5 @@
-import DialogHeader from './DialogHeader';
-import React, { useState, useEffect } from 'react';
+import Modal from './Modal';
+import React, { useState } from 'react';
 import { Sparkles, Tag, DollarSign, Shield } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -32,13 +32,7 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+
 
   // Suggest SKU code and product name when glass type or thickness changes
   const handleAutoSuggest = (type, thickness) => {
@@ -111,26 +105,11 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="quick-sku-title"
-      className="app-dialog app-dialog-overlay z-[60] no-print"
-    >
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className="app-dialog-backdrop"
-      />
-
-      <div className="app-dialog-panel max-w-lg">
-        <DialogHeader titleId="quick-sku-title" title="Add glass product SKU" subtitle="Create a glass specification for this quotation." busy={loading} onClose={onClose} />
-
-        {/* Form */}
+    <Modal isOpen={isOpen} onClose={onClose} busy={loading} title="Add glass product SKU" subtitle="Create a glass specification for this quotation." maxWidth="max-w-lg">
         <form onSubmit={handleSubmit} className="app-dialog-form text-xs">
           <div className="app-dialog-fields space-y-3">
           {error && (
-            <div className="p-2.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+            <div role="alert" className="p-2.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs">
               {error}
             </div>
           )}
@@ -138,12 +117,12 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
           {/* Glass Type & Thickness Quick Selectors */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="quickproductskumodal-field-1" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <Shield className="w-3 h-3 text-steel-400" />
                 <span>Glass Treatment / Type</span>
                 <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
-              <select
+              <select id="quickproductskumodal-field-1"
                 value={formData.glassType}
                 onChange={(e) => handleAutoSuggest(e.target.value, formData.thicknessMm)}
                 className="w-full text-xs py-1.5 px-2 bg-white border border-steel-300 rounded-md text-steel-900 focus:outline-none focus:ring-1 focus:ring-edge-600 focus:border-edge-600 font-medium"
@@ -174,7 +153,7 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
 
           {/* Product Name */}
           <div>
-            <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center justify-between">
+            <label htmlFor="quickproductskumodal-field-2" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center justify-between">
               <span>Glass Product Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span></span>
               <button
                 type="button"
@@ -191,7 +170,7 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
                 <Sparkles className="w-3 h-3" /> Auto-fill name & SKU
               </button>
             </label>
-            <input
+            <input id="quickproductskumodal-field-2"
               type="text"
               required
               value={formData.name}
@@ -204,12 +183,12 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
           {/* SKU Code & Rate */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="quickproductskumodal-field-3" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <Tag className="w-3 h-3 text-steel-400" />
                 <span>SKU Code</span>
                 <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
-              <input
+              <input id="quickproductskumodal-field-3"
                 type="text"
                 required
                 value={formData.skuCode}
@@ -220,12 +199,12 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
+              <label htmlFor="quickproductskumodal-field-4" className="block text-xs font-semibold text-steel-700 mb-1 flex items-center gap-1">
                 <DollarSign className="w-3 h-3 text-steel-400" />
                 <span>Rate (₹/sqft)</span>
                 <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
               </label>
-              <input
+              <input id="quickproductskumodal-field-4"
                 type="number"
                 step="0.01"
                 min="0"
@@ -240,10 +219,10 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-steel-700 mb-1">
+            <label htmlFor="quickproductskumodal-field-5" className="block text-xs font-semibold text-steel-700 mb-1">
               Specification / Processing Notes
             </label>
-            <textarea
+            <textarea id="quickproductskumodal-field-5"
               rows={2}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -272,8 +251,7 @@ const QuickProductSkuModal = ({ isOpen, onClose, onSuccess }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

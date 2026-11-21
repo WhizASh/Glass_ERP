@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import StaffTable from './StaffTable';
+import DataTable from '../common/DataTable';
 import { api } from '../../services/api';
 import StaffDialog, { Field } from './StaffDialog';
 import StaffSummary from './StaffSummary';
@@ -60,7 +60,7 @@ export default function PayrollPanel({ month }) {
   if (!payroll) {
     return error ? <div className="space-y-2"><p role="alert" className="text-sm text-red-700">{error}</p>
       <button type="button" className={secondary} onClick={reload}>Retry</button></div>
-      : <StaffTable loading tableAriaLabel="Monthly payroll" />;
+      : <DataTable loading tableAriaLabel="Monthly payroll" />;
   }
 
   const saved = Boolean(payroll.createdAt);
@@ -99,7 +99,7 @@ export default function PayrollPanel({ month }) {
       </div>
       {error && <div className="flex flex-wrap items-center gap-2"><p className="text-sm text-red-700" role="alert">{error}</p>
         <button type="button" onClick={reload} className={secondary}>Reload month</button></div>}
-      <StaffTable columns={columns} data={payroll.entries.map((entry) => ({ ...entry, id: entry.employeeId }))} tableAriaLabel="Monthly employee payroll"
+      <DataTable columns={columns} data={payroll.entries.map((entry) => ({ ...entry, id: entry.employeeId }))} tableAriaLabel="Monthly employee payroll"
         emptyMessage="No eligible employees this month" emptySubtext="Payroll includes employees who worked within the selected month." />
       {editor && <StaffDialog title={`Payroll adjustment for ${editor.name}`} onClose={() => setEditor(null)} onSave={applyAdjustment} saveLabel="Update preview">
         <p className="text-sm text-slate-600">Unpaid days use the average daily rate for this employee’s eligible days in the month.</p>

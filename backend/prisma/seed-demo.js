@@ -1,6 +1,7 @@
 /** Additive demo fixtures. Never deletes or overwrites existing records. */
 const { calculateItemSqft, roundDimensionTo6Inches, calculateQuotationTotals } = require('../src/services/glassCalculations.service');
 const { settlement } = require('../src/services/settlement.service');
+const { savePurchaseWithStock } = require('../src/services/inventory.service');
 
 const money = value => Number(value.toFixed(2));
 
@@ -109,7 +110,8 @@ async function seedDemo(prisma, data = buildDemoData()) {
         if (existing) {
           summary[model].skipped++;
         } else {
-          await tx[model].create({ data: record });
+          if (model === 'purchase') await savePurchaseWithStock(tx, record);
+          else await tx[model].create({ data: record });
           summary[model].created++;
         }
       }

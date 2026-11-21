@@ -44,6 +44,11 @@ export const api = {
   }),
 
   // Purchases
+  getInventory: (params = {}, signal) => request(`/inventory?${new URLSearchParams(params)}`, { signal }),
+  createInventoryItem: data => request('/inventory', { method: 'POST', body: JSON.stringify(data) }),
+  updateInventoryItem: (id, data) => request(`/inventory/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteInventoryItem: (id, revision) => request(`/inventory/${encodeURIComponent(id)}`, { method: 'DELETE', body: JSON.stringify({ revision }) }),
+
   getPurchases: (params = {}) => request(`/purchases?${new URLSearchParams(params)}`),
   createPurchase: (data) => request('/purchases', { method: 'POST', body: JSON.stringify(data) }),
 
@@ -58,11 +63,13 @@ export const api = {
   createCustomer: (data) => request('/customers', { method: 'POST', body: JSON.stringify(data) }),
 
   // Products
-  getProducts: (params = {}) => {
+  getProducts: (params = {}, signal) => {
     const query = new URLSearchParams(params).toString();
-    return request(`/products${query ? `?${query}` : ''}`);
+    return request(`/products${query ? `?${query}` : ''}`, { signal });
   },
   createProduct: (data) => request('/products', { method: 'POST', body: JSON.stringify(data) }),
+  updateProduct: (id, data) => request(`/products/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteProduct: (id) => request(`/products/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 
   // Quotations
   getQuotations: (params = {}) => {

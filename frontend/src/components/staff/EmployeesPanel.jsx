@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
-import StaffTable from './StaffTable';
+import DataTable from '../common/DataTable';
 import { api } from '../../services/api';
 import EmployeeDialog from './EmployeeDialog';
 import StaffSummary from './StaffSummary';
@@ -81,7 +81,7 @@ export default function EmployeesPanel() {
           <p role="alert" className="text-red-700">{error}</p>
           <button type="button" className={primary} onClick={() => { setError(''); setAttempt(attempt + 1); }}>Retry</button>
         </div>
-      ) : <StaffTable columns={columns} data={rows} loading={!employees} tableAriaLabel="Employee directory"
+      ) : <DataTable columns={columns} data={rows} loading={!employees} tableAriaLabel="Employee directory"
         emptyMessage={query ? 'No matching employees' : 'No employees yet'}
         emptySubtext={query ? 'Try a different name, ID or role.' : 'Add an employee to start building your staff directory.'} />}
       {editor && <EmployeeDialog employee={editor.employee} onSave={saveEmployee} onClose={() => setEditor(null)} />}

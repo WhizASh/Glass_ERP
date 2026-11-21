@@ -48,7 +48,7 @@ function buildLedger(customer, orders, receipts) {
 
 const supplierKey = name => `supplier:${(name || '').trim().toLowerCase()}`;
 
-function transactionLedger(customer, orders, purchases, receipts) {
+function transactionLedger(customer, orders, purchases, receipts, payroll = []) {
   const base = buildLedger(customer, orders, receipts);
   const sales = orders.filter(row => row.status !== 'CANCELLED');
   const sum = (rows, field) => rows.reduce((total, row) => total.plus(row[field] || 0), new Prisma.Decimal(0));
@@ -63,12 +63,13 @@ function transactionLedger(customer, orders, purchases, receipts) {
   const inflow = purchases.map(row => entry(row, 'Purchase', new Prisma.Decimal(row.totalCost), row.purchaseDate, row.supplier || 'Unassigned supplier', row.materialName));
   for (const row of sales) if (received(row).gt(0)) inflow.push(entry(row, 'Customer payment', received(row), row.paymentDate, row.customer?.companyName || row.customer?.name || customer.name, row.paymentReference || row.orderNumber));
   for (const row of purchases) if (paid(row).gt(0)) outflow.push(entry(row, 'Supplier payment', paid(row), row.paymentDate, row.supplier || 'Unassigned supplier', row.paymentReference || row.materialName));
+  for (const row of payroll) inflow.push(entry({ ...row, id: `${row.month}:${row.employeeId}` }, 'Payroll accrued', new Prisma.Decimal(row.netPay), row.run.createdAt, row.name, `${row.month} · ${row.employeeCode}`));
   const sort = rows => rows.sort((a, b) => ((a.date ? new Date(a.date).getTime() : Infinity) - (b.date ? new Date(b.date).getTime() : Infinity)) || a.id.localeCompare(b.id));
   const outflowTotal = sum(outflow, 'amount');
   const inflowTotal = sum(inflow, 'amount');
   return { ...base, purchases, outflow: sort(outflow), inflow: sort(inflow), hasHistoricalPaymentStatuses: false,
     hasUnknownPartialPayments: sales.some(row => row.paymentStatus === 'PARTIAL' && received(row).eq(0)),
-    totals: { ...base.totals, amountReceived: receiptTotal.toFixed(2), purchaseAmount: purchaseTotal.toFixed(2), amountPaid: purchasePayments.toFixed(2), balanceReceivable: new Prisma.Decimal(base.totals.saleAmount).minus(receiptTotal).toFixed(2), balancePayable: purchaseTotal.minus(purchasePayments).toFixed(2), outflow: outflowTotal.toFixed(2), inflow: inflowTotal.toFixed(2) }
+    totals: { ...base.totals, amountReceived: receiptTotal.toFixed(2), purchaseAmount: purchaseTotal.toFixed(2), amountPaid: purchasePayments.toFixed(2), payrollAccrued: sum(payroll, 'netPay').toFixed(2), balanceReceivable: new Prisma.Decimal(base.totals.saleAmount).minus(receiptTotal).toFixed(2), balancePayable: purchaseTotal.minus(purchasePayments).toFixed(2), outflow: outflowTotal.toFixed(2), inflow: inflowTotal.toFixed(2) }
   };
 }
 

@@ -51,14 +51,19 @@ test('repeat seeds skip existing demo data and preserve edits and unrelated reco
       return record;
     }
   }]));
+  const stock = require('../src/test-support/inventory-db').inventoryDatabase();
+  tx.inventoryItem = stock.inventoryItem;
   const prisma = { $transaction: async (callback, options) => {
     transactions++;
     assert.equal(options.isolationLevel, 'Serializable');
     return callback(tx);
   } };
   const first = await seedDemo(prisma, data);
+  assert.equal(stock.items.length, data.purchase.length);
+  assert.equal(stock.items.reduce((sum, row) => sum + Number(row.quantity), 0), 60);
   stores.saleOrder.get('demo-sale-2').deliveryAddress = 'User edited address';
   const second = await seedDemo(prisma, data);
+  assert.equal(stock.items.reduce((sum, row) => sum + Number(row.quantity), 0), 60);
   for (const [model, rows] of Object.entries(data)) {
     assert.equal(first[model].created, rows.length);
     assert.equal(second[model].created, 0);

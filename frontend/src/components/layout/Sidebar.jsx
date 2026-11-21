@@ -8,6 +8,7 @@ import {
   ContactRound,
   Layers,
   ShoppingCart,
+  Package,
   Box,
   Menu,
   X
@@ -23,6 +24,7 @@ const navItems = [
   { id: 'staff', label: 'Staff', icon: ContactRound },
   { id: 'products', label: 'Product SKUs', icon: Layers },
   { id: 'purchases', label: 'Purchases', icon: ShoppingCart },
+  { id: 'inventory', label: 'Inventory', icon: Package },
 ];
 
 const Sidebar = ({ activeTab, onSelectTab, mobileOpen = false, onCloseMobile }) => {

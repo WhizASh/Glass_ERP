@@ -7,6 +7,7 @@ import SalesView from './components/views/SalesView';
 import CustomersView from './components/views/CustomersView';
 import ProductSKUsView from './components/views/ProductSKUsView';
 import PurchasesView from './components/views/PurchasesView';
+import InventoryView from './components/views/InventoryView';
 import StaffView from './components/views/StaffView';
 import LedgerView from './components/views/LedgerView';
 import TaxInvoicesView from './components/views/TaxInvoicesView';
@@ -20,7 +21,8 @@ const tabTitles = {
   customers: 'Customer & Contractor Directory',
   staff: 'Staff',
   products: 'Glass Product SKU Catalog',
-  purchases: 'Purchases'
+  purchases: 'Purchases',
+  inventory: 'Inventory'
 };
 
 function App() {
@@ -52,6 +54,8 @@ function App() {
         return <ProductSKUsView />;
       case 'purchases':
         return <PurchasesView />;
+      case 'inventory':
+        return <InventoryView />;
       default:
         return <DashboardView onNavigateTab={handleSelectTab} />;
     }

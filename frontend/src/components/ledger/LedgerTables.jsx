@@ -13,7 +13,7 @@ function TransactionTable({ title, count, headers, children, empty, total }) {
         <span className="rounded bg-steel-700 px-2 py-0.5 text-xs tabular-nums">{count}</span>
       </div>
       <div className="overflow-x-auto" tabIndex={0} role="region" aria-label={`${title} transactions`}>
-        <table className="w-full text-xs">
+        <table className="w-full text-sm">
           <caption className="sr-only">{title}</caption>
           <thead className="border-b border-steel-200 bg-steel-50 text-steel-600"><tr>{headers.map((header, i) => <th scope="col" key={header} className={`${cell} font-medium ${i === headers.length - 1 ? '!text-right' : ''}`}>{header}</th>)}</tr></thead>
           <tbody className="divide-y divide-steel-100">{count ? children : <tr><td colSpan={headers.length} className="px-4 py-12 text-center text-steel-500">{empty}</td></tr>}</tbody>
