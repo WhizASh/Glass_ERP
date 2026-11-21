@@ -33,11 +33,12 @@ test('rejects invalid dates, missing fields, negative, malformed, oversized and 
   assert.throws(() => parsePurchase([]));
 });
 
-// Only a purchase delegate is supplied. Any attempt to update products or stock fails the test.
+// Raw material inventory is separate from Product SKUs.
 const records = [];
 let failDatabase = false;
 const fakePrisma = {
   purchase: {
+    findUnique: async ({ where }) => records.find(record => record.id === where.id) || null,
     update: async ({ where, data }) => {
       const row = records.find(record => record.id === where.id);
       if (!row) throw Object.assign(new Error('Missing purchase'), { code: 'P2025' });
@@ -57,7 +58,8 @@ const fakePrisma = {
     },
     count: async ({ where }) => matching(where).length
   },
-  $transaction: operations => Promise.all(operations)
+  inventoryItem: require('../test-support/inventory-db').inventoryDatabase().inventoryItem,
+  $transaction: operations => Array.isArray(operations) ? Promise.all(operations) : operations(fakePrisma)
 };
 const matching = where => records.filter(record => !where.OR || where.OR.some(condition => {
   const [field, filter] = Object.entries(condition)[0];

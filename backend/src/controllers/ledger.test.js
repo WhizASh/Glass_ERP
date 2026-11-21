@@ -9,7 +9,7 @@ const orders = [
   { id: 'cancelled', customerId: 'a', totalAmount: '500.00', status: 'CANCELLED' }
 ];
 const fake = {
-  customer: { findUnique: async ({ where }) => {
+  customer: { findMany: async () => [{ id: 'a', name: 'Party a' }], findUnique: async ({ where }) => {
     if (failDatabase) throw new Error('Database unavailable');
     return ['a', 'b'].includes(where.id) ? { id: where.id, name: `Party ${where.id}` } : null;
   } },
@@ -22,6 +22,8 @@ const fake = {
     return orders.filter(row => (!where.customerId || row.customerId === where.customerId) && row.status !== where.status.not);
   } },
   purchase: { findMany: async () => [{ id: 'purchase-1', supplier: 'Glass supplier', totalCost: '75.10', amountPaid: '25.05', paymentStatus: 'PARTIAL', purchaseDate: '2026-11-20' }] },
+  employee: { findMany: async () => [{ id: 'e1', name: 'Employee One', employeeCode: 'E1' }], findUnique: async ({ where }) => where.id === 'e1' ? { name: 'Employee One', employeeCode: 'E1' } : null },
+  payrollEntry: { findMany: async ({ where }) => [{ month: '2026-11', employeeId: 'e1', name: 'Employee One', employeeCode: 'E1', netPay: '125.25', run: { createdAt: '2026-11-21T00:00:00.000Z' } }].filter(row => !where.employeeId || row.employeeId === where.employeeId) },
   customerReceipt: {
     findMany: async ({ where, orderBy }) => {
       assert.deepEqual(orderBy, [{ paymentDate: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }]);
@@ -78,11 +80,23 @@ test('all parties includes both registers and supplier view isolates purchases',
   assert.equal(combined.totals.purchaseAmount, '75.10');
   assert.equal(combined.totals.amountPaid, '25.05');
   assert.equal(combined.totals.balancePayable, '50.05');
+  assert.equal(combined.totals.payrollAccrued, '125.25');
+  assert.equal(combined.inflow.find(row => row.kind === 'Payroll accrued').amount, '125.25');
   const supplier = await (await fetch(`${base}/${encodeURIComponent('supplier:glass supplier')}`)).json();
   assert.equal(supplier.sales.length, 0);
   assert.equal(supplier.purchases.length, 1);
   assert.equal(supplier.totals.outflow, '25.05');
   assert.equal(supplier.totals.inflow, '75.10');
+});
+
+test('employee ledger isolates saved payroll and lists employees as parties', async () => {
+  const parties = await (await fetch(`${base}/parties`)).json();
+  assert.ok(parties.some(row => row.id === 'employee:e1' && row.type === 'Employee'));
+  const ledger = await (await fetch(`${base}/employee:e1`)).json();
+  assert.equal(ledger.totals.payrollAccrued, '125.25');
+  assert.equal(ledger.inflow[0].reference, '2026-11 · E1');
+  assert.equal(ledger.outflow.length, 0);
+  assert.equal((await fetch(`${base}/employee:missing`)).status, 404);
 });
 
 

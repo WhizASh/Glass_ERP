@@ -44,6 +44,11 @@ export const api = {
   }),
 
   // Purchases
+  getInventory: (params = {}, signal) => request(`/inventory?${new URLSearchParams(params)}`, { signal }),
+  createInventoryItem: data => request('/inventory', { method: 'POST', body: JSON.stringify(data) }),
+  updateInventoryItem: (id, data) => request(`/inventory/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteInventoryItem: (id, revision) => request(`/inventory/${encodeURIComponent(id)}`, { method: 'DELETE', body: JSON.stringify({ revision }) }),
+
   getPurchases: (params = {}) => request(`/purchases?${new URLSearchParams(params)}`),
   createPurchase: (data) => request('/purchases', { method: 'POST', body: JSON.stringify(data) }),
 

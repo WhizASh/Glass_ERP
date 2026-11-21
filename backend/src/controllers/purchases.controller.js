@@ -1,5 +1,6 @@
 const prisma = require('../lib/prisma');
 const { parsePurchase } = require('../services/purchases.service');
+const { InventoryError, savePurchaseWithStock } = require('../services/inventory.service');
 
 const createPurchase = async (req, res) => {
   let data;
@@ -9,11 +10,13 @@ const createPurchase = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
   try {
-    const purchase = req.params.id
-      ? await prisma.purchase.update({ where: { id: req.params.id }, data })
-      : await prisma.purchase.create({ data });
+    // Purchase and stock changes commit together, including edits to material or unit.
+    // https://www.prisma.io/docs/orm/v6/prisma-client/queries/transactions#interactive-transactions
+    const purchase = await prisma.$transaction(tx => savePurchaseWithStock(tx, data, req.params.id), { isolationLevel: 'Serializable' });
     return res.status(req.params.id ? 200 : 201).json(purchase);
   } catch (error) {
+    if (error instanceof InventoryError) return res.status(error.status).json({ error: error.message });
+    if (['P2034', 'P2002'].includes(error.code)) return res.status(409).json({ error: 'Stock changed while saving. Refresh and try again.' });
     if (error.code === 'P2025') return res.status(404).json({ error: 'Purchase not found.' });
     console.error('Error creating purchase:', error.message);
     return res.status(500).json({ error: 'Failed to save purchase. Please try again.' });

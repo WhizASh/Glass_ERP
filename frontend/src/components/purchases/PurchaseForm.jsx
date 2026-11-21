@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { api } from '../../services/api';
+import { materialUnits } from '../../lib/materialUnits';
 
 export const money = value => `₹${Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-export const units = { PCS: 'Pieces', SQ_METER: 'Square metres (m²)', SQ_FEET: 'Square feet (ft²)', KG: 'Kilograms (kg)' };
+export const units = materialUnits;
 const inputClass = 'min-h-11 sm:min-h-0 w-full px-2.5 py-2 rounded-md border border-steel-300 text-steel-900 bg-white focus:outline-none focus:ring-2 focus:ring-edge-600';
 
 export default function PurchaseForm({ onSaved, onClose, onSavingChange, purchase }) {
